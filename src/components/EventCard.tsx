@@ -1,18 +1,23 @@
-import { Calendar, MapPin, Heart } from "lucide-react";
+import { Calendar, MapPin, Heart, Users } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
+import { Event } from "@/lib/mock-data";
+import { format } from "date-fns";
 
-interface EventCardProps {
-  id: string;
-  title: string;
-  date: string;
-  location: string;
-  imageUrl: string;
-}
+interface EventCardProps extends Event {}
 
-export const EventCard = ({ id, title, date, location, imageUrl }: EventCardProps) => {
+export const EventCard = ({ 
+  id, 
+  title, 
+  date, 
+  location, 
+  imageUrl, 
+  category,
+  likes,
+  attendees 
+}: EventCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
 
   return (
@@ -24,14 +29,17 @@ export const EventCard = ({ id, title, date, location, imageUrl }: EventCardProp
         className="absolute inset-0 h-full w-full object-cover -z-10 transition-transform group-hover:scale-105"
       />
       
-      <div className="relative">
+      <div className="relative space-y-4">
         <div className="flex justify-between items-start">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">{title}</h3>
+          <div className="space-y-2">
+            <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-primary/20 text-primary">
+              {category}
+            </span>
+            <h3 className="text-lg font-semibold">{title}</h3>
             <div className="flex items-center text-sm text-muted-foreground gap-4">
               <span className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                {date}
+                {format(new Date(date), "PPp")}
               </span>
               <span className="flex items-center gap-1">
                 <MapPin className="h-4 w-4" />
@@ -52,7 +60,18 @@ export const EventCard = ({ id, title, date, location, imageUrl }: EventCardProp
           </Button>
         </div>
         
-        <div className="mt-4">
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <Heart className="h-4 w-4" />
+            {likes} likes
+          </span>
+          <span className="flex items-center gap-1">
+            <Users className="h-4 w-4" />
+            {attendees} attending
+          </span>
+        </div>
+
+        <div className="pt-2">
           <Link to={`/event/${id}`}>
             <Button variant="secondary" className="w-full">
               View Details

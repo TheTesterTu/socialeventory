@@ -1,23 +1,32 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Share2, Heart } from "lucide-react";
+import { Calendar, MapPin, Share2, Heart, Users, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { getEventById } from "@/lib/mock-data";
+import { format } from "date-fns";
 
 const EventDetails = () => {
   const { id } = useParams();
   const [isLiked, setIsLiked] = useState(false);
 
-  // Mock data - replace with real data fetch
-  const event = {
-    id,
-    title: "Summer Night Festival",
-    date: "Tomorrow at 8 PM",
-    location: "Central Park",
-    description: "Join us for an amazing night of music, art, and entertainment under the stars.",
-    imageUrl: "/lovable-uploads/bbfe17ea-9d17-4ecd-b521-a6b69a98c062.png",
-    organizer: "City Events",
-  };
+  const event = getEventById(id || "");
+
+  if (!event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold">Event not found</h1>
+          <Link to="/">
+            <Button>
+              <ArrowLeft className="mr-2" />
+              Back to Home
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -31,10 +40,20 @@ const EventDetails = () => {
       </div>
 
       <main className="max-w-4xl mx-auto -mt-32 relative p-6">
+        <Link to="/" className="inline-block mb-6">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Events
+          </Button>
+        </Link>
+
         <div className="glass-panel rounded-lg p-6 space-y-6">
           <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
+            <div className="space-y-2">
+              <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-primary/20 text-primary">
+                {event.category}
+              </span>
+              <h1 className="text-3xl font-bold">{event.title}</h1>
               <p className="text-muted-foreground">By {event.organizer}</p>
             </div>
             <div className="flex gap-2">
@@ -55,14 +74,18 @@ const EventDetails = () => {
             </div>
           </div>
 
-          <div className="flex gap-4 text-sm">
-            <span className="flex items-center gap-1">
+          <div className="flex gap-6 text-sm">
+            <span className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              {event.date}
+              {format(new Date(event.date), "PPp")}
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
               {event.location}
+            </span>
+            <span className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              {event.attendees} attending
             </span>
           </div>
 
@@ -71,8 +94,12 @@ const EventDetails = () => {
           </div>
 
           <div className="flex gap-4">
-            <Button className="flex-1">Get Tickets</Button>
+            <Button className="flex-1">
+              <Users className="mr-2 h-4 w-4" />
+              Join Event
+            </Button>
             <Button variant="outline" className="flex-1">
+              <Calendar className="mr-2 h-4 w-4" />
               Add to Calendar
             </Button>
           </div>
