@@ -1,10 +1,8 @@
 import { EventCard } from "@/components/EventCard";
-import { mockEvents, categories } from "@/lib/mock-data";
-import { Button } from "@/components/ui/button";
-import { Search, MapPin, Calendar } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { SearchBar } from "@/components/SearchBar";
+import { SearchFilters } from "@/components/SearchFilters";
+import { mockEvents } from "@/lib/mock-data";
 import { useState } from "react";
-import { Event } from "@/lib/types";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,37 +39,14 @@ const Index = () => {
       </header>
 
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search events, venues, or locations..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="flex-1">
+            <SearchBar onSearch={setSearchQuery} />
           </div>
-          <Button variant="outline" className="gap-2">
-            <MapPin className="h-4 w-4" />
-            Near Me
-          </Button>
-          <Button variant="outline" className="gap-2">
-            <Calendar className="h-4 w-4" />
-            Date
-          </Button>
-        </div>
-
-        <div className="flex gap-2 overflow-x-auto pb-4">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategories.includes(category) ? "default" : "outline"}
-              className="rounded-full whitespace-nowrap"
-              onClick={() => toggleCategory(category)}
-            >
-              {category}
-            </Button>
-          ))}
+          <SearchFilters
+            selectedCategories={selectedCategories}
+            onCategoryToggle={toggleCategory}
+          />
         </div>
       </div>
 
