@@ -6,6 +6,7 @@ import { useState } from "react";
 import EventMap from "@/components/EventMap";
 import { Button } from "@/components/ui/button";
 import { MapIcon, ListIcon } from "lucide-react";
+import { TopBar } from "@/components/TopBar";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,57 +35,60 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 space-y-8">
-      <header className="max-w-4xl mx-auto space-y-4">
-        <h1 className="text-4xl font-bold">Discover Events</h1>
-        <p className="text-muted-foreground">
-          Find and join amazing events happening around you
-        </p>
-      </header>
+    <>
+      <TopBar />
+      <div className="min-h-screen p-6 pt-20 space-y-8">
+        <header className="max-w-4xl mx-auto space-y-4">
+          <h1 className="text-4xl font-bold">Discover Events</h1>
+          <p className="text-muted-foreground">
+            Find and join amazing events happening around you
+          </p>
+        </header>
 
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row">
-          <div className="flex-1">
-            <SearchBar onSearch={setSearchQuery} />
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <div className="flex-1">
+              <SearchBar onSearch={setSearchQuery} />
+            </div>
+            <SearchFilters
+              selectedCategories={selectedCategories}
+              onCategoryToggle={toggleCategory}
+            />
           </div>
-          <SearchFilters
-            selectedCategories={selectedCategories}
-            onCategoryToggle={toggleCategory}
-          />
+          
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+            >
+              <ListIcon className="w-4 h-4 mr-2" />
+              List
+            </Button>
+            <Button
+              variant={viewMode === 'map' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('map')}
+            >
+              <MapIcon className="w-4 h-4 mr-2" />
+              Map
+            </Button>
+          </div>
         </div>
-        
-        <div className="flex justify-end space-x-2">
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('list')}
-          >
-            <ListIcon className="w-4 h-4 mr-2" />
-            List
-          </Button>
-          <Button
-            variant={viewMode === 'map' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('map')}
-          >
-            <MapIcon className="w-4 h-4 mr-2" />
-            Map
-          </Button>
-        </div>
+
+        <main className="max-w-4xl mx-auto">
+          {viewMode === 'list' ? (
+            <div className="grid gap-6 md:grid-cols-2">
+              {filteredEvents.map((event) => (
+                <EventCard key={event.id} {...event} />
+              ))}
+            </div>
+          ) : (
+            <EventMap events={filteredEvents} />
+          )}
+        </main>
       </div>
-
-      <main className="max-w-4xl mx-auto">
-        {viewMode === 'list' ? (
-          <div className="grid gap-6 md:grid-cols-2">
-            {filteredEvents.map((event) => (
-              <EventCard key={event.id} {...event} />
-            ))}
-          </div>
-        ) : (
-          <EventMap events={filteredEvents} />
-        )}
-      </main>
-    </div>
+    </>
   );
 };
 
