@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { Avatar } from "./ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -116,7 +116,10 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
       <div className="space-y-4">
         {comments.map((comment) => (
           <div key={comment.id} className="flex gap-4 p-4 rounded-lg bg-card">
-            <Avatar src={comment.profiles.avatar_url} />
+            <Avatar>
+              <AvatarImage src={comment.profiles.avatar_url} alt={comment.profiles.username} />
+              <AvatarFallback>{comment.profiles.username[0]}</AvatarFallback>
+            </Avatar>
             <div className="flex-1">
               <div className="flex justify-between items-start">
                 <span className="font-medium">{comment.profiles.username}</span>
