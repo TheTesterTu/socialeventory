@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { Filter, MapPin, Calendar } from "lucide-react";
 import { categories } from "@/lib/mock-data";
+import { motion } from "framer-motion";
 
 interface SearchFiltersProps {
   selectedCategories: string[];
@@ -20,10 +21,15 @@ export const SearchFilters = ({
   onCategoryToggle,
 }: SearchFiltersProps) => {
   return (
-    <div className="flex gap-2">
+    <motion.div 
+      className="flex gap-2"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
             <Filter className="h-4 w-4" />
             Filters
           </Button>
@@ -44,6 +50,7 @@ export const SearchFilters = ({
                   variant={selectedCategories.includes(category) ? "default" : "outline"}
                   size="sm"
                   onClick={() => onCategoryToggle(category)}
+                  className="rounded-xl transition-all hover:scale-105"
                 >
                   {category}
                 </Button>
@@ -52,14 +59,14 @@ export const SearchFilters = ({
           </div>
         </SheetContent>
       </Sheet>
-      <Button variant="outline" className="gap-2">
+      <Button variant="outline" className="gap-2 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
         <MapPin className="h-4 w-4" />
         Near Me
       </Button>
-      <Button variant="outline" className="gap-2">
+      <Button variant="outline" className="gap-2 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
         <Calendar className="h-4 w-4" />
         Date
       </Button>
-    </div>
+    </motion.div>
   );
 };
