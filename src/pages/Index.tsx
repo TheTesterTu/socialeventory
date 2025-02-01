@@ -9,14 +9,24 @@ import { MapIcon, ListIcon, Sparkles } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
+import { fetchFacebookEvents } from "@/services/facebook";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [events, setEvents] = useState(mockEvents);
   const { toast } = useToast();
 
-  const filteredEvents = mockEvents.filter((event) => {
+  useEffect(() => {
+    const loadEvents = async () => {
+      const fbEvents = await fetchFacebookEvents('Milano', 5000);
+      setEvents(prev => [...prev, ...fbEvents]);
+    };
+    loadEvents();
+  }, []);
+
+  const filteredEvents = events.filter((event) => {
     const matchesSearch = 
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -46,9 +56,18 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background/90">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-background/95 to-background/90">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_#8B5CF6_0%,_transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,_#06B6D4_0%,_transparent_30%)]" />
+        </div>
+      </div>
+
       <TopBar />
-      <div className="p-6 pt-20 space-y-8">
+      
+      <div className="relative p-6 pt-20 space-y-8">
         <motion.header 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
