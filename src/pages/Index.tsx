@@ -97,25 +97,42 @@ const Index = () => {
             />
           </div>
           
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-between items-center">
             <Button
-              variant={viewMode === 'list' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className="rounded-full transition-all hover:scale-105"
+              variant="default"
+              size="lg"
+              onClick={() => {
+                toast({
+                  title: "Coming Soon",
+                  description: "Location-based search is under development.",
+                });
+              }}
+              className="rounded-full bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all duration-300"
             >
-              <ListIcon className="w-4 h-4 mr-2" />
-              List
+              <MapPin className="w-5 h-5 mr-2" />
+              Near Me
             </Button>
-            <Button
-              variant={viewMode === 'map' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('map')}
-              className="rounded-full transition-all hover:scale-105"
-            >
-              <MapIcon className="w-4 h-4 mr-2" />
-              Map
-            </Button>
+            
+            <div className="flex space-x-2">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="rounded-full transition-all hover:scale-105"
+              >
+                <ListIcon className="w-4 h-4 mr-2" />
+                List
+              </Button>
+              <Button
+                variant={viewMode === 'map' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('map')}
+                className="rounded-full transition-all hover:scale-105"
+              >
+                <MapIcon className="w-4 h-4 mr-2" />
+                Map
+              </Button>
+            </div>
           </div>
         </motion.div>
 

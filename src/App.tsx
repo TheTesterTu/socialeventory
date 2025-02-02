@@ -5,12 +5,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import EventDetails from "./pages/EventDetails";
 import CreateEvent from "./pages/CreateEvent";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +24,8 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/events" element={<Index />} />
             <Route path="/event/:id" element={<EventDetails />} />
             <Route path="/create-event" element={
               <ProtectedRoute>
@@ -32,6 +35,11 @@ const App = () => (
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <AdminDashboard />
               </ProtectedRoute>
             } />
             <Route path="/auth" element={<Auth />} />

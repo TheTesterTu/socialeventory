@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Menu, Search, User } from "lucide-react";
+import { Menu, Search, User, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,6 +59,14 @@ export const TopBar = () => {
                   <DropdownMenuItem asChild>
                     <Link to="/create-event" className="cursor-pointer">Create Event</Link>
                   </DropdownMenuItem>
+                  {user.role === 'admin' && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
                     onClick={() => signOut()}
