@@ -5,7 +5,7 @@ import { mockEvents } from "@/lib/mock-data";
 import { useState, useEffect } from "react";
 import EventMap from "@/components/EventMap";
 import { Button } from "@/components/ui/button";
-import { MapIcon, ListIcon, Sparkles } from "lucide-react";
+import { MapIcon, ListIcon, Sparkles, MapPin } from "lucide-react"; // Added MapPin to the imports
 import { TopBar } from "@/components/TopBar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
