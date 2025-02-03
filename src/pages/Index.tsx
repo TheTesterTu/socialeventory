@@ -5,7 +5,8 @@ import { mockEvents } from "@/lib/mock-data";
 import { useState, useEffect } from "react";
 import EventMap from "@/components/EventMap";
 import { Button } from "@/components/ui/button";
-import { MapIcon, ListIcon, MapPin, Plus } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { MapPin, Plus, Calendar } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
@@ -79,14 +80,29 @@ const Index = () => {
           transition={{ delay: 0.2 }}
           className="max-w-4xl mx-auto space-y-6"
         >
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <div className="flex-1">
+          <div className="flex flex-col gap-4 sm:flex-row items-center">
+            <div className="flex-1 w-full">
               <SearchBar onSearch={setSearchQuery} />
             </div>
-            <SearchFilters
-              selectedCategories={selectedCategories}
-              onCategoryToggle={toggleCategory}
-            />
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  toast({
+                    title: "Coming Soon",
+                    description: "Calendar view is under development.",
+                  });
+                }}
+                className="flex-1 sm:flex-none rounded-full hover:bg-primary/10 hover:text-primary transition-all"
+              >
+                <Calendar className="w-4 h-4" />
+              </Button>
+              <SearchFilters
+                selectedCategories={selectedCategories}
+                onCategoryToggle={toggleCategory}
+              />
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
@@ -118,25 +134,14 @@ const Index = () => {
               </Link>
             </div>
             
-            <div className="flex justify-center sm:justify-end space-x-2">
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className="rounded-full transition-all hover:scale-105 flex-1 sm:flex-none"
-              >
-                <ListIcon className="w-4 h-4 mr-2" />
-                List
-              </Button>
-              <Button
-                variant={viewMode === 'map' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('map')}
-                className="rounded-full transition-all hover:scale-105 flex-1 sm:flex-none"
-              >
-                <MapIcon className="w-4 h-4 mr-2" />
-                Map
-              </Button>
+            <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
+              <span>List</span>
+              <Switch
+                checked={viewMode === 'map'}
+                onCheckedChange={(checked) => setViewMode(checked ? 'map' : 'list')}
+                className="data-[state=checked]:bg-primary"
+              />
+              <span>Map</span>
             </div>
           </div>
         </motion.div>

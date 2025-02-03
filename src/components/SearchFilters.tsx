@@ -7,7 +7,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Filter, MapPin, Calendar } from "lucide-react";
+import { Filter } from "lucide-react";
 import { categories } from "@/lib/mock-data";
 import { motion } from "framer-motion";
 
@@ -22,16 +22,18 @@ export const SearchFilters = ({
 }: SearchFiltersProps) => {
   return (
     <motion.div 
-      className="flex gap-2"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" className="gap-2 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
+          <Button 
+            variant="outline" 
+            size="icon"
+            className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
+          >
             <Filter className="h-4 w-4" />
-            Filters
           </Button>
         </SheetTrigger>
         <SheetContent>
@@ -59,14 +61,6 @@ export const SearchFilters = ({
           </div>
         </SheetContent>
       </Sheet>
-      <Button variant="outline" className="gap-2 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
-        <MapPin className="h-4 w-4" />
-        Near Me
-      </Button>
-      <Button variant="outline" className="gap-2 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
-        <Calendar className="h-4 w-4" />
-        Date
-      </Button>
     </motion.div>
   );
 };
