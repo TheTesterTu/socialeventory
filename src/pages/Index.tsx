@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import EventMap from "@/components/EventMap";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { MapPin, Plus, Calendar, Search } from "lucide-react";
+import { MapPin, Plus, Calendar, Search, Filter } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
@@ -53,35 +53,33 @@ const Index = () => {
 
   const MobileLayout = () => (
     <div className="flex flex-col h-screen">
-      <div className="flex-none p-4 pt-20 space-y-4 bg-gradient-to-b from-background to-background/95">
+      <div className="flex-none p-4 pt-16 space-y-4 bg-gradient-to-b from-background to-background/95">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-2"
         >
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
             Discover Events
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Find and join amazing events happening around you
-          </p>
         </motion.div>
 
-        <div className="relative">
+        <div className="relative glass-panel p-3">
           <SearchBar onSearch={setSearchQuery} />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+          <div className="mt-3 flex items-center justify-between gap-2">
             <Button
               variant="ghost"
-              size="icon"
-              className="h-8 w-8"
+              size="sm"
               onClick={() => {
                 toast({
                   title: "Coming Soon",
                   description: "Calendar view is under development.",
                 });
               }}
+              className="flex-1 bg-secondary/20 hover:bg-secondary/30"
             >
               <Calendar className="h-4 w-4" />
+              <span className="ml-2">Date</span>
             </Button>
             <SearchFilters
               selectedCategories={selectedCategories}
@@ -90,34 +88,45 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button
-            variant="default"
-            className="flex-1 rounded-full bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all duration-300 shadow-lg shadow-primary/25"
-          >
-            <MapPin className="w-4 h-4 mr-2" />
-            Near Me
-          </Button>
-          
-          <Link to="/create-event" className="flex-1">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between px-2 text-sm text-muted-foreground">
+            <span>View Mode</span>
+            <div className="flex items-center gap-2">
+              <span>List</span>
+              <Switch
+                checked={viewMode === 'map'}
+                onCheckedChange={(checked) => setViewMode(checked ? 'map' : 'list')}
+                className="data-[state=checked]:bg-primary"
+              />
+              <span>Map</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
             <Button
               variant="default"
-              className="w-full rounded-full bg-gradient-to-r from-accent to-primary hover:scale-105 transition-all duration-300 shadow-lg shadow-accent/25"
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
+              onClick={() => {
+                toast({
+                  title: "Coming Soon",
+                  description: "Location-based search is under development.",
+                });
+              }}
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Event
+              <MapPin className="w-4 h-4 mr-2" />
+              Near Me
             </Button>
-          </Link>
-        </div>
-
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <span>List</span>
-          <Switch
-            checked={viewMode === 'map'}
-            onCheckedChange={(checked) => setViewMode(checked ? 'map' : 'list')}
-            className="data-[state=checked]:bg-primary"
-          />
-          <span>Map</span>
+            
+            <Link to="/create-event" className="w-full">
+              <Button
+                variant="default"
+                className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-purple-500/25"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -179,68 +188,70 @@ const Index = () => {
         transition={{ delay: 0.2 }}
         className="max-w-4xl mx-auto space-y-6"
       >
-        <div className="flex flex-col gap-4 sm:flex-row items-center">
-          <div className="flex-1 w-full">
-            <SearchBar onSearch={setSearchQuery} />
+        <div className="glass-panel p-6 space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row items-center">
+            <div className="flex-1 w-full">
+              <SearchBar onSearch={setSearchQuery} />
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  toast({
+                    title: "Coming Soon",
+                    description: "Calendar view is under development.",
+                  });
+                }}
+                className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
+              >
+                <Calendar className="w-4 h-4" />
+              </Button>
+              <SearchFilters
+                selectedCategories={selectedCategories}
+                onCategoryToggle={toggleCategory}
+              />
+            </div>
           </div>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => {
-                toast({
-                  title: "Coming Soon",
-                  description: "Calendar view is under development.",
-                });
-              }}
-              className="flex-1 sm:flex-none rounded-full hover:bg-primary/10 hover:text-primary transition-all"
-            >
-              <Calendar className="w-4 h-4" />
-            </Button>
-            <SearchFilters
-              selectedCategories={selectedCategories}
-              onCategoryToggle={toggleCategory}
-            />
-          </div>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-          <div className="flex gap-2">
-            <Button
-              variant="default"
-              size="lg"
-              onClick={() => {
-                toast({
-                  title: "Coming Soon",
-                  description: "Location-based search is under development.",
-                });
-              }}
-              className="flex-1 sm:flex-none rounded-full bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all duration-300 shadow-lg shadow-primary/25"
-            >
-              <MapPin className="w-5 h-5 mr-2" />
-              Near Me
-            </Button>
-            
-            <Link to="/create-event" className="flex-1 sm:flex-none">
+          
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+            <div className="flex gap-4">
               <Button
                 variant="default"
                 size="lg"
-                className="w-full rounded-full bg-gradient-to-r from-accent to-primary hover:scale-105 transition-all duration-300 shadow-lg shadow-accent/25"
+                onClick={() => {
+                  toast({
+                    title: "Coming Soon",
+                    description: "Location-based search is under development.",
+                  });
+                }}
+                className="flex-1 sm:flex-none bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
               >
-                <Plus className="w-5 h-5 mr-2" />
-                Create Event
+                <MapPin className="w-5 h-5 mr-2" />
+                Near Me
               </Button>
-            </Link>
-          </div>
-          
-          <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
-            <span>List</span>
-            <Switch
-              checked={viewMode === 'map'}
-              onCheckedChange={(checked) => setViewMode(checked ? 'map' : 'list')}
-              className="data-[state=checked]:bg-primary"
-            />
-            <span>Map</span>
+              
+              <Link to="/create-event" className="flex-1 sm:flex-none">
+                <Button
+                  variant="default"
+                  size="lg"
+                  className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-purple-500/25"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Create Event
+                </Button>
+              </Link>
+            </div>
+            
+            <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
+              <span>List</span>
+              <Switch
+                checked={viewMode === 'map'}
+                onCheckedChange={(checked) => setViewMode(checked ? 'map' : 'list')}
+                className="data-[state=checked]:bg-primary"
+              />
+              <span>Map</span>
+            </div>
           </div>
         </div>
       </motion.div>
