@@ -5,11 +5,12 @@ import { mockEvents } from "@/lib/mock-data";
 import { useState, useEffect } from "react";
 import EventMap from "@/components/EventMap";
 import { Button } from "@/components/ui/button";
-import { MapIcon, ListIcon, Sparkles, MapPin } from "lucide-react";
+import { MapIcon, ListIcon, MapPin, Plus } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchFacebookEvents } from "@/services/facebook";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,17 +48,8 @@ const Index = () => {
     );
   };
 
-  useEffect(() => {
-    toast({
-      title: "Welcome to SocialEventory! 🎉",
-      description: "Discover amazing events happening around you.",
-      duration: 5000,
-    });
-  }, []);
-
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Animated Background */}
       <div className="fixed inset-0 bg-gradient-to-br from-background via-background/95 to-background/90">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_#8B5CF6_0%,_transparent_50%)]" />
@@ -97,28 +89,41 @@ const Index = () => {
             />
           </div>
           
-          <div className="flex justify-between items-center">
-            <Button
-              variant="default"
-              size="lg"
-              onClick={() => {
-                toast({
-                  title: "Coming Soon",
-                  description: "Location-based search is under development.",
-                });
-              }}
-              className="rounded-full bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all duration-300"
-            >
-              <MapPin className="w-5 h-5 mr-2" />
-              Near Me
-            </Button>
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+            <div className="flex gap-2">
+              <Button
+                variant="default"
+                size="lg"
+                onClick={() => {
+                  toast({
+                    title: "Coming Soon",
+                    description: "Location-based search is under development.",
+                  });
+                }}
+                className="flex-1 sm:flex-none rounded-full bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all duration-300 shadow-lg shadow-primary/25"
+              >
+                <MapPin className="w-5 h-5 mr-2" />
+                Near Me
+              </Button>
+              
+              <Link to="/create-event" className="flex-1 sm:flex-none">
+                <Button
+                  variant="default"
+                  size="lg"
+                  className="w-full rounded-full bg-gradient-to-r from-accent to-primary hover:scale-105 transition-all duration-300 shadow-lg shadow-accent/25"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Create Event
+                </Button>
+              </Link>
+            </div>
             
-            <div className="flex space-x-2">
+            <div className="flex justify-center sm:justify-end space-x-2">
               <Button
                 variant={viewMode === 'list' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setViewMode('list')}
-                className="rounded-full transition-all hover:scale-105"
+                className="rounded-full transition-all hover:scale-105 flex-1 sm:flex-none"
               >
                 <ListIcon className="w-4 h-4 mr-2" />
                 List
@@ -127,7 +132,7 @@ const Index = () => {
                 variant={viewMode === 'map' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setViewMode('map')}
-                className="rounded-full transition-all hover:scale-105"
+                className="rounded-full transition-all hover:scale-105 flex-1 sm:flex-none"
               >
                 <MapIcon className="w-4 h-4 mr-2" />
                 Map
@@ -168,6 +173,7 @@ const Index = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
+                className="rounded-xl overflow-hidden"
               >
                 <EventMap events={filteredEvents} />
               </motion.div>
