@@ -10,15 +10,21 @@ import {
 import { Filter } from "lucide-react";
 import { categories } from "@/lib/mock-data";
 import { motion } from "framer-motion";
+import { EventAdvancedFilters } from "./EventAdvancedFilters";
+import { EventFilters } from "@/lib/types/filters";
 
 interface SearchFiltersProps {
   selectedCategories: string[];
   onCategoryToggle: (category: string) => void;
+  filters: EventFilters;
+  onFilterChange: (filters: EventFilters) => void;
 }
 
 export const SearchFilters = ({
   selectedCategories,
   onCategoryToggle,
+  filters,
+  onFilterChange,
 }: SearchFiltersProps) => {
   return (
     <motion.div 
@@ -59,6 +65,10 @@ export const SearchFilters = ({
               ))}
             </div>
           </div>
+          <EventAdvancedFilters 
+            filters={filters}
+            onFilterChange={onFilterChange}
+          />
         </SheetContent>
       </Sheet>
     </motion.div>

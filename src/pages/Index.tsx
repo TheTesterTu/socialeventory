@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import EventMap from "@/components/EventMap";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { MapPin, Plus, Calendar, Search, Filter } from "lucide-react";
+import { MapPin, Plus, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchFacebookEvents } from "@/services/facebook";
@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { SideNav } from "@/components/navigation/SideNav";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { FloatingActions } from "@/components/navigation/FloatingActions";
+import { EventFilters } from "@/lib/types/filters";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,6 +24,17 @@ const Index = () => {
   const [events, setEvents] = useState(mockEvents);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const [filters, setFilters] = useState<EventFilters>({
+    accessibility: {
+      wheelchairAccessible: false,
+      familyFriendly: false,
+      languages: ["en"],
+    },
+    pricing: {
+      isFree: false,
+      maxPrice: 100,
+    },
+  });
 
   useEffect(() => {
     const loadEvents = async () => {
@@ -42,7 +54,22 @@ const Index = () => {
       selectedCategories.length === 0 ||
       event.category.some(cat => selectedCategories.includes(cat));
 
-    return matchesSearch && matchesCategories;
+    const matchesAccessibility =
+      !filters.accessibility?.wheelchairAccessible || event.accessibility.wheelchairAccessible;
+
+    const matchesFamilyFriendly =
+      !filters.accessibility?.familyFriendly || event.accessibility.familyFriendly;
+
+    const matchesPricing =
+      (!filters.pricing?.isFree || event.pricing.isFree) &&
+      (!filters.pricing?.maxPrice || 
+        (event.pricing.priceRange && event.pricing.priceRange[1] <= filters.pricing.maxPrice));
+
+    return matchesSearch && 
+           matchesCategories && 
+           matchesAccessibility && 
+           matchesFamilyFriendly && 
+           matchesPricing;
   });
 
   const toggleCategory = (category: string) => {
@@ -72,6 +99,8 @@ const Index = () => {
             <SearchFilters
               selectedCategories={selectedCategories}
               onCategoryToggle={toggleCategory}
+              filters={filters}
+              onFilterChange={setFilters}
             />
             <Button
               variant="ghost"
@@ -187,6 +216,8 @@ const Index = () => {
                 <SearchFilters
                   selectedCategories={selectedCategories}
                   onCategoryToggle={toggleCategory}
+                  filters={filters}
+                  onFilterChange={setFilters}
                 />
               </div>
             </div>
