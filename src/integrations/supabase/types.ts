@@ -262,32 +262,85 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           full_name: string | null
           id: string
+          notification_settings: Json | null
+          preferences: Json | null
           role: string | null
+          social_links: Json | null
           updated_at: string
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           full_name?: string | null
           id: string
+          notification_settings?: Json | null
+          preferences?: Json | null
           role?: string | null
+          social_links?: Json | null
           updated_at?: string
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
+          notification_settings?: Json | null
+          preferences?: Json | null
           role?: string | null
+          social_links?: Json | null
           updated_at?: string
           username?: string | null
         }
         Relationships: []
+      }
+      saved_locations: {
+        Row: {
+          address: string
+          coordinates: Json | null
+          created_at: string | null
+          id: string
+          is_favorite: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address: string
+          coordinates?: Json | null
+          created_at?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: string
+          coordinates?: Json | null
+          created_at?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_locations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
