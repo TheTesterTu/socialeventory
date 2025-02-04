@@ -6,10 +6,21 @@ import { SearchFilters } from "@/components/SearchFilters";
 import { BackButton } from "@/components/navigation/BackButton";
 import { useState } from "react";
 import { Event } from "@/lib/types";
+import { EventFilters } from "@/lib/types/filters";
 
 const Nearby = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [events, setEvents] = useState<Event[]>([]); // This will be populated with real data
+  const [filters, setFilters] = useState<EventFilters>({
+    accessibility: {
+      wheelchairAccessible: false,
+      familyFriendly: false,
+    },
+    pricing: {
+      isFree: false,
+      maxPrice: 100,
+    }
+  });
 
   const handleSearch = (query: string) => {
     console.log("Searching nearby:", query);
@@ -22,6 +33,12 @@ const Nearby = () => {
         ? prev.filter(c => c !== category)
         : [...prev, category]
     );
+  };
+
+  const handleFilterChange = (newFilters: EventFilters) => {
+    setFilters(newFilters);
+    console.log("Filters updated:", newFilters);
+    // TODO: Implement filter logic
   };
 
   return (
@@ -42,6 +59,8 @@ const Nearby = () => {
         <SearchFilters
           selectedCategories={selectedCategories}
           onCategoryToggle={handleCategoryToggle}
+          filters={filters}
+          onFilterChange={handleFilterChange}
         />
       </div>
 
