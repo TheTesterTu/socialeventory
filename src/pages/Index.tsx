@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SideNav } from "@/components/navigation/SideNav";
 import { BottomNav } from "@/components/navigation/BottomNav";
+import { FloatingActions } from "@/components/navigation/FloatingActions";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -284,7 +285,13 @@ const Index = () => {
         </div>
       </div>
       
-      {isMobile ? <MobileLayout /> : <DesktopLayout />}
+      {isMobile ? <MobileLayout /> : (
+        <>
+          <DesktopLayout />
+          <FloatingActions />
+        </>
+      )}
+      
     </div>
   );
 };

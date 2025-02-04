@@ -3,6 +3,7 @@ import { MapPin } from "lucide-react";
 import EventMap from "@/components/EventMap";
 import { SearchBar } from "@/components/SearchBar";
 import { SearchFilters } from "@/components/SearchFilters";
+import { BackButton } from "@/components/navigation/BackButton";
 import { useState } from "react";
 import { Event } from "@/lib/types";
 
@@ -27,8 +28,10 @@ const Nearby = () => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="container mx-auto px-4 pt-20 pb-24 md:pt-24"
+      className="container mx-auto px-4 pt-20 pb-24 md:pt-6 relative"
     >
+      <BackButton />
+      
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">Events Near You</h1>
         <p className="text-muted-foreground">Discover events happening around your location</p>
@@ -42,7 +45,7 @@ const Nearby = () => {
         />
       </div>
 
-      <div className="rounded-xl overflow-hidden">
+      <div className="rounded-xl overflow-hidden h-[calc(100vh-280px)]">
         <EventMap events={events} />
       </div>
     </motion.div>
