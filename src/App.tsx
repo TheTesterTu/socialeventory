@@ -13,6 +13,9 @@ import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
+import Search from "./pages/Search";
+import Nearby from "./pages/Nearby";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +30,9 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/events" element={<Index />} />
             <Route path="/event/:id" element={<EventDetails />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/nearby" element={<Nearby />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/create-event" element={
               <ProtectedRoute>
                 <CreateEvent />

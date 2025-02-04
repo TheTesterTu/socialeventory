@@ -7,12 +7,13 @@ import EventMap from "@/components/EventMap";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { MapPin, Plus, Calendar, Search, Filter } from "lucide-react";
-import { TopBar } from "@/components/TopBar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchFacebookEvents } from "@/services/facebook";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SideNav } from "@/components/navigation/SideNav";
+import { BottomNav } from "@/components/navigation/BottomNav";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,8 +53,8 @@ const Index = () => {
   };
 
   const MobileLayout = () => (
-    <div className="flex flex-col h-screen">
-      <div className="flex-none p-4 pt-16 space-y-4 bg-gradient-to-b from-background to-background/95">
+    <div className="flex flex-col h-screen pb-20">
+      <div className="flex-none p-4 space-y-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -64,9 +65,13 @@ const Index = () => {
           </h1>
         </motion.div>
 
-        <div className="relative glass-panel p-3">
+        <div className="glass-panel p-3 rounded-xl">
           <SearchBar onSearch={setSearchQuery} />
           <div className="mt-3 flex items-center justify-between gap-2">
+            <SearchFilters
+              selectedCategories={selectedCategories}
+              onCategoryToggle={toggleCategory}
+            />
             <Button
               variant="ghost"
               size="sm"
@@ -76,56 +81,23 @@ const Index = () => {
                   description: "Calendar view is under development.",
                 });
               }}
-              className="flex-1 bg-secondary/20 hover:bg-secondary/30"
+              className="bg-secondary/20 hover:bg-secondary/30"
             >
               <Calendar className="h-4 w-4" />
-              <span className="ml-2">Date</span>
             </Button>
-            <SearchFilters
-              selectedCategories={selectedCategories}
-              onCategoryToggle={toggleCategory}
-            />
           </div>
         </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between px-2 text-sm text-muted-foreground">
-            <span>View Mode</span>
-            <div className="flex items-center gap-2">
-              <span>List</span>
-              <Switch
-                checked={viewMode === 'map'}
-                onCheckedChange={(checked) => setViewMode(checked ? 'map' : 'list')}
-                className="data-[state=checked]:bg-primary"
-              />
-              <span>Map</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="default"
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
-              onClick={() => {
-                toast({
-                  title: "Coming Soon",
-                  description: "Location-based search is under development.",
-                });
-              }}
-            >
-              <MapPin className="w-4 h-4 mr-2" />
-              Near Me
-            </Button>
-            
-            <Link to="/create-event" className="w-full">
-              <Button
-                variant="default"
-                className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-purple-500/25"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create
-              </Button>
-            </Link>
+        <div className="flex items-center justify-between px-2 text-sm text-muted-foreground">
+          <span>View Mode</span>
+          <div className="flex items-center gap-2">
+            <span>List</span>
+            <Switch
+              checked={viewMode === 'map'}
+              onCheckedChange={(checked) => setViewMode(checked ? 'map' : 'list')}
+              className="data-[state=checked]:bg-primary"
+            />
+            <span>Map</span>
           </div>
         </div>
       </div>
@@ -164,137 +136,142 @@ const Index = () => {
           )}
         </AnimatePresence>
       </div>
+      
+      <BottomNav />
     </div>
   );
 
   const DesktopLayout = () => (
-    <div className="relative p-6 pt-20 space-y-8">
-      <motion.header 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto space-y-4"
-      >
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-          Discover Events
-        </h1>
-        <p className="text-muted-foreground">
-          Find and join amazing events happening around you
-        </p>
-      </motion.header>
+    <div className="flex">
+      <SideNav />
+      <div className="flex-1 p-6 space-y-8">
+        <motion.header 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-4xl mx-auto space-y-4"
+        >
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+            Discover Events
+          </h1>
+          <p className="text-muted-foreground">
+            Find and join amazing events happening around you
+          </p>
+        </motion.header>
 
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="max-w-4xl mx-auto space-y-6"
-      >
-        <div className="glass-panel p-6 space-y-6">
-          <div className="flex flex-col gap-4 sm:flex-row items-center">
-            <div className="flex-1 w-full">
-              <SearchBar onSearch={setSearchQuery} />
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="max-w-4xl mx-auto space-y-6"
+        >
+          <div className="glass-panel p-6 space-y-6 rounded-xl">
+            <div className="flex flex-col gap-4 sm:flex-row items-center">
+              <div className="flex-1 w-full">
+                <SearchBar onSearch={setSearchQuery} />
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    toast({
+                      title: "Coming Soon",
+                      description: "Calendar view is under development.",
+                    });
+                  }}
+                  className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
+                >
+                  <Calendar className="w-4 h-4" />
+                </Button>
+                <SearchFilters
+                  selectedCategories={selectedCategories}
+                  onCategoryToggle={toggleCategory}
+                />
+              </div>
             </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  toast({
-                    title: "Coming Soon",
-                    description: "Calendar view is under development.",
-                  });
-                }}
-                className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
-              >
-                <Calendar className="w-4 h-4" />
-              </Button>
-              <SearchFilters
-                selectedCategories={selectedCategories}
-                onCategoryToggle={toggleCategory}
-              />
-            </div>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-            <div className="flex gap-4">
-              <Button
-                variant="default"
-                size="lg"
-                onClick={() => {
-                  toast({
-                    title: "Coming Soon",
-                    description: "Location-based search is under development.",
-                  });
-                }}
-                className="flex-1 sm:flex-none bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
-              >
-                <MapPin className="w-5 h-5 mr-2" />
-                Near Me
-              </Button>
-              
-              <Link to="/create-event" className="flex-1 sm:flex-none">
+            
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+              <div className="flex gap-4">
                 <Button
                   variant="default"
                   size="lg"
-                  className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-purple-500/25"
+                  onClick={() => {
+                    toast({
+                      title: "Coming Soon",
+                      description: "Location-based search is under development.",
+                    });
+                  }}
+                  className="flex-1 sm:flex-none bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
                 >
-                  <Plus className="w-5 h-5 mr-2" />
-                  Create Event
+                  <MapPin className="w-5 h-5 mr-2" />
+                  Near Me
                 </Button>
-              </Link>
-            </div>
-            
-            <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
-              <span>List</span>
-              <Switch
-                checked={viewMode === 'map'}
-                onCheckedChange={(checked) => setViewMode(checked ? 'map' : 'list')}
-                className="data-[state=checked]:bg-primary"
-              />
-              <span>Map</span>
+                
+                <Link to="/create-event" className="flex-1 sm:flex-none">
+                  <Button
+                    variant="default"
+                    size="lg"
+                    className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-purple-500/25"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Create Event
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
+                <span>List</span>
+                <Switch
+                  checked={viewMode === 'map'}
+                  onCheckedChange={(checked) => setViewMode(checked ? 'map' : 'list')}
+                  className="data-[state=checked]:bg-primary"
+                />
+                <span>Map</span>
+              </div>
             </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
 
-      <motion.main 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="max-w-4xl mx-auto"
-      >
-        <AnimatePresence mode="wait">
-          {viewMode === 'list' ? (
-            <motion.div
-              key="list"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="grid gap-6 md:grid-cols-2"
-            >
-              {filteredEvents.map((event) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <EventCard {...event} />
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="map"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="rounded-xl overflow-hidden"
-            >
-              <EventMap events={filteredEvents} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.main>
+        <motion.main 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="max-w-4xl mx-auto"
+        >
+          <AnimatePresence mode="wait">
+            {viewMode === 'list' ? (
+              <motion.div
+                key="list"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="grid gap-6 md:grid-cols-2"
+              >
+                {filteredEvents.map((event) => (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <EventCard {...event} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="map"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="rounded-xl overflow-hidden"
+              >
+                <EventMap events={filteredEvents} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.main>
+      </div>
     </div>
   );
 
@@ -306,8 +283,6 @@ const Index = () => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,_#06B6D4_0%,_transparent_30%)]" />
         </div>
       </div>
-
-      <TopBar />
       
       {isMobile ? <MobileLayout /> : <DesktopLayout />}
     </div>
