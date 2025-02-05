@@ -153,8 +153,10 @@ export type Database = {
       events: {
         Row: {
           accessibility: Json | null
+          address_details: Json | null
           attendees: number | null
           category: string[] | null
+          coordinates: unknown | null
           created_at: string
           created_by: string | null
           cultural_context: string | null
@@ -170,12 +172,15 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string
+          venue_name: string | null
           verification_status: string | null
         }
         Insert: {
           accessibility?: Json | null
+          address_details?: Json | null
           attendees?: number | null
           category?: string[] | null
+          coordinates?: unknown | null
           created_at?: string
           created_by?: string | null
           cultural_context?: string | null
@@ -191,12 +196,15 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string
+          venue_name?: string | null
           verification_status?: string | null
         }
         Update: {
           accessibility?: Json | null
+          address_details?: Json | null
           attendees?: number | null
           category?: string[] | null
+          coordinates?: unknown | null
           created_at?: string
           created_by?: string | null
           cultural_context?: string | null
@@ -212,6 +220,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
+          venue_name?: string | null
           verification_status?: string | null
         }
         Relationships: [
@@ -347,11 +356,40 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_distance: {
+        Args: {
+          lat1: number
+          lon1: number
+          lat2: number
+          lon2: number
+        }
+        Returns: number
+      }
       can_create_events: {
         Args: {
           user_id: string
         }
         Returns: boolean
+      }
+      find_nearby_events: {
+        Args: {
+          lat: number
+          lon: number
+          radius_meters?: number
+          category_filter?: string[]
+          max_price?: number
+          accessibility_filter?: Json
+        }
+        Returns: {
+          id: string
+          title: string
+          location: string
+          coordinates: unknown
+          distance: number
+          category: string[]
+          pricing: Json
+          accessibility: Json
+        }[]
       }
       is_admin: {
         Args: {
