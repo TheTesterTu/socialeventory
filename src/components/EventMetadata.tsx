@@ -1,14 +1,13 @@
+
 import { Calendar, MapPin, Tag, Users } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "./ui/badge";
+import { Location } from "@/lib/types";
 
 interface EventMetadataProps {
   startDate: string;
   endDate: string;
-  location: {
-    venue?: string;
-    address: string;
-  };
+  location: Location;
   tags: string[];
   attendees: number;
   pricing: {
@@ -35,7 +34,7 @@ export const EventMetadata = ({
         </span>
         <span className="flex items-center gap-1">
           <MapPin className="h-4 w-4" />
-          {location.venue ? `${location.venue}, ${location.address}` : location.address}
+          {location.venue_name ? `${location.venue_name}, ${location.address}` : location.address}
         </span>
       </div>
       

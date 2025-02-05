@@ -1,3 +1,4 @@
+
 import { Event } from "./types";
 
 export const categories = [
@@ -25,7 +26,7 @@ export const mockEvents: Event[] = [
     location: {
       coordinates: [40.7829, -73.9654],
       address: "Central Park, New York",
-      venue: "Great Lawn"
+      venue_name: "Great Lawn"
     },
     category: ["Music", "Arts", "Entertainment"],
     tags: ["live music", "food", "art", "outdoor"],
@@ -61,7 +62,7 @@ export const mockEvents: Event[] = [
     location: {
       coordinates: [37.7749, -122.4194],
       address: "Convention Center, San Francisco",
-      venue: "Main Hall"
+      venue_name: "Main Hall"
     },
     category: ["Technology", "Business", "Education"],
     tags: ["conference", "networking", "workshops"],
@@ -95,7 +96,7 @@ export const mockEvents: Event[] = [
     location: {
       coordinates: [39.7392, -104.9903],
       address: "Mountain Park, Colorado",
-      venue: "Trail Head Center"
+      venue_name: "Trail Head Center"
     },
     category: ["Sports", "Outdoor"],
     tags: ["running", "nature", "competition"],
