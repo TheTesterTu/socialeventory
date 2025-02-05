@@ -1,28 +1,59 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { Settings, Key, Facebook, ArrowLeft } from "lucide-react";
+import { Settings, Key, MapPin, Mail, Bell, ArrowLeft, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const handleSave = () => {
-    toast({
-      title: "Coming Soon",
-      description: "This feature is currently under development.",
-    });
+  const handleSaveAPIKeys = async (key: string, value: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('admin_settings')
+        .upsert({ 
+          setting_key: key, 
+          setting_value: { token: value }
+        }, { 
+          onConflict: 'setting_key' 
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "API Key Saved",
+        description: "Your API key has been securely stored.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
   };
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6 bg-gradient-to-b from-background to-background/95">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="container mx-auto max-w-4xl"
+        className="container mx-auto max-w-5xl"
       >
         <div className="flex items-center gap-4 mb-8">
           <Button 
@@ -33,18 +64,24 @@ const AdminDashboard = () => {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-secondary/80 to-secondary bg-clip-text text-transparent">
+            Admin Dashboard
+          </h1>
         </div>
         
         <Tabs defaultValue="api-keys" className="w-full">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <TabsTrigger value="api-keys" className="gap-2">
               <Key className="w-4 h-4" />
               API Keys
             </TabsTrigger>
-            <TabsTrigger value="facebook" className="gap-2">
-              <Facebook className="w-4 h-4" />
-              Facebook Integration
+            <TabsTrigger value="maps" className="gap-2">
+              <MapPin className="w-4 h-4" />
+              Maps Config
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-2">
+              <Bell className="w-4 h-4" />
+              Notifications
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -54,51 +91,161 @@ const AdminDashboard = () => {
 
           <TabsContent value="api-keys">
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="glass-panel p-6 space-y-6"
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid gap-6"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Key className="w-5 h-5" />
-                <h2 className="text-xl font-semibold">API Keys</h2>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium block mb-2">Facebook API Key</label>
-                  <Input type="password" placeholder="Enter your Facebook API key" />
+              <div className="glass-panel p-6 space-y-6">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-yellow-500" />
+                  <h2 className="text-xl font-semibold">Service API Keys</h2>
                 </div>
-                <Button onClick={handleSave} className="w-full sm:w-auto">Save API Keys</Button>
+                <div className="grid gap-6">
+                  <div className="space-y-4">
+                    <label className="text-sm font-medium block">OpenAI API Key</label>
+                    <div className="flex gap-2">
+                      <Input 
+                        type="password" 
+                        placeholder="sk-..." 
+                        className="flex-1"
+                        onChange={(e) => {
+                          // Store temporarily for submit
+                          localStorage.setItem('temp_openai_key', e.target.value);
+                        }}
+                      />
+                      <Button 
+                        onClick={() => {
+                          const key = localStorage.getItem('temp_openai_key');
+                          if (key) {
+                            handleSaveAPIKeys('openai_key', key);
+                            localStorage.removeItem('temp_openai_key');
+                          }
+                        }}
+                        disabled={loading}
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <label className="text-sm font-medium block">Stripe Secret Key</label>
+                    <div className="flex gap-2">
+                      <Input 
+                        type="password" 
+                        placeholder="sk_..." 
+                        className="flex-1"
+                        onChange={(e) => {
+                          localStorage.setItem('temp_stripe_key', e.target.value);
+                        }}
+                      />
+                      <Button 
+                        onClick={() => {
+                          const key = localStorage.getItem('temp_stripe_key');
+                          if (key) {
+                            handleSaveAPIKeys('stripe_key', key);
+                            localStorage.removeItem('temp_stripe_key');
+                          }
+                        }}
+                        disabled={loading}
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </TabsContent>
 
-          <TabsContent value="facebook">
+          <TabsContent value="maps">
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
               className="glass-panel p-6 space-y-6"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Facebook className="w-5 h-5" />
-                <h2 className="text-xl font-semibold">Facebook Integration</h2>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-blue-500" />
+                <h2 className="text-xl font-semibold">Maps Configuration</h2>
               </div>
-              <p className="text-muted-foreground mb-4">
-                Connect your Facebook account to import and sync events.
-              </p>
-              <Button onClick={handleSave} className="w-full sm:w-auto">
-                Connect Facebook
-              </Button>
+              <div className="space-y-4">
+                <label className="text-sm font-medium block">Mapbox Access Token</label>
+                <div className="flex gap-2">
+                  <Input 
+                    type="password" 
+                    placeholder="pk_..." 
+                    className="flex-1"
+                    onChange={(e) => {
+                      localStorage.setItem('temp_mapbox_key', e.target.value);
+                    }}
+                  />
+                  <Button 
+                    onClick={() => {
+                      const key = localStorage.getItem('temp_mapbox_key');
+                      if (key) {
+                        handleSaveAPIKeys('mapbox_token', key);
+                        localStorage.removeItem('temp_mapbox_key');
+                      }
+                    }}
+                    disabled={loading}
+                  >
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <motion.div 
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              className="glass-panel p-6 space-y-6"
+            >
+              <div className="flex items-center gap-2">
+                <Mail className="w-5 h-5 text-green-500" />
+                <h2 className="text-xl font-semibold">Email Configuration</h2>
+              </div>
+              <div className="space-y-4">
+                <label className="text-sm font-medium block">SendGrid API Key</label>
+                <div className="flex gap-2">
+                  <Input 
+                    type="password" 
+                    placeholder="SG..." 
+                    className="flex-1"
+                    onChange={(e) => {
+                      localStorage.setItem('temp_sendgrid_key', e.target.value);
+                    }}
+                  />
+                  <Button 
+                    onClick={() => {
+                      const key = localStorage.getItem('temp_sendgrid_key');
+                      if (key) {
+                        handleSaveAPIKeys('sendgrid_key', key);
+                        localStorage.removeItem('temp_sendgrid_key');
+                      }
+                    }}
+                    disabled={loading}
+                  >
+                    Save
+                  </Button>
+                </div>
+              </div>
             </motion.div>
           </TabsContent>
 
           <TabsContent value="settings">
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
               className="glass-panel p-6 space-y-6"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Settings className="w-5 h-5" />
+              <div className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-purple-500" />
                 <h2 className="text-xl font-semibold">General Settings</h2>
               </div>
               <div className="space-y-4">
@@ -106,14 +253,26 @@ const AdminDashboard = () => {
                   <label className="text-sm font-medium block mb-2">Default Location</label>
                   <Input placeholder="Enter default location" />
                 </div>
-                <Button onClick={handleSave} className="w-full sm:w-auto">Save Settings</Button>
+                <Button onClick={() => {
+                  toast({
+                    title: "Coming Soon",
+                    description: "This feature is currently under development.",
+                  });
+                }} className="w-full sm:w-auto">
+                  Save Settings
+                </Button>
               </div>
             </motion.div>
           </TabsContent>
         </Tabs>
+
+        <div className="mt-8 text-center text-sm text-muted-foreground">
+          <p>Need help? Check out our <a href="#" className="text-primary hover:underline">documentation</a> or contact support.</p>
+        </div>
       </motion.div>
     </div>
   );
 };
 
 export default AdminDashboard;
+

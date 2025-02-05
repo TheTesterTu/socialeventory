@@ -1,8 +1,7 @@
-
 export interface Location {
   coordinates: [number, number];
   address: string;
-  venue_name?: string;
+  venue_name: string; // Changed from optional to required since it's used in multiple places
 }
 
 export interface AccessibilityInfo {
