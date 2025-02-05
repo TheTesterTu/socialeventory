@@ -1,7 +1,8 @@
+
 export interface Location {
   coordinates: [number, number];
   address: string;
-  venue?: string;
+  venue_name?: string;
 }
 
 export interface AccessibilityInfo {

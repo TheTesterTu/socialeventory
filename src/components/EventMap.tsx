@@ -28,8 +28,13 @@ const EventMap = ({ events }: EventMapProps) => {
 
         if (error) throw error;
         
-        if (data?.setting_value?.token) {
-          setMapboxToken(data.setting_value.token);
+        if (data?.setting_value && typeof data.setting_value === 'string') {
+          setMapboxToken(data.setting_value);
+        } else if (data?.setting_value && typeof data.setting_value === 'object') {
+          const tokenValue = (data.setting_value as { token?: string }).token;
+          if (tokenValue) {
+            setMapboxToken(tokenValue);
+          }
         }
       } catch (error) {
         console.error('Error fetching Mapbox token:', error);
@@ -87,7 +92,7 @@ const EventMap = ({ events }: EventMapProps) => {
           <div class="p-3 space-y-2">
             <h3 class="font-bold text-lg">${event.title}</h3>
             <p class="text-sm text-muted-foreground">${event.location.address}</p>
-            ${event.venue_name ? `<p class="text-sm font-medium">${event.venue_name}</p>` : ''}
+            ${event.location.venue_name ? `<p class="text-sm font-medium">${event.location.venue_name}</p>` : ''}
           </div>
         `);
 
@@ -126,14 +131,8 @@ const EventMap = ({ events }: EventMapProps) => {
     <div className="w-full h-[600px] relative rounded-xl overflow-hidden border border-border/40 shadow-lg">
       {!mapboxToken && (
         <div className="absolute inset-0 bg-card/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-10">
-          <p className="text-center mb-4 text-lg">Please enter your Mapbox public token to view the map</p>
-          <input
-            type="text"
-            className="w-full max-w-md p-3 rounded-lg border bg-background/50 backdrop-blur-sm"
-            placeholder="Enter Mapbox token"
-            onChange={(e) => setMapboxToken(e.target.value)}
-          />
-          <p className="text-sm text-muted-foreground mt-4">
+          <p className="text-center mb-4 text-lg">Please enter your Mapbox public token in admin settings</p>
+          <p className="text-sm text-muted-foreground">
             You can get your token from{' '}
             <a 
               href="https://account.mapbox.com/access-tokens/" 
