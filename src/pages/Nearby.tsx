@@ -6,10 +6,22 @@ import { SearchBar } from "@/components/SearchBar";
 import { SearchFilters } from "@/components/SearchFilters";
 import { BackButton } from "@/components/navigation/BackButton";
 import { useState, useEffect } from "react";
-import { Event } from "@/lib/types";
+import { Event, AccessibilityInfo, Pricing } from "@/lib/types";
 import { EventFilters } from "@/lib/types/filters";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+
+interface NearbyEventResponse {
+  id: string;
+  title: string;
+  location: string;
+  coordinates: { x: number; y: number };
+  distance: number;
+  category: string[];
+  pricing: Pricing;
+  accessibility: AccessibilityInfo;
+  venue_name: string | null;
+}
 
 const Nearby = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -43,12 +55,12 @@ const Nearby = () => {
 
       if (error) throw error;
 
-      const formattedEvents: Event[] = eventsData.map(event => ({
+      const formattedEvents: Event[] = (eventsData as NearbyEventResponse[]).map(event => ({
         id: event.id,
         title: event.title,
         description: '', // We can fetch full details when needed
         location: {
-          coordinates: [event.coordinates.x, event.coordinates.y],
+          coordinates: [event.coordinates.y, event.coordinates.x], // Mapbox uses [lat, lng]
           address: event.location,
           venue_name: event.venue_name || ''
         },
@@ -56,8 +68,8 @@ const Nearby = () => {
         endDate: new Date().toISOString(),
         category: event.category,
         tags: [],
-        accessibility: event.accessibility,
-        pricing: event.pricing,
+        accessibility: event.accessibility as AccessibilityInfo,
+        pricing: event.pricing as Pricing,
         creator: {
           id: '',
           type: 'user'
