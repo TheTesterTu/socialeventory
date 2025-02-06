@@ -40,8 +40,23 @@ const EventDetails = () => {
 
         if (data) {
           const coordinates = data.coordinates as { x: number; y: number };
-          const accessibility = data.accessibility as AccessibilityInfo;
-          const pricing = data.pricing as Pricing;
+          
+          // Type assertion with validation for accessibility
+          const rawAccessibility = data.accessibility as Record<string, unknown>;
+          const accessibility: AccessibilityInfo = {
+            languages: Array.isArray(rawAccessibility?.languages) ? rawAccessibility.languages : ['en'],
+            wheelchairAccessible: Boolean(rawAccessibility?.wheelchairAccessible),
+            familyFriendly: Boolean(rawAccessibility?.familyFriendly)
+          };
+
+          // Type assertion with validation for pricing
+          const rawPricing = data.pricing as Record<string, unknown>;
+          const pricing: Pricing = {
+            isFree: Boolean(rawPricing?.isFree),
+            priceRange: Array.isArray(rawPricing?.priceRange) ? rawPricing.priceRange as [number, number] : undefined,
+            currency: typeof rawPricing?.currency === 'string' ? rawPricing.currency : undefined
+          };
+
           const verification_status = data.verification_status as 'pending' | 'verified' | 'featured';
 
           const formattedEvent: Event = {
@@ -57,14 +72,14 @@ const EventDetails = () => {
             endDate: data.end_date,
             category: data.category || [],
             tags: data.tags || [],
-            accessibility: accessibility,
-            pricing: pricing,
+            accessibility,
+            pricing,
             creator: {
               id: data.created_by,
               type: 'user'
             },
             verification: {
-              status: verification_status
+              status: verification_status || 'pending'
             },
             imageUrl: data.image_url || '',
             likes: data.likes || 0,
