@@ -1,16 +1,99 @@
 
 import { useParams, useNavigate } from "react-router-dom";
-import { getEventById } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Users, Heart, Share2, Clock, Tag, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Event } from "@/lib/types";
+import { useToast } from "@/components/ui/use-toast";
+import { EventSocialActions } from "@/components/EventSocialActions";
+import { EventComments } from "@/components/EventComments";
+import { useAuth } from "@/contexts/AuthContext";
 
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const event = getEventById(id || "");
+  const [event, setEvent] = useState<Event | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select(`
+            *,
+            profiles:created_by (
+              username,
+              avatar_url
+            )
+          `)
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          const formattedEvent: Event = {
+            id: data.id,
+            title: data.title,
+            description: data.description || '',
+            location: {
+              coordinates: data.coordinates ? [data.coordinates.x, data.coordinates.y] : [0, 0],
+              address: data.location,
+              venue_name: data.venue_name || ''
+            },
+            startDate: data.start_date,
+            endDate: data.end_date,
+            category: data.category || [],
+            tags: data.tags || [],
+            accessibility: data.accessibility,
+            pricing: data.pricing,
+            creator: {
+              id: data.created_by,
+              type: 'user'
+            },
+            verification: {
+              status: data.verification_status || 'pending'
+            },
+            imageUrl: data.image_url || '',
+            likes: data.likes || 0,
+            attendees: data.attendees || 0
+          };
+          setEvent(formattedEvent);
+        }
+      } catch (error) {
+        console.error('Error fetching event:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load event details. Please try again later.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchEvent();
+    }
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen p-6 flex items-center justify-center">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 w-64 bg-muted rounded"></div>
+          <div className="h-4 w-48 bg-muted rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   if (!event) {
     return (
@@ -43,7 +126,7 @@ const EventDetails = () => {
 
         <div className="relative h-[400px] rounded-xl overflow-hidden">
           <img
-            src={event.imageUrl}
+            src={event.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
             alt={event.title}
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -79,14 +162,6 @@ const EventDetails = () => {
                 {event.location.venue_name ? `${event.location.venue_name}, ${event.location.address}` : event.location.address}
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="icon" className="rounded-full hover:scale-110 transition-transform">
-                <Heart className="h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="icon" className="rounded-full hover:scale-110 transition-transform">
-                <Share2 className="h-5 w-5" />
-              </Button>
-            </div>
           </div>
 
           <div className="prose prose-invert max-w-none">
@@ -102,26 +177,34 @@ const EventDetails = () => {
             ))}
           </div>
 
-          <div className="flex items-center justify-between text-sm text-muted-foreground border-t border-border pt-4">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1">
-                <Heart className="h-4 w-4" />
-                {event.likes} likes
-              </span>
-              <span className="flex items-center gap-1">
-                <Users className="h-4 w-4" />
-                {event.attendees} attending
-              </span>
+          <div className="border-t border-border pt-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1 text-muted-foreground">
+                  <Users className="h-4 w-4" />
+                  {event.attendees} attending
+                </span>
+                <span>
+                  {event.pricing.isFree ? (
+                    <Badge variant="secondary" className="hover:bg-primary/20">Free</Badge>
+                  ) : (
+                    <Badge variant="secondary" className="hover:bg-primary/20">
+                      {event.pricing.currency} {event.pricing.priceRange?.[0]}-{event.pricing.priceRange?.[1]}
+                    </Badge>
+                  )}
+                </span>
+              </div>
+              <EventSocialActions 
+                eventId={event.id} 
+                likes={event.likes} 
+                comments={0}
+              />
             </div>
-            <span>
-              {event.pricing.isFree ? (
-                <Badge variant="secondary" className="hover:bg-primary/20">Free</Badge>
-              ) : (
-                <Badge variant="secondary" className="hover:bg-primary/20">
-                  {event.pricing.currency} {event.pricing.priceRange?.[0]}-{event.pricing.priceRange?.[1]}
-                </Badge>
-              )}
-            </span>
+          </div>
+
+          <div className="pt-8">
+            <h2 className="text-2xl font-semibold mb-6">Comments</h2>
+            <EventComments eventId={event.id} />
           </div>
         </div>
       </motion.div>
