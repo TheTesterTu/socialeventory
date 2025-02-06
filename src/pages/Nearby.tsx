@@ -1,16 +1,21 @@
+
 import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import EventMap from "@/components/EventMap";
 import { SearchBar } from "@/components/SearchBar";
 import { SearchFilters } from "@/components/SearchFilters";
 import { BackButton } from "@/components/navigation/BackButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Event } from "@/lib/types";
 import { EventFilters } from "@/lib/types/filters";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const Nearby = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [events, setEvents] = useState<Event[]>([]); // This will be populated with real data
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   const [filters, setFilters] = useState<EventFilters>({
     accessibility: {
       wheelchairAccessible: false,
@@ -22,9 +27,69 @@ const Nearby = () => {
     }
   });
 
+  const fetchNearbyEvents = async () => {
+    try {
+      setIsLoading(true);
+      // Default to San Francisco coordinates if user location is not available
+      const { data: eventsData, error } = await supabase
+        .rpc('find_nearby_events', {
+          lat: 37.7749,
+          lon: -122.4194,
+          radius_meters: 5000,
+          category_filter: selectedCategories.length > 0 ? selectedCategories : null,
+          max_price: filters.pricing.maxPrice,
+          accessibility_filter: filters.accessibility
+        });
+
+      if (error) throw error;
+
+      const formattedEvents: Event[] = eventsData.map(event => ({
+        id: event.id,
+        title: event.title,
+        description: '', // We can fetch full details when needed
+        location: {
+          coordinates: [event.coordinates.x, event.coordinates.y],
+          address: event.location,
+          venue_name: event.venue_name || ''
+        },
+        startDate: new Date().toISOString(), // We'll need to add these to the function response
+        endDate: new Date().toISOString(),
+        category: event.category,
+        tags: [],
+        accessibility: event.accessibility,
+        pricing: event.pricing,
+        creator: {
+          id: '',
+          type: 'user'
+        },
+        verification: {
+          status: 'pending'
+        },
+        imageUrl: '',
+        likes: 0,
+        attendees: 0
+      }));
+
+      setEvents(formattedEvents);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch nearby events. Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNearbyEvents();
+  }, [selectedCategories, filters]);
+
   const handleSearch = (query: string) => {
     console.log("Searching nearby:", query);
-    // TODO: Implement nearby search
+    // TODO: Implement search filtering
   };
 
   const handleCategoryToggle = (category: string) => {
@@ -37,8 +102,6 @@ const Nearby = () => {
 
   const handleFilterChange = (newFilters: EventFilters) => {
     setFilters(newFilters);
-    console.log("Filters updated:", newFilters);
-    // TODO: Implement filter logic
   };
 
   return (
