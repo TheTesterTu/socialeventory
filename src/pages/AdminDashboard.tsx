@@ -7,26 +7,18 @@ import { Settings, Key, MapPin, Mail, Bell, ArrowLeft, Zap } from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { updateAPIConfig } from "@/services/api-config";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const handleSaveAPIKeys = async (key: string, value: string) => {
+  const handleSaveAPIKey = async (key: string, value: string) => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('admin_settings')
-        .upsert({ 
-          setting_key: key, 
-          setting_value: { token: value }
-        }, { 
-          onConflict: 'setting_key' 
-        });
-
-      if (error) throw error;
+      const success = await updateAPIConfig(key, value);
+      if (!success) throw new Error("Failed to save API key");
 
       toast({
         title: "API Key Saved",
@@ -110,7 +102,6 @@ const AdminDashboard = () => {
                         placeholder="sk-..." 
                         className="flex-1"
                         onChange={(e) => {
-                          // Store temporarily for submit
                           localStorage.setItem('temp_openai_key', e.target.value);
                         }}
                       />
@@ -118,7 +109,7 @@ const AdminDashboard = () => {
                         onClick={() => {
                           const key = localStorage.getItem('temp_openai_key');
                           if (key) {
-                            handleSaveAPIKeys('openai_key', key);
+                            handleSaveAPIKey('openai_key', key);
                             localStorage.removeItem('temp_openai_key');
                           }
                         }}
@@ -144,7 +135,7 @@ const AdminDashboard = () => {
                         onClick={() => {
                           const key = localStorage.getItem('temp_stripe_key');
                           if (key) {
-                            handleSaveAPIKeys('stripe_key', key);
+                            handleSaveAPIKey('stripe_secret_key', key);
                             localStorage.removeItem('temp_stripe_key');
                           }
                         }}
@@ -185,7 +176,7 @@ const AdminDashboard = () => {
                     onClick={() => {
                       const key = localStorage.getItem('temp_mapbox_key');
                       if (key) {
-                        handleSaveAPIKeys('mapbox_token', key);
+                        handleSaveAPIKey('mapbox_token', key);
                         localStorage.removeItem('temp_mapbox_key');
                       }
                     }}
@@ -224,7 +215,7 @@ const AdminDashboard = () => {
                     onClick={() => {
                       const key = localStorage.getItem('temp_sendgrid_key');
                       if (key) {
-                        handleSaveAPIKeys('sendgrid_key', key);
+                        handleSaveAPIKey('sendgrid_key', key);
                         localStorage.removeItem('temp_sendgrid_key');
                       }
                     }}
@@ -275,4 +266,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

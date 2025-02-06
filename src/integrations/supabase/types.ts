@@ -33,6 +33,33 @@ export type Database = {
         }
         Relationships: []
       }
+      api_configurations: {
+        Row: {
+          created_at: string
+          description: string | null
+          is_public: boolean | null
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          is_public?: boolean | null
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          is_public?: boolean | null
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string

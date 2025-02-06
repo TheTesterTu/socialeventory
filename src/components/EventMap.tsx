@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Event } from '@/lib/types';
-import { supabase } from '@/integrations/supabase/client';
+import { getAPIConfig } from '@/services/api-config';
 import { useToast } from '@/components/ui/use-toast';
 
 interface EventMapProps {
@@ -16,25 +16,13 @@ const EventMap = ({ events }: EventMapProps) => {
   const [mapboxToken, setMapboxToken] = React.useState<string>('');
   const { toast } = useToast();
 
-  // Fetch Mapbox token from admin settings
+  // Fetch Mapbox token from API configurations
   useEffect(() => {
     const fetchMapboxToken = async () => {
       try {
-        const { data, error } = await supabase
-          .from('admin_settings')
-          .select('setting_value')
-          .eq('setting_key', 'mapbox_token')
-          .single();
-
-        if (error) throw error;
-        
-        if (data?.setting_value && typeof data.setting_value === 'string') {
-          setMapboxToken(data.setting_value);
-        } else if (data?.setting_value && typeof data.setting_value === 'object') {
-          const tokenValue = (data.setting_value as { token?: string }).token;
-          if (tokenValue) {
-            setMapboxToken(tokenValue);
-          }
+        const token = await getAPIConfig('mapbox_token');
+        if (token) {
+          setMapboxToken(token);
         }
       } catch (error) {
         console.error('Error fetching Mapbox token:', error);
