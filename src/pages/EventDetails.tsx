@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { getEventById } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
@@ -75,7 +76,7 @@ const EventDetails = () => {
               </div>
               <div className="flex items-center gap-1 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                {event.location.venue ? `${event.location.venue}, ${event.location.address}` : event.location.address}
+                {event.location.venue_name ? `${event.location.venue_name}, ${event.location.address}` : event.location.address}
               </div>
             </div>
             <div className="flex gap-2">
