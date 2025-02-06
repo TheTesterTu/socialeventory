@@ -19,6 +19,12 @@ const EventDetails = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
+        // Validate UUID format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!id || !uuidRegex.test(id)) {
+          throw new Error("Invalid event ID format");
+        }
+
         const { data, error } = await supabase
           .from('events')
           .select(`
@@ -86,9 +92,10 @@ const EventDetails = () => {
         console.error('Error fetching event:', error);
         toast({
           title: "Error",
-          description: "Failed to load event details. Please try again later.",
+          description: error instanceof Error ? error.message : "Failed to load event details. Please check the event ID and try again.",
           variant: "destructive"
         });
+        navigate('/'); // Redirect to home page on error
       } finally {
         setIsLoading(false);
       }
