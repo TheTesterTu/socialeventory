@@ -18,7 +18,7 @@ export const categories = [
 
 export const mockEvents: Event[] = [
   {
-    id: "1",
+    id: "123e4567-e89b-12d3-a456-426614174000", // Valid UUID
     title: "Summer Night Festival",
     description: "Join us for an amazing night of music, art, and entertainment under the stars. Multiple stages, food vendors, and interactive art installations.",
     startDate: "2024-07-15T20:00:00",
@@ -30,7 +30,6 @@ export const mockEvents: Event[] = [
     },
     category: ["Music", "Arts", "Entertainment"],
     tags: ["live music", "food", "art", "outdoor"],
-    culturalContext: "Annual summer celebration of arts and music",
     accessibility: {
       languages: ["English"],
       wheelchairAccessible: true,
@@ -42,19 +41,18 @@ export const mockEvents: Event[] = [
       currency: "USD"
     },
     creator: {
-      id: "org123",
+      id: "123e4567-e89b-12d3-a456-426614174001", // Valid UUID
       type: "organizer"
     },
     verification: {
-      status: "verified",
-      verifiedBy: "admin"
+      status: "verified"
     },
     imageUrl: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3",
     likes: 156,
     attendees: 450
   },
   {
-    id: "2",
+    id: "123e4567-e89b-12d3-a456-426614174002", // Valid UUID
     title: "Tech Conference 2024",
     description: "Annual technology conference featuring keynote speakers, workshops, and networking opportunities.",
     startDate: "2024-09-20T09:00:00",
@@ -77,7 +75,7 @@ export const mockEvents: Event[] = [
       currency: "USD"
     },
     creator: {
-      id: "org456",
+      id: "123e4567-e89b-12d3-a456-426614174003", // Valid UUID
       type: "organizer"
     },
     verification: {
@@ -88,7 +86,7 @@ export const mockEvents: Event[] = [
     attendees: 300
   },
   {
-    id: "3",
+    id: "123e4567-e89b-12d3-a456-426614174004", // Valid UUID
     title: "Mountain Trail Run",
     description: "Challenge yourself with this scenic trail run through beautiful mountain paths.",
     startDate: "2024-08-05T07:00:00",
@@ -111,7 +109,7 @@ export const mockEvents: Event[] = [
       currency: "USD"
     },
     creator: {
-      id: "org789",
+      id: "123e4567-e89b-12d3-a456-426614174005", // Valid UUID
       type: "organizer"
     },
     verification: {
