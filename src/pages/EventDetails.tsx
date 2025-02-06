@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Event } from "@/lib/types";
+import { Event, AccessibilityInfo, Pricing } from "@/lib/types";
 import { useToast } from "@/components/ui/use-toast";
 import { EventSocialActions } from "@/components/EventSocialActions";
 import { EventComments } from "@/components/EventComments";
@@ -39,12 +39,17 @@ const EventDetails = () => {
         if (error) throw error;
 
         if (data) {
+          const coordinates = data.coordinates as { x: number; y: number };
+          const accessibility = data.accessibility as AccessibilityInfo;
+          const pricing = data.pricing as Pricing;
+          const verification_status = data.verification_status as 'pending' | 'verified' | 'featured';
+
           const formattedEvent: Event = {
             id: data.id,
             title: data.title,
             description: data.description || '',
             location: {
-              coordinates: data.coordinates ? [data.coordinates.x, data.coordinates.y] : [0, 0],
+              coordinates: coordinates ? [coordinates.x, coordinates.y] : [0, 0],
               address: data.location,
               venue_name: data.venue_name || ''
             },
@@ -52,14 +57,14 @@ const EventDetails = () => {
             endDate: data.end_date,
             category: data.category || [],
             tags: data.tags || [],
-            accessibility: data.accessibility,
-            pricing: data.pricing,
+            accessibility: accessibility,
+            pricing: pricing,
             creator: {
               id: data.created_by,
               type: 'user'
             },
             verification: {
-              status: data.verification_status || 'pending'
+              status: verification_status
             },
             imageUrl: data.image_url || '',
             likes: data.likes || 0,
