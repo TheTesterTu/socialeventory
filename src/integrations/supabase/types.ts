@@ -416,6 +416,7 @@ export type Database = {
           category: string[]
           pricing: Json
           accessibility: Json
+          venue_name: string
         }[]
       }
       is_admin: {

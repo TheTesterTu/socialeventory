@@ -55,7 +55,7 @@ const Nearby = () => {
 
       if (error) throw error;
 
-      const formattedEvents: Event[] = (eventsData as NearbyEventResponse[]).map(event => ({
+      const formattedEvents: Event[] = (eventsData as any[]).map(event => ({
         id: event.id,
         title: event.title,
         description: '', // We can fetch full details when needed
@@ -68,8 +68,16 @@ const Nearby = () => {
         endDate: new Date().toISOString(),
         category: event.category,
         tags: [],
-        accessibility: event.accessibility as AccessibilityInfo,
-        pricing: event.pricing as Pricing,
+        accessibility: {
+          languages: event.accessibility.languages || ['en'],
+          wheelchairAccessible: event.accessibility.wheelchairAccessible || false,
+          familyFriendly: event.accessibility.familyFriendly || true,
+        },
+        pricing: {
+          isFree: event.pricing.isFree || true,
+          priceRange: event.pricing.priceRange,
+          currency: event.pricing.currency,
+        },
         creator: {
           id: '',
           type: 'user'
