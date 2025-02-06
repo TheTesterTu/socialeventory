@@ -1,4 +1,6 @@
+
 import { Event } from "@/lib/types";
+import { v4 as uuidv4 } from 'uuid';
 
 const FB_API_VERSION = 'v18.0';
 const FB_BASE_URL = `https://graph.facebook.com/${FB_API_VERSION}`;
@@ -11,29 +13,30 @@ export async function fetchFacebookEvents(location: string, radius: number = 100
     const data = await response.json();
     
     return data.data.map((event: any) => ({
-      id: event.id,
+      id: uuidv4(), // Generate a valid UUID for each Facebook event
       title: event.name,
       description: event.description || '',
       startDate: event.start_time,
       endDate: event.end_time || event.start_time,
       location: {
         coordinates: [event.place?.location?.latitude || 0, event.place?.location?.longitude || 0],
-        address: event.place?.name || '',
-        venue: event.place?.location?.street || ''
+        address: event.place?.location?.street || '',
+        venue_name: event.place?.name || ''
       },
       category: ['Social'],
       tags: [],
-      culturalContext: '',
       accessibility: {
         languages: ['en'],
         wheelchairAccessible: false,
         familyFriendly: true
       },
       pricing: {
-        isFree: true
+        isFree: true,
+        priceRange: undefined,
+        currency: undefined
       },
       creator: {
-        id: '1',
+        id: uuidv4(),
         type: 'user'
       },
       verification: {
