@@ -1,69 +1,75 @@
-# Welcome to your Lovable project
+# SocialEventory
 
-## Project info
+A modern event discovery and sharing platform built with React, TypeScript, and Supabase.
 
-**URL**: https://lovable.dev/projects/e5bef68b-540b-4b06-b88e-21cfe8e0f7af
+![SocialEventory Preview](/lovable-uploads/a6810b37-0f1f-4401-9970-901b029cf540.png)
 
-## How can I edit this code?
+## 🌟 Features
 
-There are several ways of editing your application.
+- 📍 Interactive map-based event discovery
+- 🎯 Advanced event filtering and search
+- 👥 Social features (likes, comments, attendance)
+- 📱 Responsive design for all devices
+- 🎨 Modern UI with fluid animations
+- 🔒 Secure authentication and authorization
+- 🌍 Location-based recommendations
 
-**Use Lovable**
+## 🚀 Quick Start
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e5bef68b-540b-4b06-b88e-21cfe8e0f7af) and start prompting.
+1. Clone the repository
+```bash
+git clone <your-repo-url>
+cd socialeventory
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+2. Install dependencies
+```bash
+npm install
+```
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3. Start the development server
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 📚 Documentation
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- [Getting Started](./docs/GETTING_STARTED.md)
+- [Architecture Overview](./docs/ARCHITECTURE.md)
+- [Contributing Guide](./docs/CONTRIBUTING.md)
+- [API Documentation](./docs/API.md)
+- [Development Roadmap](./docs/ROADMAP.md)
 
-**Use GitHub Codespaces**
+## 🛠️ Tech Stack
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **Frontend**
+  - React + TypeScript
+  - Vite for blazing fast builds
+  - TailwindCSS for styling
+  - Shadcn UI for components
+  - Framer Motion for animations
+  - Mapbox for map integration
 
-## What technologies are used for this project?
+- **Backend**
+  - Supabase for backend services
+  - PostgreSQL database
+  - Row Level Security
+  - Edge Functions
 
-This project is built with .
+## 📱 Environment Setup
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Create a `.env` file in the root directory:
 
-## How can I deploy this project?
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_MAPBOX_TOKEN=your_mapbox_token
+```
 
-Simply open [Lovable](https://lovable.dev/projects/e5bef68b-540b-4b06-b88e-21cfe8e0f7af) and click on Share -> Publish.
+## 🤝 Contributing
 
-## I want to use a custom domain - is that possible?
+We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTING.md) for details.
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
