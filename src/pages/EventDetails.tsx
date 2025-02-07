@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -35,67 +34,75 @@ const EventDetails = () => {
             )
           `)
           .eq('id', id)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
 
-        if (data) {
-          const coordinates = data.coordinates as { x: number; y: number };
-          
-          // Type assertion with validation for accessibility
-          const rawAccessibility = data.accessibility as Record<string, unknown>;
-          const accessibility: AccessibilityInfo = {
-            languages: Array.isArray(rawAccessibility?.languages) ? rawAccessibility.languages : ['en'],
-            wheelchairAccessible: Boolean(rawAccessibility?.wheelchairAccessible),
-            familyFriendly: Boolean(rawAccessibility?.familyFriendly)
-          };
-
-          // Type assertion with validation for pricing
-          const rawPricing = data.pricing as Record<string, unknown>;
-          const pricing: Pricing = {
-            isFree: Boolean(rawPricing?.isFree),
-            priceRange: Array.isArray(rawPricing?.priceRange) ? rawPricing.priceRange as [number, number] : undefined,
-            currency: typeof rawPricing?.currency === 'string' ? rawPricing.currency : undefined
-          };
-
-          const verification_status = data.verification_status as 'pending' | 'verified' | 'featured';
-
-          const formattedEvent: Event = {
-            id: data.id,
-            title: data.title,
-            description: data.description || '',
-            location: {
-              coordinates: coordinates ? [coordinates.x, coordinates.y] : [0, 0],
-              address: data.location,
-              venue_name: data.venue_name || ''
-            },
-            startDate: data.start_date,
-            endDate: data.end_date,
-            category: data.category || [],
-            tags: data.tags || [],
-            accessibility,
-            pricing,
-            creator: {
-              id: data.created_by,
-              type: 'user'
-            },
-            verification: {
-              status: verification_status || 'pending'
-            },
-            imageUrl: data.image_url || '',
-            likes: data.likes || 0,
-            attendees: data.attendees || 0
-          };
-          setEvent(formattedEvent);
+        if (!data) {
+          toast({
+            title: "Event not found",
+            description: "The event you're looking for doesn't exist or has been removed.",
+            variant: "destructive"
+          });
+          navigate('/');
+          return;
         }
+
+        const coordinates = data.coordinates as { x: number; y: number };
+        
+        // Type assertion with validation for accessibility
+        const rawAccessibility = data.accessibility as Record<string, unknown>;
+        const accessibility: AccessibilityInfo = {
+          languages: Array.isArray(rawAccessibility?.languages) ? rawAccessibility.languages : ['en'],
+          wheelchairAccessible: Boolean(rawAccessibility?.wheelchairAccessible),
+          familyFriendly: Boolean(rawAccessibility?.familyFriendly)
+        };
+
+        // Type assertion with validation for pricing
+        const rawPricing = data.pricing as Record<string, unknown>;
+        const pricing: Pricing = {
+          isFree: Boolean(rawPricing?.isFree),
+          priceRange: Array.isArray(rawPricing?.priceRange) ? rawPricing.priceRange as [number, number] : undefined,
+          currency: typeof rawPricing?.currency === 'string' ? rawPricing.currency : undefined
+        };
+
+        const verification_status = data.verification_status as 'pending' | 'verified' | 'featured';
+
+        const formattedEvent: Event = {
+          id: data.id,
+          title: data.title,
+          description: data.description || '',
+          location: {
+            coordinates: coordinates ? [coordinates.x, coordinates.y] : [0, 0],
+            address: data.location,
+            venue_name: data.venue_name || ''
+          },
+          startDate: data.start_date,
+          endDate: data.end_date,
+          category: data.category || [],
+          tags: data.tags || [],
+          accessibility,
+          pricing,
+          creator: {
+            id: data.created_by || '',
+            type: 'user'
+          },
+          verification: {
+            status: verification_status || 'pending'
+          },
+          imageUrl: data.image_url || '',
+          likes: data.likes || 0,
+          attendees: data.attendees || 0
+        };
+        setEvent(formattedEvent);
       } catch (error) {
         console.error('Error fetching event:', error);
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "Failed to load event details. Please check the event ID and try again.",
+          description: error instanceof Error ? error.message : "Failed to load event details. Please try again later.",
           variant: "destructive"
         });
-        navigate('/'); // Redirect to home page on error
+        navigate('/');
       } finally {
         setIsLoading(false);
       }
