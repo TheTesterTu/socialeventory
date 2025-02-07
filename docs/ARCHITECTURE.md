@@ -1,113 +1,74 @@
 # Architecture Overview
 
-## System Architecture
-
-SocialEventory follows a modern full-stack architecture with clear separation of concerns:
-
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│    Frontend     │     │    Supabase     │     │  External APIs  │
-│  React + Vite   │ ←→  │   Backend +DB   │ ←→  │  (Mapbox, etc) │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-```
-
 ## Frontend Architecture
 
-### Component Structure
+### Core Technologies
+- React + TypeScript
+- Vite for build tooling
+- TailwindCSS for styling
+- Shadcn UI for component library
+- React Query for data fetching
+- React Router for navigation
+- Framer Motion for animations
+- React Window for virtualization
+
+### Directory Structure
 ```
-Components/
-├── UI/            # Base UI components
-├── Features/      # Feature-specific components
-├── Layout/        # Layout components
-└── Pages/         # Page components
+src/
+├── components/        # Reusable UI components
+├── contexts/         # React context providers
+├── hooks/           # Custom React hooks
+├── lib/             # Utility functions and types
+├── pages/           # Page components
+├── services/        # API and external service integrations
+└── styles/          # Global styles and Tailwind config
 ```
 
-### State Management
-- React Query for server state
-- Context API for global UI state
-- Local state for component-specific data
-
-### Routing
-- React Router v6 for navigation
-- Protected routes for authenticated content
-- Dynamic route parameters
+### Key Components
+- **EventCard**: Displays event information in a card format
+- **EventMap**: Shows events on an interactive map
+- **VirtualizedEventList**: Efficiently renders large lists of events
+- **SearchFilters**: Handles event filtering and search
+- **Navigation**: Manages app routing and navigation
 
 ## Backend Architecture (Supabase)
 
 ### Database Schema
-- Events table for event data
-- Profiles for user information
-- Comments for social interaction
-- Likes and attendees for engagement
+- **events**: Main events table
+- **profiles**: User profiles and preferences
+- **comments**: Event comments
+- **event_likes**: Event likes tracking
+- **event_attendees**: Event attendance tracking
 
 ### Security
 - Row Level Security (RLS) policies
-- JWT authentication
 - Role-based access control
+- Secure authentication flow
 
 ### API Layer
 - RESTful endpoints
 - Real-time subscriptions
 - Edge Functions for custom logic
 
-## Data Flow
-
-1. **User Interaction**
-   ```
-   User Action → React Component → API Call → Supabase → Database
-   ```
-
-2. **Real-time Updates**
-   ```
-   Database Change → Supabase → WebSocket → React Component → UI Update
-   ```
-
-## Performance Considerations
-
-- Lazy loading for routes and components
-- Image optimization
-- Caching strategies
+## Performance Optimizations
+- Virtualized list rendering
+- Image lazy loading
+- Efficient data caching
 - Debounced search
-- Virtualized lists
+- Map marker clustering
 
-## Security Measures
+## State Management
+- React Query for server state
+- Context API for global UI state
+- Local state for component-specific data
 
-- Input validation
-- XSS prevention
-- CSRF protection
-- Rate limiting
-- Secure authentication flow
+## Testing Strategy
+- Unit tests with Jest
+- Integration tests with React Testing Library
+- E2E tests with Cypress
 
-## Deployment Architecture
-
-```
-┌─────────────┐
-│   GitHub    │
-│  (Source)   │
-└─────┬───────┘
-      │
-┌─────┴───────┐
-│    CI/CD    │
-│  Pipeline   │
-└─────┬───────┘
-      │
-┌─────┴───────┐
-│  Production │
-│ Environment │
-└─────────────┘
-```
-
-## Monitoring and Logging
-
-- Error tracking
+## Deployment
+- CI/CD pipeline
+- Environment configuration
 - Performance monitoring
-- User analytics
-- Server logs
-
-## Future Considerations
-
-- Microservices architecture
-- CDN integration
-- Serverless functions
-- Cache optimization
-- AI integration
+- Error tracking
