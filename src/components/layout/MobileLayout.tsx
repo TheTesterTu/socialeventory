@@ -3,7 +3,6 @@ import { ReactNode, useState } from "react";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { TopBar } from "@/components/TopBar";
 import { motion, AnimatePresence } from "framer-motion";
-import { FloatingActions } from "@/components/navigation/FloatingActions";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -71,7 +70,6 @@ export const MobileLayout = ({
       </div>
       
       <BottomNav />
-      <FloatingActions />
     </div>
   );
 };

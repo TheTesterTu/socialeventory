@@ -2,7 +2,6 @@
 import { ReactNode } from "react";
 import { SideNav } from "@/components/navigation/SideNav";
 import { TopBar } from "@/components/TopBar";
-import { FloatingActions } from "@/components/navigation/FloatingActions";
 import { motion } from "framer-motion";
 
 interface DesktopLayoutProps {
@@ -47,8 +46,6 @@ export const DesktopLayout = ({
           </div>
         </div>
       </div>
-      
-      <FloatingActions />
     </div>
   );
 };

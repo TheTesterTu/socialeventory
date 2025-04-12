@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Menu, Search, User, Settings, Bell, Plus, MapPin } from "lucide-react";
+import { Search, User, Settings, Bell } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,16 +12,14 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Badge } from "./ui/badge";
 
 export const TopBar = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
-  const [showActions, setShowActions] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,15 +35,6 @@ export const TopBar = () => {
     };
   }, [scrolled]);
 
-  // Toggle action menu on mobile after a delay
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowActions(true);
-    }, 2000);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <motion.div 
       initial={{ y: -100 }}
@@ -58,102 +47,6 @@ export const TopBar = () => {
       }`}
     >
       <div className="flex h-16 items-center px-4 md:px-6 mx-auto max-w-7xl">
-        <Sheet>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon" className="mr-2">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-64">
-            <div className="flex flex-col h-full">
-              <Link to="/" className="flex items-center gap-2 py-4">
-                <img
-                  src="/lovable-uploads/a6810b37-0f1f-4401-9970-901b029cf540.png"
-                  alt="SocialEventory"
-                  className="h-8 w-8"
-                />
-                <span className="font-semibold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  SocialEventory
-                </span>
-              </Link>
-              
-              <div className="flex flex-col gap-1 py-4">
-                <Link to="/events">
-                  <Button 
-                    variant="ghost" 
-                    className={`w-full justify-start ${location.pathname === '/events' ? 'bg-primary/10 text-primary' : ''}`}
-                  >
-                    Home
-                  </Button>
-                </Link>
-                <Link to="/search">
-                  <Button 
-                    variant="ghost" 
-                    className={`w-full justify-start ${location.pathname === '/search' ? 'bg-primary/10 text-primary' : ''}`}
-                  >
-                    Search
-                  </Button>
-                </Link>
-                <Link to="/nearby">
-                  <Button 
-                    variant="ghost" 
-                    className={`w-full justify-start ${location.pathname === '/nearby' ? 'bg-primary/10 text-primary' : ''}`}
-                  >
-                    Near Me
-                  </Button>
-                </Link>
-                <Link to="/create-event">
-                  <Button 
-                    variant="ghost" 
-                    className={`w-full justify-start ${location.pathname === '/create-event' ? 'bg-primary/10 text-primary' : ''}`}
-                  >
-                    Create Event
-                  </Button>
-                </Link>
-              </div>
-              
-              {user && (
-                <div className="border-t border-border/50 pt-4 mt-2">
-                  <h3 className="px-3 text-sm font-medium text-muted-foreground mb-2">Account</h3>
-                  <Link to="/profile">
-                    <Button 
-                      variant="ghost" 
-                      className={`w-full justify-start ${location.pathname === '/profile' ? 'bg-primary/10 text-primary' : ''}`}
-                    >
-                      Profile
-                    </Button>
-                  </Link>
-                  <Link to="/settings">
-                    <Button 
-                      variant="ghost" 
-                      className={`w-full justify-start ${location.pathname === '/settings' ? 'bg-primary/10 text-primary' : ''}`}
-                    >
-                      Settings
-                    </Button>
-                  </Link>
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start text-destructive"
-                    onClick={() => signOut()}
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              )}
-              
-              {!user && (
-                <div className="border-t border-border/50 pt-4 mt-2">
-                  <Link to="/auth">
-                    <Button className="w-full">
-                      Sign In
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
-
         <Link to="/" className="flex items-center gap-2 mr-4">
           <motion.img
             src="/lovable-uploads/a6810b37-0f1f-4401-9970-901b029cf540.png"
@@ -162,7 +55,7 @@ export const TopBar = () => {
             whileHover={{ rotate: 10, scale: 1.1 }}
             transition={{ type: "spring", stiffness: 500, damping: 10 }}
           />
-          <span className="hidden md:inline font-semibold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <span className="font-semibold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             SocialEventory
           </span>
         </Link>
@@ -327,43 +220,6 @@ export const TopBar = () => {
           </DropdownMenu>
         </div>
       </div>
-      
-      {/* Mobile Quick Actions */}
-      <AnimatePresence>
-        {showActions && (
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-20 right-4 md:hidden z-40"
-          >
-            <div className="flex flex-col gap-3">
-              <Button
-                variant="default"
-                size="icon"
-                className="h-12 w-12 rounded-full shadow-lg bg-gradient-to-r from-violet-500 to-purple-500"
-                asChild
-              >
-                <Link to="/create-event">
-                  <Plus className="h-5 w-5" />
-                </Link>
-              </Button>
-              
-              <Button
-                variant="default"
-                size="icon"
-                className="h-12 w-12 rounded-full shadow-lg bg-gradient-to-r from-cyan-500 to-blue-500"
-                asChild
-              >
-                <Link to="/nearby">
-                  <MapPin className="h-5 w-5" />
-                </Link>
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 };
