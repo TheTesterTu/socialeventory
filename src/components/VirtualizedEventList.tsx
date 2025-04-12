@@ -2,6 +2,7 @@
 import { FixedSizeList as List } from 'react-window';
 import { Event } from '@/lib/types';
 import { EventCard } from './EventCard';
+import { EventQuickView } from './EventQuickView';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { Filter } from 'lucide-react';
@@ -18,6 +19,8 @@ export const VirtualizedEventList = ({
   emptyMessage = "No events found"
 }: VirtualizedEventListProps) => {
   const [mounted, setMounted] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const ITEM_HEIGHT = 400; // Adjust based on EventCard height
 
   useEffect(() => {
@@ -25,20 +28,30 @@ export const VirtualizedEventList = ({
     return () => setMounted(false);
   }, []);
   
-  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => (
-    <motion.div
-      style={{
-        ...style,
-        height: ITEM_HEIGHT,
-      }}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      className="p-3"
-    >
-      <EventCard {...events[index]} />
-    </motion.div>
-  );
+  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+    const event = events[index];
+    
+    const handleEventClick = () => {
+      setSelectedEvent(event);
+      setIsDialogOpen(true);
+    };
+
+    return (
+      <motion.div
+        style={{
+          ...style,
+          height: ITEM_HEIGHT,
+        }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: index * 0.05 }}
+        className="p-3"
+        onClick={handleEventClick}
+      >
+        <EventCard {...event} />
+      </motion.div>
+    );
+  };
 
   if (!mounted) {
     return (
@@ -72,23 +85,31 @@ export const VirtualizedEventList = ({
   }
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className={className}
-      >
-        <List
-          height={Math.min(800, events.length * (ITEM_HEIGHT / 1.5))} // More adaptive height
-          itemCount={events.length}
-          itemSize={ITEM_HEIGHT}
-          width="100%"
-          className="scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent"
+    <>
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className={className}
         >
-          {Row}
-        </List>
-      </motion.div>
-    </AnimatePresence>
+          <List
+            height={Math.min(800, events.length * (ITEM_HEIGHT / 1.5))} // More adaptive height
+            itemCount={events.length}
+            itemSize={ITEM_HEIGHT}
+            width="100%"
+            className="scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent"
+          >
+            {Row}
+          </List>
+        </motion.div>
+      </AnimatePresence>
+
+      <EventQuickView 
+        event={selectedEvent} 
+        isOpen={isDialogOpen} 
+        onOpenChange={setIsDialogOpen} 
+      />
+    </>
   );
 };

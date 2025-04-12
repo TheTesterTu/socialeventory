@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { CalendarPlus, Search } from "lucide-react";
+import { CalendarPlus, Search, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { SearchBar } from "@/components/SearchBar";
@@ -25,7 +25,7 @@ export const HomeHero = () => {
       transition={{ duration: 0.5 }}
       className="relative space-y-6 mb-8"
     >
-      <div className="absolute inset-0 -z-10 opacity-30">
+      <div className="absolute inset-0 -z-10 opacity-40">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_#8B5CF6_0%,_transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,_#06B6D4_0%,_transparent_30%)]" />
       </div>
@@ -36,11 +36,15 @@ export const HomeHero = () => {
         transition={{ duration: 0.5, delay: 0.1 }}
         className="space-y-2 text-center"
       >
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full text-primary text-sm mb-2">
+          <Sparkles className="h-3.5 w-3.5" />
+          <span>Discover the best events in your area</span>
+        </div>
         <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-          Discover Amazing Events
+          Find Your Next Experience
         </h1>
         <p className="text-muted-foreground max-w-lg mx-auto">
-          Find and join incredible events happening around you. Connect with your community and make memories.
+          Concerts, workshops, meetups, and more — connect with your community and make memories that last.
         </p>
       </motion.div>
       
@@ -78,6 +82,26 @@ export const HomeHero = () => {
             Advanced Search
           </Button>
         </Link>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+        className="flex items-center justify-center flex-wrap gap-3 pt-4"
+      >
+        <div className="flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-full bg-green-400"></span>
+          <span className="text-xs text-muted-foreground">10+ live events now</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-full bg-primary"></span>
+          <span className="text-xs text-muted-foreground">1000+ events this week</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-full bg-orange-400"></span>
+          <span className="text-xs text-muted-foreground">100+ new today</span>
+        </div>
       </motion.div>
     </motion.div>
   );

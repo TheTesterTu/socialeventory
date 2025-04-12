@@ -8,9 +8,13 @@ import { format, isPast, isToday, addDays, isFuture } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { EventCard } from "@/components/EventCard";
 
 export const UpcomingEvents = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,9 +35,20 @@ export const UpcomingEvents = () => {
     const eventDate = new Date(date);
     if (isToday(eventDate)) return "text-primary font-medium";
     if (isPast(eventDate)) return "text-muted-foreground";
-    if (isFuture(eventDate) && !isPast(addDays(new Date(), 3), eventDate)) 
+    // Fix here: remove the second argument from isPast
+    if (isFuture(eventDate) && !isPast(addDays(new Date(), 3))) 
       return "text-orange-500 font-medium";
     return "text-foreground";
+  };
+
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setIsDialogOpen(true);
+  };
+
+  const handleViewDetails = (id: string) => {
+    setIsDialogOpen(false);
+    navigate(`/event/${id}`);
   };
 
   return (
@@ -56,7 +71,9 @@ export const UpcomingEvents = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
             className="flex items-start gap-4 hover:bg-background/50 p-2 rounded-lg transition-colors cursor-pointer"
-            onClick={() => navigate(`/event/${event.id}`)}
+            onClick={() => handleEventClick(event)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <div className="bg-muted/50 rounded-lg p-2 w-12 h-12 flex flex-col items-center justify-center text-center flex-shrink-0">
               <span className="text-xs text-muted-foreground">
@@ -99,6 +116,41 @@ export const UpcomingEvents = () => {
           See All Events
         </Button>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          {selectedEvent && (
+            <div className="space-y-4">
+              <div className="relative h-40 overflow-hidden rounded-t-lg">
+                <img 
+                  src={selectedEvent.imageUrl} 
+                  alt={selectedEvent.title} 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+              </div>
+              <div className="p-2">
+                <h3 className="text-xl font-bold">{selectedEvent.title}</h3>
+                <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
+                  {selectedEvent.description}
+                </p>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>{format(new Date(selectedEvent.startDate), "PPP p")}</span>
+                </div>
+                <div className="mt-4 flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Close
+                  </Button>
+                  <Button onClick={() => handleViewDetails(selectedEvent.id)}>
+                    View Details
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
