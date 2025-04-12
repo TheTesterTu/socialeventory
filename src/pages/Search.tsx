@@ -3,17 +3,18 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SearchBar } from "@/components/SearchBar";
 import { SearchFilters } from "@/components/SearchFilters";
-import { EventCard } from "@/components/EventCard";
 import { mockEvents } from "@/lib/mock-data";
-import { TopBar } from "@/components/TopBar";
-import { BottomNav } from "@/components/navigation/BottomNav";
 import { Event } from "@/lib/types";
-import { Separator } from "@/components/ui/separator";
-import { Filter, MapPin, Calendar } from "lucide-react";
+import { Filter, MapPin, Calendar, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventFilters } from "@/lib/types/filters";
 import { VirtualizedEventList } from "@/components/VirtualizedEventList";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useLocation } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import EventMap from "@/components/EventMap";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,12 +31,29 @@ const Search = () => {
       maxPrice: 100,
     },
   });
-  const isMobile = useIsMobile();
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const location = useLocation();
+
+  useEffect(() => {
+    // Extract query params
+    const params = new URLSearchParams(location.search);
+    const queryParam = params.get('q');
+    const categoryParam = params.get('category');
+
+    if (queryParam) {
+      setSearchQuery(queryParam);
+    }
+    
+    if (categoryParam) {
+      setSelectedCategories([categoryParam]);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     // Filter events based on search query and categories
     const filtered = mockEvents.filter((event) => {
       const matchesSearch = 
+        searchQuery === "" ||
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.location.address.toLowerCase().includes(searchQuery.toLowerCase());
@@ -74,28 +92,21 @@ const Search = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <TopBar />
-      
-      <div className={`pt-16 ${isMobile ? 'pb-20' : 'pb-8'} px-4 md:px-6 max-w-7xl mx-auto`}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-2">
-            Search Events
-          </h1>
-          <p className="text-muted-foreground">
-            Find events that match your interests
-          </p>
-        </motion.div>
-
-        <div className="glass-panel p-4 rounded-xl mb-6">
-          <SearchBar onSearch={setSearchQuery} />
+    <AppLayout 
+      pageTitle="Search Events" 
+      pageDescription="Find events that match your interests and preferences"
+    >
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="space-y-6"
+      >
+        <div className="glass-panel p-4 rounded-xl">
+          <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
           
-          <div className="flex items-center justify-between mt-4">
-            <div className="flex gap-2">
+          <div className="flex flex-wrap items-center justify-between mt-4 gap-4">
+            <div className="flex flex-wrap gap-2 items-center">
               <SearchFilters
                 selectedCategories={selectedCategories}
                 onCategoryToggle={toggleCategory}
@@ -118,19 +129,69 @@ const Search = () => {
               >
                 <Calendar className="h-4 w-4" />
               </Button>
+              
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+              </Button>
             </div>
             
-            <div className="text-sm text-muted-foreground">
-              {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'} found
+            <div className="flex items-center gap-3">
+              <div className="text-sm text-muted-foreground">
+                {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'} found
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <span>List</span>
+                <Switch
+                  checked={viewMode === 'map'}
+                  onCheckedChange={(checked) => setViewMode(checked ? 'map' : 'list')}
+                  className="data-[state=checked]:bg-primary"
+                />
+                <span>Map</span>
+              </div>
             </div>
           </div>
+          
+          {selectedCategories.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {selectedCategories.map(category => (
+                <Badge 
+                  key={category} 
+                  variant="secondary"
+                  className="px-3 py-1"
+                >
+                  {category}
+                  <button 
+                    className="ml-2 hover:text-destructive" 
+                    onClick={() => toggleCategory(category)}
+                  >
+                    ×
+                  </button>
+                </Badge>
+              ))}
+              {selectedCategories.length > 0 && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedCategories([])}
+                  className="h-7 text-xs"
+                >
+                  Clear all
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {searchQuery && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mb-4 px-2"
+            className="px-2"
           >
             <p className="text-muted-foreground">
               Showing results for: <span className="font-medium text-foreground">{searchQuery}</span>
@@ -151,29 +212,22 @@ const Search = () => {
             </p>
           </motion.div>
         ) : (
-          <>
-            {isMobile ? (
-              <div className="grid gap-4">
-                {filteredEvents.map((event) => (
-                  <motion.div
-                    key={event.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <EventCard {...event} />
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="min-h-[500px]"
+          >
+            {viewMode === 'list' ? (
               <VirtualizedEventList events={filteredEvents} className="mx-auto" />
+            ) : (
+              <div className="rounded-xl overflow-hidden h-[600px]">
+                <EventMap events={filteredEvents} />
+              </div>
             )}
-          </>
+          </motion.div>
         )}
-      </div>
-      
-      <BottomNav />
-    </div>
+      </motion.div>
+    </AppLayout>
   );
 };
 
