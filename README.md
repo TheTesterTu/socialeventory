@@ -1,3 +1,4 @@
+
 # SocialEventory
 
 A modern event discovery and sharing platform built with React, TypeScript, and Supabase.
@@ -39,6 +40,7 @@ npm run dev
 - [Contributing Guide](./docs/CONTRIBUTING.md)
 - [API Documentation](./docs/API.md)
 - [Development Roadmap](./docs/ROADMAP.md)
+- [Performance Optimization](./docs/PERFORMANCE.md)
 
 ## 🛠️ Tech Stack
 
@@ -48,13 +50,15 @@ npm run dev
   - TailwindCSS for styling
   - Shadcn UI for components
   - Framer Motion for animations
+  - React Window for virtualized lists
   - Mapbox for map integration
 
-- **Backend**
-  - Supabase for backend services
-  - PostgreSQL database
-  - Row Level Security
-  - Edge Functions
+- **Backend** (As of April 2025)
+  - [Supabase](https://supabase.com) - Free tier includes auth, database, storage, and edge functions
+  - [Render](https://render.com) - Free static site hosting
+  - [Cloudflare](https://cloudflare.com) - Free CDN and DNS management
+  - [Sentry](https://sentry.io) - Free error tracking for small teams
+  - [Neon](https://neon.tech) - Serverless Postgres (enhanced alternative to Supabase)
 
 ## 📱 Environment Setup
 
@@ -65,6 +69,16 @@ VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_MAPBOX_TOKEN=your_mapbox_token
 ```
+
+## 🧪 MVP Status (April 2025)
+
+Current MVP features implemented and working:
+- ✅ Event discovery and display
+- ✅ Map-based event visualization
+- ✅ Search and filtering
+- ✅ Basic authentication flow
+- ✅ Responsive design for all devices
+- ✅ Performance optimizations (virtualization)
 
 ## 🤝 Contributing
 
