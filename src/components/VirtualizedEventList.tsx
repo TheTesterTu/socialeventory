@@ -4,15 +4,21 @@ import { Event } from '@/lib/types';
 import { EventCard } from './EventCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { Filter } from 'lucide-react';
 
 interface VirtualizedEventListProps {
   events: Event[];
   className?: string;
+  emptyMessage?: string;
 }
 
-export const VirtualizedEventList = ({ events, className }: VirtualizedEventListProps) => {
+export const VirtualizedEventList = ({ 
+  events, 
+  className = "",
+  emptyMessage = "No events found"
+}: VirtualizedEventListProps) => {
   const [mounted, setMounted] = useState(false);
-  const ITEM_HEIGHT = 400; // Adjust based on your EventCard height
+  const ITEM_HEIGHT = 400; // Adjust based on EventCard height
 
   useEffect(() => {
     setMounted(true);
@@ -34,11 +40,34 @@ export const VirtualizedEventList = ({ events, className }: VirtualizedEventList
     </motion.div>
   );
 
-  if (!mounted || events.length === 0) {
+  if (!mounted) {
     return (
-      <div className="flex justify-center items-center h-60 text-muted-foreground">
-        No events found
+      <div className="flex justify-center items-center h-60">
+        <motion.div
+          animate={{ 
+            opacity: [0.5, 1, 0.5],
+          }}
+          transition={{ 
+            duration: 1.5,
+            repeat: Infinity,
+            repeatType: "loop"
+          }}
+          className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin"
+        />
       </div>
+    );
+  }
+
+  if (events.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col items-center justify-center h-60 text-muted-foreground"
+      >
+        <Filter className="h-10 w-10 mb-4 text-muted-foreground/40" />
+        <p className="text-lg font-medium">{emptyMessage}</p>
+      </motion.div>
     );
   }
 

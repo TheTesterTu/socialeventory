@@ -53,12 +53,12 @@ npm run dev
   - React Window for virtualized lists
   - Mapbox for map integration
 
-- **Backend** (As of April 2025)
-  - [Supabase](https://supabase.com) - Free tier includes auth, database, storage, and edge functions
-  - [Render](https://render.com) - Free static site hosting
-  - [Cloudflare](https://cloudflare.com) - Free CDN and DNS management
-  - [Sentry](https://sentry.io) - Free error tracking for small teams
-  - [Neon](https://neon.tech) - Serverless Postgres (enhanced alternative to Supabase)
+- **Backend** (Free Services as of April 2025)
+  - [Supabase](https://supabase.com) - Authentication, database, storage, and serverless functions
+  - [Render](https://render.com) - Static site hosting with automatic deployments
+  - [Cloudflare](https://cloudflare.com) - CDN and DNS management
+  - [Sentry](https://sentry.io) - Error tracking for small teams
+  - [Neon](https://neon.tech) - Serverless Postgres database
 
 ## 📱 Environment Setup
 
@@ -76,9 +76,20 @@ Current MVP features implemented and working:
 - ✅ Event discovery and display
 - ✅ Map-based event visualization
 - ✅ Search and filtering
-- ✅ Basic authentication flow
+- ✅ Authentication flow
 - ✅ Responsive design for all devices
 - ✅ Performance optimizations (virtualization)
+- ✅ Settings management
+- ✅ User profile customization
+
+## 🚀 Getting Started with the MVP
+
+1. **Discover Events**: Browse events on the main page, with filtering options
+2. **Search**: Use the search page to find specific events
+3. **Nearby**: Find events in your vicinity with our map view
+4. **Create Events**: Logged-in users can create and manage events
+5. **Profile Management**: Customize your profile and preferences
+6. **Authentication**: Create an account or log in to access personalized features
 
 ## 🤝 Contributing
 
