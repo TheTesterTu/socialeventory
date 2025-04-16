@@ -37,12 +37,9 @@ export const TopBar = () => {
           : "bg-background/50 backdrop-blur-sm"
       }`}
     >
-      <div className="flex h-16 items-center px-4 md:px-6 mx-auto max-w-7xl">
+      <div className="container flex h-16 items-center mx-auto">
         <TopBarLogo />
-
-        {/* Show navigation buttons in TopBar on desktop */}
         {!isMobile && <TopBarNav />}
-
         <TopBarActions />
       </div>
     </motion.div>

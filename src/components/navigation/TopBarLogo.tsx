@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export const TopBarLogo = () => {
   return (
-    <Link to="/" className="flex items-center gap-2 mr-4">
+    <Link to="/" className="flex items-center gap-2">
       <motion.img
         src="/lovable-uploads/a6810b37-0f1f-4401-9970-901b029cf540.png"
         alt="SocialEventory"

@@ -22,16 +22,18 @@ export const TopBarNav = () => {
   ];
 
   return (
-    <nav className="flex items-center space-x-1">
+    <nav className="flex items-center space-x-1 ml-4">
       {navItems.map(item => {
         // Skip auth-required items for non-authenticated users
         if (item.requiresAuth && !user) return null;
         
+        const isActive = location.pathname === item.path;
+        
         return (
           <Link key={item.path} to={item.path}>
             <Button 
-              variant="ghost" 
-              className={`rounded-lg ${location.pathname === item.path ? 'bg-primary/10 text-primary' : ''}`}
+              variant={isActive ? "secondary" : "ghost"}
+              className={`rounded-lg ${isActive ? 'bg-primary/10 text-primary' : ''}`}
             >
               {item.label}
             </Button>
