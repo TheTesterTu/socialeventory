@@ -1,5 +1,4 @@
-
-import { Calendar, Search, PlusCircle, MapPin, Bell, Plus } from "lucide-react";
+import { Calendar, Search, MapPin, Bell, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";

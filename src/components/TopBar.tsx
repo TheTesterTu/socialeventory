@@ -37,6 +37,14 @@ export const TopBar = () => {
     };
   }, [scrolled]);
 
+  const navItems = [
+    { label: "Home", path: "/events" },
+    { label: "Search", path: "/search" },
+    { label: "Near Me", path: "/nearby" },
+    { label: "Create Event", path: "/create-event", requiresAuth: true },
+    { label: "Organizers", path: "/organizers" },
+  ];
+
   return (
     <motion.div 
       initial={{ y: -100 }}
@@ -49,45 +57,37 @@ export const TopBar = () => {
       }`}
     >
       <div className="flex h-16 items-center px-4 md:px-6 mx-auto max-w-7xl">
-        {/* Only show logo in TopBar on mobile */}
-        {isMobile && (
-          <Link to="/" className="flex items-center gap-2 mr-4">
-            <motion.img
-              src="/lovable-uploads/a6810b37-0f1f-4401-9970-901b029cf540.png"
-              alt="SocialEventory"
-              className="h-8 w-8"
-              whileHover={{ rotate: 10, scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 500, damping: 10 }}
-            />
-            <span className="font-semibold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              SocialEventory
-            </span>
-          </Link>
-        )}
+        <Link to="/" className="flex items-center gap-2 mr-4">
+          <motion.img
+            src="/lovable-uploads/a6810b37-0f1f-4401-9970-901b029cf540.png"
+            alt="SocialEventory"
+            className="h-8 w-8"
+            whileHover={{ rotate: 10, scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 10 }}
+          />
+          <span className="font-semibold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            SocialEventory
+          </span>
+        </Link>
 
         {/* Show navigation buttons in TopBar on desktop */}
         {!isMobile && (
           <nav className="flex items-center space-x-1">
-            <Link to="/events">
-              <Button variant="ghost" className={`rounded-lg ${location.pathname === '/events' ? 'bg-primary/10 text-primary' : ''}`}>
-                Home
-              </Button>
-            </Link>
-            <Link to="/search">
-              <Button variant="ghost" className={`rounded-lg ${location.pathname === '/search' ? 'bg-primary/10 text-primary' : ''}`}>
-                Search
-              </Button>
-            </Link>
-            <Link to="/nearby">
-              <Button variant="ghost" className={`rounded-lg ${location.pathname === '/nearby' ? 'bg-primary/10 text-primary' : ''}`}>
-                Near Me
-              </Button>
-            </Link>
-            <Link to="/create-event">
-              <Button variant="ghost" className={`rounded-lg ${location.pathname === '/create-event' ? 'bg-primary/10 text-primary' : ''}`}>
-                Create Event
-              </Button>
-            </Link>
+            {navItems.map(item => {
+              // Skip auth-required items for non-authenticated users
+              if (item.requiresAuth && !user) return null;
+              
+              return (
+                <Link key={item.path} to={item.path}>
+                  <Button 
+                    variant="ghost" 
+                    className={`rounded-lg ${location.pathname === item.path ? 'bg-primary/10 text-primary' : ''}`}
+                  >
+                    {item.label}
+                  </Button>
+                </Link>
+              );
+            })}
           </nav>
         )}
 

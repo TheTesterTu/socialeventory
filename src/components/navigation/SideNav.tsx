@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/events" },
@@ -21,6 +22,10 @@ const navItems = [
 export const SideNav = () => {
   const location = useLocation();
   const { user } = useAuth();
+  const isMobile = useIsMobile();
+  
+  // Don't render on desktop
+  if (!isMobile) return null;
 
   return (
     <motion.nav
