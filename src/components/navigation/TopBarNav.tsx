@@ -17,6 +17,7 @@ export const TopBarNav = () => {
     { label: "Home", path: "/events" },
     { label: "Search", path: "/search" },
     { label: "Near Me", path: "/nearby" },
+    { label: "Blog", path: "/blog" },
     { label: "Create Event", path: "/create-event", requiresAuth: true },
     { label: "Organizers", path: "/organizers" },
   ];

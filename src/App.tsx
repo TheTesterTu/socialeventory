@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +17,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Search from "./pages/Search";
 import Nearby from "./pages/Nearby";
 import Settings from "./pages/Settings";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +36,8 @@ const App = () => (
             <Route path="/search" element={<Search />} />
             <Route path="/nearby" element={<Nearby />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/create-event" element={
               <ProtectedRoute>
                 <CreateEvent />
