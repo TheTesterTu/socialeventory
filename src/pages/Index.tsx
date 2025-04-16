@@ -53,7 +53,8 @@ const Index = () => {
           </div>
         </motion.div>
 
-        <div className="fixed bottom-24 right-4 z-20">
+        {/* Only show the help button on mobile */}
+        <div className="fixed bottom-24 right-4 z-20 md:hidden">
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="icon" className="rounded-full h-12 w-12 bg-background/80 backdrop-blur-sm shadow-lg border-primary/20 hover:bg-primary/10">

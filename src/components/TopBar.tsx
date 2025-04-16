@@ -15,11 +15,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const TopBar = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,41 +49,47 @@ export const TopBar = () => {
       }`}
     >
       <div className="flex h-16 items-center px-4 md:px-6 mx-auto max-w-7xl">
-        <Link to="/" className="flex items-center gap-2 mr-4">
-          <motion.img
-            src="/lovable-uploads/a6810b37-0f1f-4401-9970-901b029cf540.png"
-            alt="SocialEventory"
-            className="h-8 w-8"
-            whileHover={{ rotate: 10, scale: 1.1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 10 }}
-          />
-          <span className="font-semibold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            SocialEventory
-          </span>
-        </Link>
+        {/* Only show logo in TopBar on mobile */}
+        {isMobile && (
+          <Link to="/" className="flex items-center gap-2 mr-4">
+            <motion.img
+              src="/lovable-uploads/a6810b37-0f1f-4401-9970-901b029cf540.png"
+              alt="SocialEventory"
+              className="h-8 w-8"
+              whileHover={{ rotate: 10, scale: 1.1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 10 }}
+            />
+            <span className="font-semibold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              SocialEventory
+            </span>
+          </Link>
+        )}
 
-        <nav className="hidden md:flex items-center space-x-1 ml-4">
-          <Link to="/events">
-            <Button variant="ghost" className={`rounded-lg ${location.pathname === '/events' ? 'bg-primary/10 text-primary' : ''}`}>
-              Home
-            </Button>
-          </Link>
-          <Link to="/search">
-            <Button variant="ghost" className={`rounded-lg ${location.pathname === '/search' ? 'bg-primary/10 text-primary' : ''}`}>
-              Search
-            </Button>
-          </Link>
-          <Link to="/nearby">
-            <Button variant="ghost" className={`rounded-lg ${location.pathname === '/nearby' ? 'bg-primary/10 text-primary' : ''}`}>
-              Near Me
-            </Button>
-          </Link>
-          <Link to="/create-event">
-            <Button variant="ghost" className={`rounded-lg ${location.pathname === '/create-event' ? 'bg-primary/10 text-primary' : ''}`}>
-              Create Event
-            </Button>
-          </Link>
-        </nav>
+        {/* Show navigation buttons in TopBar on desktop */}
+        {!isMobile && (
+          <nav className="flex items-center space-x-1">
+            <Link to="/events">
+              <Button variant="ghost" className={`rounded-lg ${location.pathname === '/events' ? 'bg-primary/10 text-primary' : ''}`}>
+                Home
+              </Button>
+            </Link>
+            <Link to="/search">
+              <Button variant="ghost" className={`rounded-lg ${location.pathname === '/search' ? 'bg-primary/10 text-primary' : ''}`}>
+                Search
+              </Button>
+            </Link>
+            <Link to="/nearby">
+              <Button variant="ghost" className={`rounded-lg ${location.pathname === '/nearby' ? 'bg-primary/10 text-primary' : ''}`}>
+                Near Me
+              </Button>
+            </Link>
+            <Link to="/create-event">
+              <Button variant="ghost" className={`rounded-lg ${location.pathname === '/create-event' ? 'bg-primary/10 text-primary' : ''}`}>
+                Create Event
+              </Button>
+            </Link>
+          </nav>
+        )}
 
         <div className="ml-auto flex items-center gap-2">
           <Button 

@@ -1,20 +1,26 @@
 
-import { Home, Search, PlusCircle, MapPin, Settings } from "lucide-react";
+import { Home, Search, PlusCircle, MapPin, Settings, Users, Calendar, Bell } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/events" },
   { icon: Search, label: "Search", path: "/search" },
   { icon: PlusCircle, label: "Create Event", path: "/create-event" },
   { icon: MapPin, label: "Near Me", path: "/nearby" },
+  { icon: Calendar, label: "My Events", path: "/profile" },
+  { icon: Users, label: "Organizers", path: "/organizers" },
+  { icon: Bell, label: "Notifications", path: "/notifications" },
   { icon: Settings, label: "Settings", path: "/settings" }
 ];
 
 export const SideNav = () => {
   const location = useLocation();
+  const { user } = useAuth();
 
   return (
     <motion.nav
@@ -33,10 +39,36 @@ export const SideNav = () => {
           <span className="font-semibold text-lg">SocialEventory</span>
         </Link>
       </div>
-      <div className="flex flex-col gap-2 p-4">
+      
+      {user && (
+        <div className="p-4 border-b border-border/50">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={user.user_metadata?.avatar || "https://i.pravatar.cc/100?img=1"} />
+              <AvatarFallback>{user.user_metadata?.name?.charAt(0) || "U"}</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="font-medium text-sm">{user.user_metadata?.name || 'User'}</span>
+              <span className="text-xs text-muted-foreground truncate max-w-[180px]">{user.email}</span>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="flex flex-col gap-2 p-4 flex-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;
+          
+          // Skip "Create Event" for non-authenticated users
+          if (item.path === "/create-event" && !user) {
+            return null;
+          }
+
+          // Only show profile-related items for authenticated users
+          if ((item.path === "/profile" || item.path === "/notifications") && !user) {
+            return null;
+          }
           
           return (
             <Link key={item.path} to={item.path}>
@@ -56,6 +88,31 @@ export const SideNav = () => {
           );
         })}
       </div>
+      
+      {user ? (
+        <div className="p-4 border-t border-border/50">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start gap-2"
+            onClick={() => window.location.href = "/auth/signout"}
+          >
+            Sign Out
+          </Button>
+        </div>
+      ) : (
+        <div className="p-4 border-t border-border/50 space-y-2">
+          <Link to="/auth">
+            <Button variant="default" className="w-full">
+              Sign In
+            </Button>
+          </Link>
+          <Link to="/auth?mode=signup">
+            <Button variant="outline" className="w-full">
+              Create Account
+            </Button>
+          </Link>
+        </div>
+      )}
     </motion.nav>
   );
 };

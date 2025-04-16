@@ -1,11 +1,17 @@
+
 import { Calendar, Search, PlusCircle, MapPin, Bell, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const FloatingActions = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const isMobile = useIsMobile();
+  
+  // Only show on mobile
+  if (!isMobile) return null;
   
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -20,7 +26,7 @@ export const FloatingActions = () => {
 
   return (
     <motion.div 
-      className="fixed bottom-8 right-8 hidden md:flex flex-col gap-4 items-end z-40"
+      className="fixed bottom-8 right-8 flex flex-col gap-4 items-end z-40"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}

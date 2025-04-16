@@ -19,7 +19,9 @@ export const DesktopLayout = ({
 }: DesktopLayoutProps) => {
   return (
     <div className="flex min-h-screen">
+      {/* Use sidebar from shadcn/ui for desktop navigation */}
       <SideNav />
+      
       <div className="flex-1">
         {showTopBar && <TopBar />}
         
