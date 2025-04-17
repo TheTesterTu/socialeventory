@@ -1,3 +1,4 @@
+
 import { useParams, Link } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -79,15 +80,15 @@ const mockEvents = [
     tags: ["leadership", "corporate", "professional development"],
     pricing: {
       isFree: false,
-      priceRange: [199, 399],
+      priceRange: [199, 399] as [number, number],
       currency: "USD"
     },
     creator: {
       id: "1",
-      type: "organizer"
+      type: "organizer" as "organizer"
     },
     verification: {
-      status: "verified"
+      status: "verified" as "verified"
     },
     imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop",
     likes: 128,
@@ -116,10 +117,10 @@ const mockEvents = [
     },
     creator: {
       id: "1",
-      type: "organizer"
+      type: "organizer" as "organizer"
     },
     verification: {
-      status: "verified"
+      status: "verified" as "verified"
     },
     imageUrl: "https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=2071&auto=format&fit=crop",
     likes: 89,
@@ -145,15 +146,15 @@ const mockEvents = [
     tags: ["training", "leadership", "skills development"],
     pricing: {
       isFree: false,
-      priceRange: [299, 299],
+      priceRange: [299, 299] as [number, number],
       currency: "USD"
     },
     creator: {
       id: "1",
-      type: "organizer"
+      type: "organizer" as "organizer"
     },
     verification: {
-      status: "verified"
+      status: "verified" as "verified"
     },
     imageUrl: "https://images.unsplash.com/photo-1558403194-611308249627?q=80&w=2070&auto=format&fit=crop",
     likes: 42,

@@ -33,10 +33,10 @@ const mockUserEvents = [
     },
     creator: {
       id: "1",
-      type: "user"
+      type: "user" as "user"
     },
     verification: {
-      status: "verified"
+      status: "verified" as "verified"
     },
     imageUrl: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2070&auto=format&fit=crop",
     likes: 42,
@@ -62,15 +62,15 @@ const mockUserEvents = [
     tags: ["design", "UX", "UI", "creative"],
     pricing: {
       isFree: false,
-      priceRange: [25, 25],
+      priceRange: [25, 25] as [number, number],
       currency: "USD"
     },
     creator: {
       id: "1",
-      type: "user"
+      type: "user" as "user"
     },
     verification: {
-      status: "pending"
+      status: "pending" as "pending"
     },
     imageUrl: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop",
     likes: 18,
@@ -100,15 +100,15 @@ const mockSavedEvents = [
     tags: ["food", "cuisine", "international", "community"],
     pricing: {
       isFree: false,
-      priceRange: [10, 10],
+      priceRange: [10, 10] as [number, number],
       currency: "USD"
     },
     creator: {
       id: "5",
-      type: "organizer"
+      type: "organizer" as "organizer"
     },
     verification: {
-      status: "verified"
+      status: "verified" as "verified"
     },
     imageUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop",
     likes: 345,
@@ -134,15 +134,15 @@ const mockSavedEvents = [
     tags: ["entrepreneurs", "startups", "business", "networking"],
     pricing: {
       isFree: false,
-      priceRange: [149, 199],
+      priceRange: [149, 199] as [number, number],
       currency: "USD"
     },
     creator: {
       id: "2",
-      type: "organizer"
+      type: "organizer" as "organizer"
     },
     verification: {
-      status: "verified"
+      status: "verified" as "verified"
     },
     imageUrl: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=2070&auto=format&fit=crop",
     likes: 127,

@@ -37,10 +37,10 @@ export async function fetchFacebookEvents(location: string, radius: number = 100
       },
       creator: {
         id: uuidv4(),
-        type: 'user'
+        type: "user" as "user" | "venue" | "organizer"
       },
       verification: {
-        status: 'pending'
+        status: "pending" as "pending" | "verified" | "featured"
       },
       imageUrl: event.cover?.source || '/placeholder.svg',
       likes: 0,

@@ -37,7 +37,7 @@ export const mockEvents: Event[] = [
     },
     pricing: {
       isFree: false,
-      priceRange: [25, 75],
+      priceRange: [25, 75] as [number, number],
       currency: "USD"
     },
     creator: {
@@ -71,7 +71,7 @@ export const mockEvents: Event[] = [
     },
     pricing: {
       isFree: false,
-      priceRange: [299, 599],
+      priceRange: [299, 599] as [number, number],
       currency: "USD"
     },
     creator: {
@@ -105,7 +105,7 @@ export const mockEvents: Event[] = [
     },
     pricing: {
       isFree: false,
-      priceRange: [30, 50],
+      priceRange: [30, 50] as [number, number],
       currency: "USD"
     },
     creator: {

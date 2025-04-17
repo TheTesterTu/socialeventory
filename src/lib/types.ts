@@ -1,3 +1,4 @@
+
 export interface Location {
   coordinates: [number, number];
   address: string;
