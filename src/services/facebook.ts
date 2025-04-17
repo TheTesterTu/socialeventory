@@ -19,7 +19,7 @@ export async function fetchFacebookEvents(location: string, radius: number = 100
       startDate: event.start_time,
       endDate: event.end_time || event.start_time,
       location: {
-        coordinates: [event.place?.location?.latitude || 0, event.place?.location?.longitude || 0],
+        coordinates: [event.place?.location?.latitude || 0, event.place?.location?.longitude || 0] as [number, number],
         address: event.place?.location?.street || '',
         venue_name: event.place?.name || ''
       },

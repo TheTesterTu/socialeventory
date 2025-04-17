@@ -1,4 +1,3 @@
-
 import { useParams, Link } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -63,7 +62,7 @@ const organizersData = [
   // ... other organizers data from the previous file
 ];
 
-// Mock events data
+// Mock events data with fixed coordinates as tuples [number, number]
 const mockEvents = [
   {
     id: "e1",
@@ -72,7 +71,7 @@ const mockEvents = [
     startDate: "2025-06-15T09:00:00",
     endDate: "2025-06-15T17:00:00",
     location: {
-      coordinates: [40.7128, -74.006],
+      coordinates: [40.7128, -74.006] as [number, number],
       address: "123 Business Center, New York, NY",
       venue_name: "Grand Conference Center"
     },
@@ -106,7 +105,7 @@ const mockEvents = [
     startDate: "2025-07-22T18:00:00",
     endDate: "2025-07-22T21:00:00",
     location: {
-      coordinates: [40.7580, -73.9855],
+      coordinates: [40.7580, -73.9855] as [number, number],
       address: "555 Tech Plaza, New York, NY",
       venue_name: "Innovation Hub"
     },
@@ -138,7 +137,7 @@ const mockEvents = [
     startDate: "2025-08-10T09:30:00",
     endDate: "2025-08-10T16:30:00",
     location: {
-      coordinates: [40.7331, -73.9902],
+      coordinates: [40.7331, -73.9902] as [number, number],
       address: "789 Learning Center, New York, NY",
       venue_name: "Professional Development Institute"
     },

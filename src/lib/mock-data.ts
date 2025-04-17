@@ -24,7 +24,7 @@ export const mockEvents: Event[] = [
     startDate: "2024-07-15T20:00:00",
     endDate: "2024-07-16T02:00:00",
     location: {
-      coordinates: [40.7829, -73.9654],
+      coordinates: [40.7829, -73.9654] as [number, number],
       address: "Central Park, New York",
       venue_name: "Great Lawn"
     },
@@ -58,7 +58,7 @@ export const mockEvents: Event[] = [
     startDate: "2024-09-20T09:00:00",
     endDate: "2024-09-20T18:00:00",
     location: {
-      coordinates: [37.7749, -122.4194],
+      coordinates: [37.7749, -122.4194] as [number, number],
       address: "Convention Center, San Francisco",
       venue_name: "Main Hall"
     },
@@ -92,7 +92,7 @@ export const mockEvents: Event[] = [
     startDate: "2024-08-05T07:00:00",
     endDate: "2024-08-05T12:00:00",
     location: {
-      coordinates: [39.7392, -104.9903],
+      coordinates: [39.7392, -104.9903] as [number, number],
       address: "Mountain Park, Colorado",
       venue_name: "Trail Head Center"
     },

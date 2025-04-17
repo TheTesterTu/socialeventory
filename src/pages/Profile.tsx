@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
-// Mock data for user's events
+// Mock data for user's events with fixed coordinates as tuples [number, number]
 const mockUserEvents = [
   {
     id: "e1",
@@ -22,7 +22,7 @@ const mockUserEvents = [
     startDate: "2025-05-20T18:00:00",
     endDate: "2025-05-20T20:00:00",
     location: {
-      coordinates: [40.7128, -74.006],
+      coordinates: [40.7128, -74.006] as [number, number],
       address: "123 Tech Hub, New York, NY",
       venue_name: "Developers Coworking"
     },
@@ -54,7 +54,7 @@ const mockUserEvents = [
     startDate: "2025-06-05T09:00:00",
     endDate: "2025-06-05T16:00:00",
     location: {
-      coordinates: [40.7328, -73.9502],
+      coordinates: [40.7328, -73.9502] as [number, number],
       address: "456 Design Studio, Brooklyn, NY",
       venue_name: "Creative Space"
     },
@@ -83,7 +83,7 @@ const mockUserEvents = [
   }
 ];
 
-// Mock data for saved events
+// Mock data for saved events with fixed coordinates as tuples [number, number]
 const mockSavedEvents = [
   {
     id: "s1",
@@ -92,7 +92,7 @@ const mockSavedEvents = [
     startDate: "2025-07-15T12:00:00",
     endDate: "2025-07-17T22:00:00",
     location: {
-      coordinates: [40.7831, -73.9712],
+      coordinates: [40.7831, -73.9712] as [number, number],
       address: "789 Park Avenue, New York, NY",
       venue_name: "Central Park"
     },
@@ -126,7 +126,7 @@ const mockSavedEvents = [
     startDate: "2025-08-10T09:00:00",
     endDate: "2025-08-11T17:00:00",
     location: {
-      coordinates: [40.7580, -73.9855],
+      coordinates: [40.7580, -73.9855] as [number, number],
       address: "555 Business Center, Manhattan, NY",
       venue_name: "Innovation Hub"
     },
