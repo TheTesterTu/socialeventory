@@ -1,3 +1,4 @@
+
 import { useParams, Link } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -269,7 +270,7 @@ const OrganizerProfile = () => {
                     {events.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {events.map(event => (
-                          <EventCard key={event.id} event={event} />
+                          <EventCard key={event.id} {...event} />
                         ))}
                       </div>
                     ) : (
