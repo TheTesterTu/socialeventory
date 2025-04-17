@@ -1,3 +1,4 @@
+
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, AlertCircle } from "lucide-react";
 import EventMap from "@/components/EventMap";
@@ -11,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 interface NearbyEventResponse {
   id: string;
@@ -64,7 +66,7 @@ const Nearby = () => {
         title: event.title,
         description: '', 
         location: {
-          coordinates: [event.coordinates.y, event.coordinates.x],
+          coordinates: [event.coordinates.y, event.coordinates.x] as [number, number],
           address: event.location,
           venue_name: event.venue_name || ''
         },
@@ -79,7 +81,7 @@ const Nearby = () => {
         },
         pricing: {
           isFree: event.pricing?.isFree || true,
-          priceRange: event.pricing?.priceRange,
+          priceRange: event.pricing?.priceRange as [number, number],
           currency: event.pricing?.currency,
         },
         creator: {
@@ -130,63 +132,57 @@ const Nearby = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="container mx-auto px-4 pt-20 pb-24 md:pt-6 relative"
-    >
-      <BackButton />
-      
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="mb-6"
-      >
-        <h1 className="text-2xl font-bold mb-2">Events Near You</h1>
-        <p className="text-muted-foreground">Discover events happening around your location</p>
-      </motion.div>
+    <AppLayout pageTitle="Events Near You">
+      <div className="container mx-auto px-4 relative">
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6 flex-1"
+        >
+          <p className="text-muted-foreground">Discover events happening around your location</p>
+        </motion.div>
 
-      <motion.div 
-        initial={{ y: -10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="flex items-center gap-2 mb-6"
-      >
-        <SearchBar onSearch={handleSearch} />
-        <SearchFilters
-          selectedCategories={selectedCategories}
-          onCategoryToggle={handleCategoryToggle}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-        />
-      </motion.div>
+        <motion.div 
+          initial={{ y: -10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center gap-2 mb-6"
+        >
+          <SearchBar onSearch={handleSearch} />
+          <SearchFilters
+            selectedCategories={selectedCategories}
+            onCategoryToggle={handleCategoryToggle}
+            filters={filters}
+            onFilterChange={handleFilterChange}
+          />
+        </motion.div>
 
-      <AnimatePresence mode="wait">
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="mb-6"
-          >
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-6"
+            >
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      <div className="rounded-xl overflow-hidden h-[calc(100vh-280px)]">
-        {isLoading ? (
-          <Skeleton className="w-full h-full" />
-        ) : (
-          <EventMap events={events} />
-        )}
+        <div className="rounded-xl overflow-hidden h-[calc(100vh-280px)]">
+          {isLoading ? (
+            <Skeleton className="w-full h-full" />
+          ) : (
+            <EventMap events={events} />
+          )}
+        </div>
       </div>
-    </motion.div>
+    </AppLayout>
   );
 };
 
