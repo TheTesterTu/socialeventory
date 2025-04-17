@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SearchBar } from "@/components/SearchBar";
@@ -11,9 +10,8 @@ import { EventFilters } from "@/lib/types/filters";
 import { VirtualizedEventList } from "@/components/VirtualizedEventList";
 import { useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import EventMap from "@/components/EventMap";
 
 const Search = () => {
@@ -35,7 +33,6 @@ const Search = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Extract query params
     const params = new URLSearchParams(location.search);
     const queryParam = params.get('q');
     const categoryParam = params.get('category');
@@ -50,7 +47,6 @@ const Search = () => {
   }, [location.search]);
 
   useEffect(() => {
-    // Filter events based on search query and categories
     const filtered = mockEvents.filter((event) => {
       const matchesSearch = 
         searchQuery === "" ||
@@ -95,6 +91,7 @@ const Search = () => {
     <AppLayout 
       pageTitle="Search Events" 
       pageDescription="Find events that match your interests and preferences"
+      showTopBar={true}
     >
       <motion.div
         initial={{ opacity: 0 }}

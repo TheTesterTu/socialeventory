@@ -1,4 +1,3 @@
-
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, AlertCircle } from "lucide-react";
 import EventMap from "@/components/EventMap";
@@ -132,7 +131,7 @@ const Nearby = () => {
   };
 
   return (
-    <AppLayout pageTitle="Events Near You">
+    <AppLayout pageTitle="Events Near You" showTopBar={true}>
       <div className="container mx-auto px-4 relative">
         <motion.div 
           initial={{ y: -20, opacity: 0 }}

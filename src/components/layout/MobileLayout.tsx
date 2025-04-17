@@ -2,6 +2,7 @@
 import { ReactNode, useState } from "react";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { TopBar } from "@/components/TopBar";
+import { Footer } from "@/components/layout/Footer";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface MobileLayoutProps {
@@ -70,6 +71,8 @@ export const MobileLayout = ({
       </div>
       
       <BottomNav />
+      
+      {/* Do not show footer on mobile, since we have bottom nav */}
     </div>
   );
 };

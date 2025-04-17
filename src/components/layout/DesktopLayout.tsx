@@ -1,6 +1,7 @@
 
 import { ReactNode } from "react";
 import { TopBar } from "@/components/TopBar";
+import { Footer } from "@/components/layout/Footer";
 import { motion } from "framer-motion";
 
 interface DesktopLayoutProps {
@@ -17,10 +18,10 @@ export const DesktopLayout = ({
   showTopBar = true 
 }: DesktopLayoutProps) => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       {showTopBar && <TopBar />}
       
-      <div className="p-6 pt-20 max-w-7xl mx-auto">
+      <div className="p-6 pt-20 max-w-7xl mx-auto flex-grow">
         {pageTitle && (
           <motion.header 
             initial={{ opacity: 0, y: 20 }}
@@ -42,6 +43,8 @@ export const DesktopLayout = ({
           {children}
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

@@ -1,202 +1,125 @@
+
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import NotFound from "@/pages/NotFound";
 import { OrganizerHeader } from "@/components/organizer/OrganizerHeader";
-import { OrganizerTabs } from "@/components/organizer/OrganizerTabs";
-import { OrganizerInfo } from "@/components/organizer/OrganizerInfo";
+import { OrganizerContent } from "@/components/organizer/OrganizerContent";
+import { mockEvents } from "@/lib/mock-data";
 import { Event } from "@/lib/types";
-
-// Same mock data as in Organizers.tsx
-const organizersData = [
-  {
-    id: "1",
-    name: "EventMasters Group",
-    avatar: "https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=2274&auto=format&fit=crop",
-    bio: "Professional event planning company with 10+ years of experience in corporate and social events.",
-    description: "EventMasters Group is a premier event planning company specializing in corporate events, conferences, and social gatherings. With over a decade of experience, our team of seasoned professionals is dedicated to creating memorable experiences tailored to our clients' unique needs. We handle everything from venue selection and decor to catering and entertainment, ensuring a seamless event execution every time.",
-    website: "www.eventmastersgroup.com",
-    email: "contact@eventmastersgroup.com",
-    phone: "(555) 123-4567",
-    rating: 4.8,
-    eventCount: 145,
-    featured: true,
-    location: "New York, NY",
-    categories: ["Corporate", "Wedding", "Conference"],
-    verified: true,
-    foundedYear: 2010,
-    teamSize: "15-30 people",
-    social: {
-      twitter: "eventmasters",
-      instagram: "eventmastersgroup",
-      facebook: "EventMastersGroup"
-    }
-  },
-  {
-    id: "2",
-    name: "Community Events Collective",
-    avatar: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?q=80&w=2070&auto=format&fit=crop",
-    bio: "Grass-roots organization dedicated to bringing the community together through inclusive events.",
-    description: "Community Events Collective is a grass-roots organization founded with the mission of strengthening community bonds through inclusive events. We focus on creating accessible, affordable, and engaging activities that celebrate diversity and foster a sense of belonging. Our team works closely with local businesses, artists, and community leaders to create authentic experiences that reflect the unique character of each neighborhood we serve.",
-    website: "www.communityeventscollective.org",
-    email: "info@communityeventscollective.org",
-    phone: "(555) 234-5678",
-    rating: 4.6,
-    eventCount: 92,
-    featured: true,
-    location: "Portland, OR",
-    categories: ["Community", "Cultural", "Festival"],
-    verified: true,
-    foundedYear: 2015,
-    teamSize: "5-15 people",
-    social: {
-      twitter: "commevents",
-      instagram: "communityeventscollective",
-      facebook: "CommunityEventsCollective"
-    }
-  },
-  // ... other organizers data from the previous file
-];
-
-// Mock events data with fixed coordinates as tuples [number, number]
-const mockEvents: Event[] = [
-  {
-    id: "e1",
-    title: "Annual Corporate Leadership Summit",
-    description: "Join us for a day of inspiring talks and networking with industry leaders.",
-    startDate: "2025-06-15T09:00:00",
-    endDate: "2025-06-15T17:00:00",
-    location: {
-      coordinates: [40.7128, -74.006] as [number, number],
-      address: "123 Business Center, New York, NY",
-      venue_name: "Grand Conference Center"
-    },
-    category: ["Conference", "Business", "Networking"],
-    tags: ["leadership", "corporate", "professional development"],
-    pricing: {
-      isFree: false,
-      priceRange: [199, 399] as [number, number],
-      currency: "USD"
-    },
-    creator: {
-      id: "1",
-      type: "organizer" as "organizer"
-    },
-    verification: {
-      status: "verified" as "verified"
-    },
-    imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop",
-    likes: 128,
-    attendees: 342,
-    accessibility: {
-      languages: ["English"],
-      wheelchairAccessible: true,
-      familyFriendly: false
-    }
-  },
-  {
-    id: "e2",
-    title: "Product Launch & Networking Mixer",
-    description: "Be the first to see our newest innovations and connect with industry professionals.",
-    startDate: "2025-07-22T18:00:00",
-    endDate: "2025-07-22T21:00:00",
-    location: {
-      coordinates: [40.7580, -73.9855] as [number, number],
-      address: "555 Tech Plaza, New York, NY",
-      venue_name: "Innovation Hub"
-    },
-    category: ["Networking", "Tech", "Product Launch"],
-    tags: ["innovation", "technology", "networking"],
-    pricing: {
-      isFree: true
-    },
-    creator: {
-      id: "1",
-      type: "organizer" as "organizer"
-    },
-    verification: {
-      status: "verified" as "verified"
-    },
-    imageUrl: "https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=2071&auto=format&fit=crop",
-    likes: 89,
-    attendees: 175,
-    accessibility: {
-      languages: ["English"],
-      wheelchairAccessible: true,
-      familyFriendly: true
-    }
-  },
-  {
-    id: "e3",
-    title: "Executive Training Workshop",
-    description: "Intensive one-day workshop to develop essential leadership skills.",
-    startDate: "2025-08-10T09:30:00",
-    endDate: "2025-08-10T16:30:00",
-    location: {
-      coordinates: [40.7331, -73.9902] as [number, number],
-      address: "789 Learning Center, New York, NY",
-      venue_name: "Professional Development Institute"
-    },
-    category: ["Workshop", "Business", "Education"],
-    tags: ["training", "leadership", "skills development"],
-    pricing: {
-      isFree: false,
-      priceRange: [299, 299] as [number, number],
-      currency: "USD"
-    },
-    creator: {
-      id: "1",
-      type: "organizer" as "organizer"
-    },
-    verification: {
-      status: "verified" as "verified"
-    },
-    imageUrl: "https://images.unsplash.com/photo-1558403194-611308249627?q=80&w=2070&auto=format&fit=crop",
-    likes: 42,
-    attendees: 28,
-    accessibility: {
-      languages: ["English"],
-      wheelchairAccessible: true,
-      familyFriendly: false
-    }
-  }
-];
 
 const OrganizerProfile = () => {
   const { id } = useParams<{ id: string }>();
-  const [organizer, setOrganizer] = useState(organizersData.find(org => org.id === id));
-  const [events, setEvents] = useState<Event[]>(mockEvents.filter(event => event.creator.id === id));
+  const [isLoading, setIsLoading] = useState(true);
+  const [organizer, setOrganizer] = useState({
+    id: "",
+    name: "",
+    description: "",
+    imageUrl: "",
+    coverImageUrl: "",
+    website: "",
+    socialLinks: {
+      twitter: "",
+      facebook: "",
+      instagram: ""
+    },
+    location: "",
+    followers: 0,
+    events: 0,
+    rating: 0,
+    verified: false
+  });
   
+  const [activeEvents, setActiveEvents] = useState<Event[]>([]);
+  const [pastEvents, setPastEvents] = useState<Event[]>([]);
+
   useEffect(() => {
-    // In a real app, this would fetch data from an API
-    window.scrollTo(0, 0);
+    fetchOrganizerData();
   }, [id]);
-  
-  if (!organizer) {
-    return <NotFound />;
-  }
-  
+
+  const fetchOrganizerData = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call with timeout
+      setTimeout(() => {
+        // Set organizer data
+        setOrganizer({
+          id: id || "1",
+          name: "Tech Conferences Inc.",
+          description: "We organize the best tech conferences in the Bay Area",
+          imageUrl: "/placeholder.svg",
+          coverImageUrl: "/placeholder.svg",
+          website: "https://techconferences.example.com",
+          socialLinks: {
+            twitter: "https://twitter.com/techconf",
+            facebook: "https://facebook.com/techconf",
+            instagram: "https://instagram.com/techconf"
+          },
+          location: "San Francisco, CA",
+          followers: 1250,
+          events: 45,
+          rating: 4.8,
+          verified: true
+        });
+        
+        // Filter events for this organizer
+        // For active events, use the first half of mockEvents
+        const active = mockEvents.slice(0, 3).map(event => ({
+          ...event,
+          key: event.id,
+          creator: {
+            id: id || "1",
+            type: "organizer" as const
+          }
+        }));
+        
+        // For past events, use the second half of mockEvents
+        const past = mockEvents.slice(4, 7).map(event => ({
+          ...event,
+          key: event.id,
+          creator: {
+            id: id || "1",
+            type: "organizer" as const
+          },
+          startDate: "2023-01-15T18:00:00Z", // Set past date
+          endDate: "2023-01-15T21:00:00Z"
+        }));
+        
+        setActiveEvents(active);
+        setPastEvents(past);
+        setIsLoading(false);
+      }, 800);
+    } catch (error) {
+      console.error("Error fetching organizer data:", error);
+      setIsLoading(false);
+    }
+  };
+
   return (
     <AppLayout>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="max-w-6xl mx-auto"
-      >
-        <OrganizerHeader organizer={organizer} />
+      <div className="container max-w-5xl mx-auto">
+        <OrganizerHeader
+          isLoading={isLoading}
+          name={organizer.name}
+          description={organizer.description}
+          imageUrl={organizer.imageUrl}
+          coverImageUrl={organizer.coverImageUrl}
+          website={organizer.website}
+          socialLinks={organizer.socialLinks}
+          location={organizer.location}
+          followers={organizer.followers}
+          events={organizer.events}
+          rating={organizer.rating}
+          verified={organizer.verified}
+        />
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <OrganizerTabs organizer={organizer} events={events} />
-          </div>
-          
-          <div>
-            <OrganizerInfo organizer={organizer} />
-          </div>
-        </div>
-      </motion.div>
+        {!isLoading && (
+          <OrganizerContent 
+            activeEvents={activeEvents}
+            pastEvents={pastEvents}
+            name={organizer.name}
+          />
+        )}
+      </div>
     </AppLayout>
   );
 };
