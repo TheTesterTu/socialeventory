@@ -77,6 +77,7 @@ export const EventCard = ({
             eventId={id}
             likes={likes}
             comments={0}
+            attendees={attendees}
           />
 
           <motion.div 

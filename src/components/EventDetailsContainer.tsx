@@ -2,7 +2,7 @@
 import { Event } from "@/lib/types";
 import { EventHeader } from "./EventHeader";
 import { EventMetadata } from "./EventMetadata";
-import { EventSocialActions } from "./EventSocialActions";
+import { EventActionButtons } from "./EventActionButtons";
 import { EventComments } from "./EventComments";
 import { Tag } from "lucide-react";
 import { motion } from "framer-motion";
@@ -59,10 +59,11 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
               attendees={event.attendees}
               pricing={event.pricing}
             />
-            <EventSocialActions 
+            <EventActionButtons 
               eventId={event.id} 
               likes={event.likes} 
               comments={0}
+              attendees={event.attendees}
             />
           </div>
         </div>
