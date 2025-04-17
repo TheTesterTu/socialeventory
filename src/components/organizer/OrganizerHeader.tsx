@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, Mail, Share2, ExternalLink } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface OrganizerHeaderProps {
   organizer: {
@@ -28,9 +29,35 @@ interface OrganizerHeaderProps {
       facebook?: string;
     };
   };
+  isLoading?: boolean;
 }
 
-export const OrganizerHeader = ({ organizer }: OrganizerHeaderProps) => {
+export const OrganizerHeader = ({ organizer, isLoading = false }: OrganizerHeaderProps) => {
+  if (isLoading) {
+    return (
+      <div className="relative mb-8">
+        <div className="h-48 bg-gradient-to-r from-primary/30 to-accent/30 rounded-xl" />
+        <div className="absolute -bottom-12 left-6 flex items-end">
+          <Skeleton className="h-24 w-24 rounded-full" />
+        </div>
+        
+        <div className="pt-12 pb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div>
+              <Skeleton className="h-8 w-48 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Skeleton className="h-9 w-24 rounded-md" />
+              <Skeleton className="h-9 w-24 rounded-md" />
+              <Skeleton className="h-9 w-24 rounded-md" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="relative mb-8">
       <div className="h-48 bg-gradient-to-r from-primary/30 to-accent/30 rounded-xl" />

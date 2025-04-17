@@ -9,24 +9,29 @@ import { useNavigate } from "react-router-dom";
 interface Organization {
   id: string;
   name: string;
-  avatar: string;
-  role: string;
-  eventCount: number;
-  memberCount: number;
-  location: string;
+  imageUrl: string;
+  description: string;
+  events: number;
+  followers: number;
+  location?: string;
+  role?: string;
 }
 
 interface OrganizationsListProps {
+  title?: string;
   organizations: Organization[];
 }
 
-export const OrganizationsList = ({ organizations }: OrganizationsListProps) => {
+export const OrganizationsList = ({ 
+  title = "My Organizations",
+  organizations 
+}: OrganizationsListProps) => {
   const navigate = useNavigate();
   
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">My Organizations</h2>
+        <h2 className="text-xl font-semibold">{title}</h2>
         <Button onClick={() => navigate('/organizers')} className="gap-2">
           <Building2 className="h-4 w-4" />
           Create Organization
@@ -43,24 +48,24 @@ export const OrganizationsList = ({ organizations }: OrganizationsListProps) => 
               <CardContent className="pt-0">
                 <div className="flex justify-between -mt-8 mb-4">
                   <Avatar className="h-16 w-16 border-4 border-background shadow-sm">
-                    <AvatarImage src={org.avatar} />
+                    <AvatarImage src={org.imageUrl} />
                     <AvatarFallback>{org.name.charAt(0)}</AvatarFallback>
                   </Avatar>
-                  <Badge className="h-fit mt-2">{org.role}</Badge>
+                  <Badge className="h-fit mt-2">{org.role || "Member"}</Badge>
                 </div>
                 <CardTitle className="text-lg">{org.name}</CardTitle>
                 <CardDescription className="flex items-center mt-1">
                   <MapPin className="h-3 w-3 mr-1" />
-                  {org.location}
+                  {org.location || "Location not set"}
                 </CardDescription>
                 <div className="flex gap-4 mt-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    <span>{org.eventCount} events</span>
+                    <span>{org.events} events</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <UserPlus className="h-4 w-4" />
-                    <span>{org.memberCount} members</span>
+                    <span>{org.followers} members</span>
                   </div>
                 </div>
               </CardContent>

@@ -5,13 +5,39 @@ import { Calendar, Edit, MapPin, Mail, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { User } from "@supabase/supabase-js";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProfileHeaderProps {
   user: User | null;
+  isLoading?: boolean;
 }
 
-export const ProfileHeader = ({ user }: ProfileHeaderProps) => {
+export const ProfileHeader = ({ user, isLoading = false }: ProfileHeaderProps) => {
   const navigate = useNavigate();
+  
+  if (isLoading) {
+    return (
+      <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden mb-8">
+        <div className="h-48 bg-gradient-to-r from-primary/20 to-accent/20" />
+        <div className="px-8 pb-6 relative">
+          <div className="flex flex-col md:flex-row gap-6 md:items-end">
+            <div className="-mt-12">
+              <Skeleton className="h-24 w-24 rounded-full" />
+            </div>
+            <div className="flex-1 md:pb-2">
+              <Skeleton className="h-8 w-48 mb-2" />
+              <Skeleton className="h-4 w-64 mb-1" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+            <div className="flex gap-2 mt-4 md:mt-0">
+              <Skeleton className="h-9 w-24 rounded-md" />
+              <Skeleton className="h-9 w-24 rounded-md" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden mb-8">

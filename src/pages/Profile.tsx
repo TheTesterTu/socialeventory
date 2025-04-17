@@ -9,7 +9,7 @@ import { mockEvents } from "@/lib/mock-data";
 import { Event } from "@/lib/types";
 
 const Profile = () => {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
@@ -82,7 +82,7 @@ const Profile = () => {
   return (
     <AppLayout>
       <div className="container max-w-5xl mx-auto">
-        <ProfileHeader isLoading={isLoading} />
+        <ProfileHeader user={user} isLoading={isLoading} />
         
         {!isLoading && (
           <ProfileContent

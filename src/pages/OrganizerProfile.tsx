@@ -13,20 +13,24 @@ const OrganizerProfile = () => {
   const [organizer, setOrganizer] = useState({
     id: "",
     name: "",
+    avatar: "",
+    bio: "",
     description: "",
-    imageUrl: "",
-    coverImageUrl: "",
     website: "",
-    socialLinks: {
+    email: "",
+    rating: 0,
+    eventCount: 0,
+    featured: false,
+    location: "",
+    categories: [] as string[],
+    verified: false,
+    foundedYear: 2020,
+    teamSize: "",
+    social: {
       twitter: "",
       facebook: "",
       instagram: ""
-    },
-    location: "",
-    followers: 0,
-    events: 0,
-    rating: 0,
-    verified: false
+    }
   });
   
   const [activeEvents, setActiveEvents] = useState<Event[]>([]);
@@ -45,20 +49,24 @@ const OrganizerProfile = () => {
         setOrganizer({
           id: id || "1",
           name: "Tech Conferences Inc.",
+          avatar: "/placeholder.svg",
+          bio: "Premier tech conference organizer",
           description: "We organize the best tech conferences in the Bay Area",
-          imageUrl: "/placeholder.svg",
-          coverImageUrl: "/placeholder.svg",
           website: "https://techconferences.example.com",
-          socialLinks: {
+          email: "contact@techconferences.example.com",
+          rating: 4.8,
+          eventCount: 45,
+          featured: true,
+          location: "San Francisco, CA",
+          categories: ["Technology", "Business", "Education"],
+          verified: true,
+          foundedYear: 2015,
+          teamSize: "11-50",
+          social: {
             twitter: "https://twitter.com/techconf",
             facebook: "https://facebook.com/techconf",
             instagram: "https://instagram.com/techconf"
-          },
-          location: "San Francisco, CA",
-          followers: 1250,
-          events: 45,
-          rating: 4.8,
-          verified: true
+          }
         });
         
         // Filter events for this organizer
@@ -98,18 +106,8 @@ const OrganizerProfile = () => {
     <AppLayout>
       <div className="container max-w-5xl mx-auto">
         <OrganizerHeader
+          organizer={organizer}
           isLoading={isLoading}
-          name={organizer.name}
-          description={organizer.description}
-          imageUrl={organizer.imageUrl}
-          coverImageUrl={organizer.coverImageUrl}
-          website={organizer.website}
-          socialLinks={organizer.socialLinks}
-          location={organizer.location}
-          followers={organizer.followers}
-          events={organizer.events}
-          rating={organizer.rating}
-          verified={organizer.verified}
         />
         
         {!isLoading && (
