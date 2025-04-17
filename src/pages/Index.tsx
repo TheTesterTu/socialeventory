@@ -19,7 +19,6 @@ const Index = () => {
     <AppLayout 
       pageTitle="Discover Events" 
       pageDescription="Find and join exciting events in your community"
-      hideTopBar={false}
     >
       <motion.div
         initial={{ opacity: 0 }}

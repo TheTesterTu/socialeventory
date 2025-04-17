@@ -5,7 +5,7 @@ import { SideNav } from "@/components/navigation/SideNav";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { FloatingActions } from "@/components/navigation/FloatingActions";
 import { Footer } from "./Footer";
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren, useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 
 interface AppLayoutProps extends PropsWithChildren {
@@ -18,20 +18,23 @@ interface AppLayoutProps extends PropsWithChildren {
 
 export const AppLayout = ({ 
   children, 
-  hideTopBar = false,
+  hideTopBar: initialHideTopBar = false,
   hideFooter = false,
   showTopBar,
   pageTitle = "SocialEventory",
   pageDescription = "Discover and share events with your community"
 }: AppLayoutProps) => {
   const isMobile = useIsMobile();
+  const [hideTopBar, setHideTopBar] = useState(initialHideTopBar);
   
   // For backward compatibility - if showTopBar is provided, it overrides hideTopBar
   useEffect(() => {
     if (showTopBar !== undefined) {
-      hideTopBar = !showTopBar;
+      setHideTopBar(!showTopBar);
+    } else {
+      setHideTopBar(initialHideTopBar);
     }
-  }, [showTopBar]);
+  }, [showTopBar, initialHideTopBar]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -44,8 +47,8 @@ export const AppLayout = ({
       
       {!hideTopBar && <TopBar />}
       <div className="flex flex-1">
-        <SideNav />
-        <main className="flex-1 pb-20 md:pb-0">
+        {!isMobile && <SideNav />}
+        <main className="flex-1 pt-16 pb-20 md:pb-0">
           {children}
         </main>
       </div>

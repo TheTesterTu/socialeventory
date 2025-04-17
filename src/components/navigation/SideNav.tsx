@@ -1,5 +1,5 @@
 
-import { Home, Search, PlusCircle, MapPin, Settings, Users, Calendar, Bell } from "lucide-react";
+import { PlusCircle, Calendar, Bell, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -9,14 +9,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
-  { icon: Home, label: "Home", path: "/events" },
-  { icon: Search, label: "Search", path: "/search" },
-  { icon: PlusCircle, label: "Create Event", path: "/create-event" },
-  { icon: MapPin, label: "Near Me", path: "/nearby" },
   { icon: Calendar, label: "My Events", path: "/profile" },
-  { icon: Users, label: "Organizers", path: "/organizers" },
+  { icon: PlusCircle, label: "Create Event", path: "/create-event" },
   { icon: Bell, label: "Notifications", path: "/notifications" },
-  { icon: Settings, label: "Settings", path: "/settings" }
+  { icon: User, label: "Settings", path: "/settings" }
 ];
 
 export const SideNav = () => {
