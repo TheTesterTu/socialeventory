@@ -8,6 +8,7 @@ import { blogPosts } from "@/lib/mock-data/blog-data";
 import { SearchBar } from "@/components/SearchBar";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 const Blog = () => {
   const [searchQuery, setSearchQuery] = useState("");

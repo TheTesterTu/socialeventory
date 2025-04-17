@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BlogList } from "@/components/blog/BlogList";
 import { useEffect, useState } from "react";
-import { NotFound } from "@/pages/NotFound";
+import NotFound from "@/pages/NotFound";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
