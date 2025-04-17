@@ -1,5 +1,5 @@
 
-import { Home, Search, PlusCircle, MapPin, Settings } from "lucide-react";
+import { Home, Search, PlusCircle, MapPin, Settings, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,7 +12,7 @@ export const BottomNav = () => {
     { icon: Search, label: "Search", path: "/search" },
     { icon: PlusCircle, label: "Create", path: "/create-event" },
     { icon: MapPin, label: "Near Me", path: "/nearby" },
-    { icon: Settings, label: "Settings", path: "/settings" }
+    { icon: Users, label: "Organizers", path: "/organizers" }
   ];
 
   return (

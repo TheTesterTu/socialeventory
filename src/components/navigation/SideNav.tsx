@@ -24,8 +24,8 @@ export const SideNav = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   
-  // Don't render on desktop
-  if (!isMobile) return null;
+  // Don't render on mobile
+  if (isMobile) return null;
 
   return (
     <motion.nav

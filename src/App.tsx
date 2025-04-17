@@ -19,6 +19,8 @@ import Nearby from "./pages/Nearby";
 import Settings from "./pages/Settings";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Organizers from "./pages/Organizers";
+import OrganizerProfile from "./pages/OrganizerProfile";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +40,8 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/organizers" element={<Organizers />} />
+            <Route path="/organizer/:id" element={<OrganizerProfile />} />
             <Route path="/create-event" element={
               <ProtectedRoute>
                 <CreateEvent />
