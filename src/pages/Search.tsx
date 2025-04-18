@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SearchBar } from "@/components/SearchBar";
@@ -97,7 +98,7 @@ const Search = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="space-y-6"
+        className="space-y-6 container mx-auto px-4 sm:px-6 lg:px-8"
       >
         <div className="glass-panel p-4 rounded-xl">
           <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
