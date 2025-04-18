@@ -40,7 +40,7 @@ export const EventCard = ({
   return (
     <>
       <motion.div 
-        className="event-card group relative"
+        className="event-card group relative h-[280px] md:h-[320px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -48,37 +48,37 @@ export const EventCard = ({
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background/90" />
         <img
-          src={imageUrl}
+          src={imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
           alt={title}
-          className="absolute inset-0 h-full w-full object-cover -z-10 transition-transform group-hover:scale-105"
+          className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-105"
         />
         
-        <div className="relative space-y-4 p-4">
-          <div className="flex justify-between items-start">
-            <div className="space-y-2">
-              <EventCategories categories={category} />
-              <EventVerificationBadge status={verification.status} />
-              <h3 className="text-lg font-semibold">{title}</h3>
-            </div>
+        <div className="relative h-full flex flex-col justify-between p-4">
+          <div className="space-y-2">
+            <EventCategories categories={category} />
+            <EventVerificationBadge status={verification.status} />
+            <h3 className="text-lg font-semibold line-clamp-2">{title}</h3>
           </div>
 
-          <EventMetadata
-            startDate={startDate}
-            endDate={endDate}
-            location={location}
-            tags={tags}
-            attendees={attendees}
-            pricing={pricing}
-          />
+          <div className="space-y-4">
+            <EventMetadata
+              startDate={startDate}
+              endDate={endDate}
+              location={location}
+              tags={tags}
+              attendees={attendees}
+              pricing={pricing}
+            />
 
-          <EventActionButtons
-            eventId={id}
-            likes={likes}
-            comments={0}
-            attendees={attendees}
-          />
+            <EventActionButtons
+              eventId={id}
+              likes={likes}
+              comments={0}
+              attendees={attendees}
+            />
+          </div>
 
           <motion.div 
             className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"

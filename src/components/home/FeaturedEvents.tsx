@@ -24,7 +24,7 @@ export const FeaturedEvents = () => {
   }, []);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-4 sm:px-6 lg:px-8">
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -35,7 +35,7 @@ export const FeaturedEvents = () => {
           <TrendingUp className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">Trending Now</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {trendingEvents.map((event) => (
             <motion.div
               key={event.id}
@@ -59,7 +59,7 @@ export const FeaturedEvents = () => {
           <Sparkles className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">Just Added</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {newEvents.map((event) => (
             <motion.div
               key={event.id}
