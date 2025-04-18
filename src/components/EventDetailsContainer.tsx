@@ -16,7 +16,7 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto space-y-8"
+      className="max-w-4xl mx-auto space-y-8 px-4 sm:px-6"
     >
       <div className="relative h-[400px] rounded-xl overflow-hidden">
         <img

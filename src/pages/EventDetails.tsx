@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -7,6 +8,7 @@ import { Event, AccessibilityInfo, Pricing } from "@/lib/types";
 import { useToast } from "@/components/ui/use-toast";
 import { EventDetailsSkeleton } from "@/components/EventDetailsSkeleton";
 import { EventDetailsContainer } from "@/components/EventDetailsContainer";
+import { getEventById } from "@/lib/mock-data"; // Import the mock data function
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -24,6 +26,7 @@ const EventDetails = () => {
           throw new Error("Invalid event ID format");
         }
 
+        // Try to get from the database first
         const { data, error } = await supabase
           .from('events')
           .select(`
@@ -38,13 +41,22 @@ const EventDetails = () => {
 
         if (error) throw error;
 
+        // If the event is not found in the database, try to get it from mock data
         if (!data) {
-          toast({
-            title: "Event not found",
-            description: "The event you're looking for doesn't exist or has been removed.",
-            variant: "destructive"
-          });
-          navigate('/');
+          const mockEvent = getEventById(id);
+          
+          if (!mockEvent) {
+            toast({
+              title: "Event not found",
+              description: "The event you're looking for doesn't exist or has been removed.",
+              variant: "destructive"
+            });
+            navigate('/');
+            return;
+          }
+          
+          setEvent(mockEvent);
+          setIsLoading(false);
           return;
         }
 
@@ -130,7 +142,7 @@ const EventDetails = () => {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6 max-w-screen-2xl mx-auto">
       <Button 
         onClick={() => navigate(-1)} 
         variant="outline" 

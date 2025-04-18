@@ -6,7 +6,7 @@ import { EventCategories } from "./EventCategories";
 import { EventMetadata } from "./EventMetadata";
 import { EventActionButtons } from "./EventActionButtons";
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
@@ -101,6 +101,7 @@ export const EventCard = ({
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
+          <DialogTitle className="sr-only">Event Details</DialogTitle>
           <div className="space-y-4">
             <div className="relative h-52 overflow-hidden rounded-t-lg">
               <img 

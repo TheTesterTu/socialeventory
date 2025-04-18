@@ -1,6 +1,6 @@
 
 import { Event } from "@/lib/types";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Share2, Heart, ExternalLink, Users } from "lucide-react";
 import { format } from "date-fns";
@@ -49,6 +49,7 @@ export const EventQuickView = ({ event, isOpen, onOpenChange }: EventQuickViewPr
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+        <DialogTitle className="sr-only">Event Quick View</DialogTitle>
         <div className="space-y-4">
           <div className="relative h-52 overflow-hidden">
             <img 
