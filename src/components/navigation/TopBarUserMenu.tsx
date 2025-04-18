@@ -1,5 +1,5 @@
 
-import { User, Settings } from "lucide-react";
+import { User, Settings, LogOut, Calendar, Bell, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -9,6 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -52,15 +53,37 @@ export const TopBarUserMenu = () => {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="cursor-pointer flex items-center">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  My Events
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/create-event" className="cursor-pointer flex items-center">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Create Event
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/notifications" className="cursor-pointer flex items-center">
+                  <Bell className="mr-2 h-4 w-4" />
+                  Notifications
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            
+            <DropdownMenuSeparator />
+            
             <DropdownMenuItem asChild>
-              <Link to="/profile" className="cursor-pointer">Profile</Link>
+              <Link to="/settings" className="cursor-pointer flex items-center">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/create-event" className="cursor-pointer">Create Event</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/settings" className="cursor-pointer">Settings</Link>
-            </DropdownMenuItem>
+            
             {user.role === 'admin' && (
               <DropdownMenuItem asChild>
                 <Link to="/admin" className="cursor-pointer flex items-center">
@@ -72,8 +95,9 @@ export const TopBarUserMenu = () => {
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={() => signOut()}
-              className="text-destructive focus:text-destructive"
+              className="text-destructive focus:text-destructive flex items-center"
             >
+              <LogOut className="mr-2 h-4 w-4" />
               Sign out
             </DropdownMenuItem>
           </>

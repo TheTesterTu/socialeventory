@@ -1,7 +1,6 @@
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TopBar } from "@/components/TopBar";
-import { SideNav } from "@/components/navigation/SideNav";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { FloatingActions } from "@/components/navigation/FloatingActions";
 import { Footer } from "./Footer";
@@ -46,12 +45,9 @@ export const AppLayout = ({
       )}
       
       {!hideTopBar && <TopBar />}
-      <div className="flex flex-1">
-        {!isMobile && <SideNav />}
-        <main className="flex-1 pt-16 pb-20 md:pb-0">
-          {children}
-        </main>
-      </div>
+      <main className="flex-1 pt-16 pb-20 md:pb-0">
+        {children}
+      </main>
       {!hideFooter && <Footer />}
       {isMobile && (
         <>
