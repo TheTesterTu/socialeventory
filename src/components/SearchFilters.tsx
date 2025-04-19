@@ -14,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Filter, Calendar as CalendarIcon } from "lucide-react";
+import { Filter, Calendar as CalendarIcon, Map, List } from "lucide-react";
 import { categories } from "@/lib/mock-data";
 import { motion } from "framer-motion";
 import { EventAdvancedFilters } from "./EventAdvancedFilters";
@@ -29,6 +29,8 @@ interface SearchFiltersProps {
   onFilterChange: (filters: EventFilters) => void;
   onDateChange?: (date: Date | undefined) => void;
   selectedDate?: Date;
+  viewMode?: 'list' | 'map';
+  onViewModeChange?: (mode: 'list' | 'map') => void;
 }
 
 export const SearchFilters = ({
@@ -38,6 +40,8 @@ export const SearchFilters = ({
   onFilterChange,
   onDateChange,
   selectedDate,
+  viewMode = 'list',
+  onViewModeChange
 }: SearchFiltersProps) => {
   const [date, setDate] = useState<Date | undefined>(selectedDate);
 
@@ -46,13 +50,20 @@ export const SearchFilters = ({
     onDateChange?.(newDate);
   };
 
+  const handleViewModeToggle = () => {
+    if (onViewModeChange) {
+      onViewModeChange(viewMode === 'list' ? 'map' : 'list');
+    }
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex gap-2"
+      className="flex gap-2 flex-wrap"
     >
+      {/* Filter Button */}
       <Sheet>
         <SheetTrigger asChild>
           <Button 
@@ -93,25 +104,54 @@ export const SearchFilters = ({
         </SheetContent>
       </Sheet>
 
+      {/* Calendar Button */}
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
+            className={`rounded-full transition-all ${selectedDate ? 'bg-primary/10 text-primary' : 'hover:bg-primary/10 hover:text-primary'}`}
           >
             <CalendarIcon className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={handleDateSelect}
-            className="rounded-md border"
-          />
+          <div className="p-2 flex flex-col">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium">Select Date</span>
+              {selectedDate && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => handleDateSelect(undefined)}
+                  className="h-7 text-xs"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={handleDateSelect}
+              className="rounded-md border"
+            />
+          </div>
         </PopoverContent>
       </Popover>
+
+      {/* View Mode Toggle (List/Map) */}
+      {onViewModeChange && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleViewModeToggle}
+          className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
+          title={viewMode === 'list' ? 'Switch to map view' : 'Switch to list view'}
+        >
+          {viewMode === 'list' ? <Map className="h-4 w-4" /> : <List className="h-4 w-4" />}
+        </Button>
+      )}
     </motion.div>
   );
 };

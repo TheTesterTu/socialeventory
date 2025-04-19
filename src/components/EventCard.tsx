@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Event } from "@/lib/types";
 import { EventVerificationBadge } from "./EventVerificationBadge";
 import { format } from "date-fns";
-import { MapPin, Users, ExternalLink, Heart } from "lucide-react";
+import { MapPin, Users, ExternalLink, Heart, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +35,14 @@ export const EventCard = ({
     toast(isLiked ? "Removed from favorites" : "Added to favorites");
   };
 
+  const handleTicketClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // If we have an external URL, open it, otherwise navigate to event details
+    // In a real implementation, this would use the event's ticket URL
+    window.open(`https://example.com/tickets/${id}`, '_blank');
+    toast("Opening ticket page");
+  };
+
   return (
     <motion.div 
       className="event-card relative h-[280px] overflow-hidden rounded-xl group"
@@ -49,7 +57,7 @@ export const EventCard = ({
           alt={title}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/75 to-black/90" />
       </div>
 
       {/* Content */}
@@ -85,11 +93,11 @@ export const EventCard = ({
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col">
               <span className="text-sm font-medium">
                 {format(new Date(startDate), "MMM d, h:mm a")}
               </span>
-              <span className="text-sm font-medium">
+              <span className="text-sm text-white/80">
                 {pricing.isFree ? "Free" : `$${pricing.priceRange?.[0]}`}
               </span>
             </div>
@@ -109,12 +117,9 @@ export const EventCard = ({
                   size="sm" 
                   variant="secondary" 
                   className="opacity-0 group-hover:opacity-100 transition-opacity gap-1"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.open(`https://example.com/tickets/${id}`, '_blank');
-                  }}
+                  onClick={handleTicketClick}
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <Ticket className="h-4 w-4" />
                   Tickets
                 </Button>
               )}
