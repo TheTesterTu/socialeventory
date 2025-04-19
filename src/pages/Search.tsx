@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SearchBar } from "@/components/SearchBar";
@@ -31,6 +30,7 @@ const Search = () => {
     },
   });
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [selectedDate, setSelectedDate] = useState<Date>();
   const location = useLocation();
 
   useEffect(() => {
@@ -59,6 +59,9 @@ const Search = () => {
         selectedCategories.length === 0 ||
         event.category.some(cat => selectedCategories.includes(cat));
       
+      const matchesDate = !selectedDate || 
+        format(new Date(event.startDate), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
+      
       const matchesAccessibility =
         !filters.accessibility?.wheelchairAccessible || event.accessibility.wheelchairAccessible;
   
@@ -74,11 +77,12 @@ const Search = () => {
              matchesCategories && 
              matchesAccessibility && 
              matchesFamilyFriendly && 
-             matchesPricing;
+             matchesPricing &&
+             matchesDate;
     });
     
     setFilteredEvents(filtered);
-  }, [searchQuery, selectedCategories, filters]);
+  }, [searchQuery, selectedCategories, filters, selectedDate]);
 
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev => 
@@ -110,31 +114,9 @@ const Search = () => {
                 onCategoryToggle={toggleCategory}
                 filters={filters}
                 onFilterChange={setFilters}
+                onDateChange={setSelectedDate}
+                selectedDate={selectedDate}
               />
-              
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
-              >
-                <MapPin className="h-4 w-4" />
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
-              >
-                <Calendar className="h-4 w-4" />
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
-              >
-                <SlidersHorizontal className="h-4 w-4" />
-              </Button>
             </div>
             
             <div className="flex items-center gap-3">

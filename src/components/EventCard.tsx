@@ -3,12 +3,16 @@ import { motion } from "framer-motion";
 import { Event } from "@/lib/types";
 import { EventVerificationBadge } from "./EventVerificationBadge";
 import { format } from "date-fns";
-import { MapPin, Users, ExternalLink } from "lucide-react";
+import { MapPin, Users, ExternalLink, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "sonner";
 
-interface EventCardProps extends Event {}
+interface EventCardProps extends Event {
+  showViewDetails?: boolean;
+}
 
 export const EventCard = ({ 
   id, 
@@ -20,8 +24,16 @@ export const EventCard = ({
   attendees,
   verification,
   pricing,
+  showViewDetails = false,
 }: EventCardProps) => {
   const navigate = useNavigate();
+  const [isLiked, setIsLiked] = useState(false);
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsLiked(!isLiked);
+    toast(isLiked ? "Removed from favorites" : "Added to favorites");
+  };
 
   return (
     <motion.div 
@@ -37,12 +49,11 @@ export const EventCard = ({
           alt={title}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black/90" />
       </div>
 
       {/* Content */}
       <div className="relative h-full p-4 flex flex-col justify-between text-white">
-        {/* Header */}
         <div className="space-y-2">
           <div className="flex justify-between items-start">
             <div className="space-y-1">
@@ -61,7 +72,6 @@ export const EventCard = ({
           <h3 className="text-xl font-bold line-clamp-2 mt-2">{title}</h3>
         </div>
 
-        {/* Footer */}
         <div className="space-y-3">
           <div className="flex flex-col gap-1.5 text-sm text-white/90">
             <div className="flex items-center gap-1.5">
@@ -75,25 +85,40 @@ export const EventCard = ({
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium">
                 {format(new Date(startDate), "MMM d, h:mm a")}
               </span>
               <span className="text-sm font-medium">
-                {pricing.isFree ? (
-                  "Free"
-                ) : (
-                  `$${pricing.priceRange?.[0]}`
-                )}
+                {pricing.isFree ? "Free" : `$${pricing.priceRange?.[0]}`}
               </span>
             </div>
-            <Button 
-              size="sm" 
-              variant="secondary" 
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </Button>
+            
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                className={`rounded-full ${isLiked ? 'text-red-500' : 'text-white/90'}`}
+                onClick={handleLike}
+              >
+                <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
+              </Button>
+              
+              {showViewDetails && (
+                <Button 
+                  size="sm" 
+                  variant="secondary" 
+                  className="opacity-0 group-hover:opacity-100 transition-opacity gap-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(`https://example.com/tickets/${id}`, '_blank');
+                  }}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Tickets
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
