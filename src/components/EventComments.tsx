@@ -54,8 +54,8 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
     const newComment: Comment = {
       id: `comment-${Date.now()}`,
       userId: user.id,
-      username: user.full_name || user.email || "Anonymous",
-      avatar: user.avatar_url || `https://ui-avatars.com/api/?name=${user.full_name?.split(' ').map(n => n[0]).join('+') || 'A'}&background=random`,
+      username: user.email?.split('@')[0] || "Anonymous",
+      avatar: `https://ui-avatars.com/api/?name=${user.email?.charAt(0).toUpperCase() || 'A'}&background=random`,
       content: commentText,
       createdAt: new Date()
     };
@@ -99,8 +99,8 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
         <div className="flex gap-4">
           <Avatar className="h-10 w-10">
             <img 
-              src={user?.avatar_url || "https://ui-avatars.com/api/?name=Guest&background=random"} 
-              alt={user?.full_name || "Guest"} 
+              src={`https://ui-avatars.com/api/?name=${user?.email?.charAt(0).toUpperCase() || 'G'}&background=random`}
+              alt={user?.email || "Guest"} 
             />
           </Avatar>
           <div className="flex-1 space-y-2">
