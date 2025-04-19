@@ -1,10 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { EventSocialActions } from "./EventSocialActions";
 import { UserPlus, UserMinus } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -30,6 +30,36 @@ export const EventActionButtons = ({
   const [attendeeCount, setAttendeeCount] = useState(attendees);
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  
+  // Check if user is attending this event
+  const { data: attendanceStatus } = useQuery({
+    queryKey: ['event-attendance', eventId, user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      
+      const { data, error } = await supabase
+        .from('event_attendees')
+        .select('id')
+        .eq('event_id', eventId)
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking attendance status:', error);
+        return false;
+      }
+      
+      return !!data;
+    },
+    enabled: !!user,
+  });
+  
+  // Update attendance state when attendanceStatus changes
+  useEffect(() => {
+    if (attendanceStatus !== undefined) {
+      setAttending(attendanceStatus);
+    }
+  }, [attendanceStatus]);
 
   const attendMutation = useMutation({
     mutationFn: async () => {
@@ -56,8 +86,10 @@ export const EventActionButtons = ({
       }
       setAttending(!attending);
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['event-attendance', eventId] });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Attendance error:", error);
       toast.error("Failed to update attendance status");
     }
   });
@@ -70,13 +102,31 @@ export const EventActionButtons = ({
     attendMutation.mutate();
   };
 
+  // Get comments count
+  const { data: commentsCount = comments } = useQuery({
+    queryKey: ['comments-count', eventId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('comments')
+        .select('id', { count: 'exact', head: true })
+        .eq('event_id', eventId);
+        
+      if (error) {
+        console.error('Error fetching comments count:', error);
+        return comments;
+      }
+      
+      return count || 0;
+    }
+  });
+
   return (
     <div className="flex justify-between items-center">
       <div className="flex gap-2">
         <EventSocialActions 
           eventId={eventId} 
           likes={likes} 
-          comments={comments}
+          comments={commentsCount}
           isLiked={isLiked}
         />
         <Button 

@@ -37,6 +37,7 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
           id,
           content,
           created_at,
+          user_id,
           profiles:user_id (
             username,
             avatar_url
@@ -97,7 +98,12 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        {comments.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-8">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+            <p className="mt-2 text-muted-foreground">Loading comments...</p>
+          </div>
+        ) : comments.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>No comments yet. Be the first to leave a comment!</p>
           </div>
@@ -137,7 +143,7 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
               placeholder={user ? "Add a comment..." : "Sign in to comment"}
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              disabled={!user}
+              disabled={!user || addCommentMutation.isPending}
               className="resize-none"
             />
             <div className="flex justify-end">

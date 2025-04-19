@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, Share2, MessageSquare } from "lucide-react";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 interface EventSocialActionsProps {
   eventId: string;
@@ -23,6 +24,36 @@ export const EventSocialActions = ({
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(likes);
   const { user } = useAuth();
+  
+  // Check if the user has liked this event
+  const { data: likeStatus } = useQuery({
+    queryKey: ['event-like', eventId, user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      
+      const { data, error } = await supabase
+        .from('event_likes')
+        .select('id')
+        .eq('event_id', eventId)
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking like status:', error);
+        return false;
+      }
+      
+      return !!data;
+    },
+    enabled: !!user,
+  });
+  
+  // Update like state when likeStatus changes
+  useEffect(() => {
+    if (likeStatus !== undefined) {
+      setIsLiked(likeStatus);
+    }
+  }, [likeStatus]);
 
   const handleLike = async () => {
     if (!user) {
@@ -51,10 +82,16 @@ export const EventSocialActions = ({
 
   const handleShare = async () => {
     try {
-      await navigator.share({
-        title: "Check out this event!",
-        url: window.location.href
-      });
+      if (navigator.share) {
+        await navigator.share({
+          title: "Check out this event!",
+          url: window.location.href
+        });
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copied to clipboard");
+      }
     } catch (error) {
       toast.error("Sharing failed");
     }
