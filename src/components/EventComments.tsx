@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Comment {
   id: string;
@@ -24,24 +26,62 @@ interface EventCommentsProps {
 export const EventComments = ({ eventId }: EventCommentsProps) => {
   const { user } = useAuth();
   const [commentText, setCommentText] = useState("");
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: "1",
-      userId: "user-1",
-      username: "Sarah Johnson",
-      avatar: "https://ui-avatars.com/api/?name=S+J&background=random",
-      content: "This event looks amazing! Can't wait to attend.",
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000) // 1 day ago
-    },
-    {
-      id: "2",
-      userId: "user-2",
-      username: "Mike Chen",
-      avatar: "https://ui-avatars.com/api/?name=M+C&background=random",
-      content: "Does anyone know if there's parking nearby?",
-      createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000) // 12 hours ago
+  const queryClient = useQueryClient();
+
+  const { data: comments = [], isLoading } = useQuery({
+    queryKey: ['comments', eventId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          id,
+          content,
+          created_at,
+          profiles:user_id (
+            username,
+            avatar_url
+          )
+        `)
+        .eq('event_id', eventId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return data.map(comment => ({
+        id: comment.id,
+        userId: comment.user_id,
+        username: comment.profiles?.username || 'Anonymous',
+        avatar: comment.profiles?.avatar_url,
+        content: comment.content,
+        createdAt: new Date(comment.created_at)
+      }));
     }
-  ]);
+  });
+
+  const addCommentMutation = useMutation({
+    mutationFn: async (content: string) => {
+      const { data, error } = await supabase
+        .from('comments')
+        .insert({
+          event_id: eventId,
+          user_id: user?.id,
+          content
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', eventId] });
+      setCommentText("");
+      toast.success("Comment posted!");
+    },
+    onError: () => {
+      toast.error("Failed to post comment");
+    }
+  });
 
   const handleSubmitComment = () => {
     if (!commentText.trim()) return;
@@ -51,21 +91,7 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
       return;
     }
     
-    const newComment: Comment = {
-      id: `comment-${Date.now()}`,
-      userId: user.id,
-      username: user.email?.split('@')[0] || "Anonymous",
-      avatar: `https://ui-avatars.com/api/?name=${user.email?.charAt(0).toUpperCase() || 'A'}&background=random`,
-      content: commentText,
-      createdAt: new Date()
-    };
-    
-    setComments([...comments, newComment]);
-    setCommentText("");
-    toast.success("Comment posted!");
-    
-    // In a real implementation, we would save this to the database
-    console.log("Posted comment for event:", eventId, newComment);
+    addCommentMutation.mutate(commentText);
   };
 
   return (
@@ -79,7 +105,10 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
           comments.map((comment) => (
             <div key={comment.id} className="flex gap-4 p-4 rounded-lg bg-card/50">
               <Avatar className="h-10 w-10">
-                <img src={comment.avatar} alt={comment.username} />
+                <img 
+                  src={comment.avatar || `https://ui-avatars.com/api/?name=${comment.username?.charAt(0).toUpperCase() || 'A'}&background=random`}
+                  alt={comment.username} 
+                />
               </Avatar>
               <div className="flex-1">
                 <div className="flex justify-between items-start">
@@ -114,7 +143,7 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
             <div className="flex justify-end">
               <Button 
                 onClick={handleSubmitComment} 
-                disabled={!user || !commentText.trim()}
+                disabled={!user || !commentText.trim() || addCommentMutation.isPending}
                 size="sm"
                 className="gap-2"
               >
