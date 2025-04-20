@@ -1,8 +1,9 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Calendar } from "lucide-react";
+
+import { motion } from "framer-motion";
+import { MapPin, Calendar, Minus, Plus } from "lucide-react";
 import EventMap from "@/components/EventMap";
 import { useState, useEffect } from "react";
-import { Event, AccessibilityInfo, Pricing } from "@/lib/types";
+import { Event } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -11,19 +12,8 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 import { format } from "date-fns";
-
-interface NearbyEventResponse {
-  id: string;
-  title: string;
-  location: string;
-  coordinates: { x: number; y: number };
-  distance: number;
-  category: string[];
-  pricing: Pricing;
-  accessibility: AccessibilityInfo;
-  venue_name: string | null;
-}
 
 const Nearby = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -36,36 +26,6 @@ const Nearby = () => {
     lng: -122.4194
   });
   const [radius, setRadius] = useState<number>(5);
-  const [filters, setFilters] = useState<{
-    accessibility: {
-      wheelchairAccessible: boolean;
-      familyFriendly: boolean;
-    };
-    pricing: {
-      isFree: boolean;
-      maxPrice: number;
-    };
-    location: {
-      radius: number;
-      coordinates: [number, number];
-    };
-  }>({
-    accessibility: {
-      wheelchairAccessible: false,
-      familyFriendly: false,
-    },
-    pricing: {
-      isFree: false,
-      maxPrice: 100,
-    },
-    location: {
-      radius: 5000,
-      coordinates: [37.7749, -122.4194]
-    }
-  });
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchLocation, setSearchLocation] = useState<string>('');
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -76,13 +36,6 @@ const Nearby = () => {
             lng: position.coords.longitude
           };
           setUserLocation(userCoords);
-          setFilters(prev => ({
-            ...prev,
-            location: {
-              ...prev.location,
-              coordinates: [userCoords.lat, userCoords.lng]
-            }
-          }));
           fetchNearbyEvents(userCoords.lat, userCoords.lng);
         },
         (error) => {
@@ -107,9 +60,9 @@ const Nearby = () => {
           lat: lat,
           lon: lon,
           radius_meters: radiusMeters,
-          category_filter: selectedCategories.length > 0 ? selectedCategories : null,
-          max_price: filters.pricing?.maxPrice,
-          accessibility_filter: filters.accessibility
+          category_filter: null,
+          max_price: null,
+          accessibility_filter: null
         });
 
       if (error) throw error;
@@ -167,13 +120,18 @@ const Nearby = () => {
     if (userLocation) {
       fetchNearbyEvents(userLocation.lat, userLocation.lng);
     }
-  }, [selectedDate, userLocation]);
+  }, [selectedDate, radius, userLocation]);
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
-    if (userLocation) {
-      fetchNearbyEvents(userLocation.lat, userLocation.lng);
-    }
+  };
+
+  const increaseRadius = () => {
+    setRadius(prev => Math.min(prev + 1, 50));
+  };
+
+  const decreaseRadius = () => {
+    setRadius(prev => Math.max(prev - 1, 1));
   };
 
   return (
@@ -208,25 +166,54 @@ const Nearby = () => {
           </Popover>
         </motion.div>
 
-        <AnimatePresence mode="wait">
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mb-6"
-            >
-              <Alert variant="destructive">
-                <MapPin className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mb-6"
+          >
+            <Alert variant="destructive">
+              <MapPin className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
 
-        <div className="bg-muted/20 p-2 rounded-lg text-center text-sm">
-          Found {events.length} event{events.length !== 1 ? 's' : ''} within {radius} km
-          {selectedDate && ` on ${format(selectedDate, 'MMMM d, yyyy')}`}
+        <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
+          <span className="text-sm">
+            Found {events.length} event{events.length !== 1 ? 's' : ''} within {radius} km
+            {selectedDate && ` on ${format(selectedDate, 'MMMM d, yyyy')}`}
+          </span>
+          
+          <div className="flex items-center gap-3 w-64">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-7 w-7 rounded-full"
+              onClick={decreaseRadius}
+            >
+              <Minus className="h-3 w-3" />
+            </Button>
+            
+            <Slider
+              value={[radius]}
+              min={1}
+              max={50}
+              step={1}
+              onValueChange={(value) => setRadius(value[0])}
+              className="w-full"
+            />
+            
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-7 w-7 rounded-full"
+              onClick={increaseRadius}
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
 
         <div className="rounded-xl overflow-hidden h-[calc(100vh-280px)]">

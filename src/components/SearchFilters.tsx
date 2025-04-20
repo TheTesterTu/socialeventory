@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -111,35 +112,20 @@ export const SearchFilters = ({
             size="icon"
             className={`rounded-full transition-all ${selectedDate ? 'bg-primary/10 text-primary' : 'hover:bg-primary/10 hover:text-primary'}`}
           >
-            <Calendar className="h-4 w-4" />
+            <CalendarIcon className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <div className="p-2 flex flex-col">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">Select Date</span>
-              {selectedDate && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => handleDateSelect(undefined)}
-                  className="h-7 text-xs"
-                >
-                  Clear
-                </Button>
-              )}
-            </div>
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={handleDateSelect}
-              className="rounded-md border"
-            />
-          </div>
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={handleDateSelect}
+            className="rounded-md border"
+          />
         </PopoverContent>
       </Popover>
 
-      {/* Map View Button - Now redirects to Nearby page */}
+      {/* Map View Button - Redirects to Nearby page */}
       <Button
         variant="outline"
         size="icon"

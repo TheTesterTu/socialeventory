@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Event } from "@/lib/types";
 import { EventVerificationBadge } from "./EventVerificationBadge";

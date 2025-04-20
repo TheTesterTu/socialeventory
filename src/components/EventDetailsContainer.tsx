@@ -4,14 +4,21 @@ import { EventHeader } from "./EventHeader";
 import { EventMetadata } from "./EventMetadata";
 import { EventActionButtons } from "./EventActionButtons";
 import { EventComments } from "./EventComments";
-import { Tag } from "lucide-react";
+import { Tag, Ticket } from "lucide-react";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface EventDetailsContainerProps {
   event: Event;
 }
 
 export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => {
+  const handleGetTickets = () => {
+    window.open(`https://example.com/tickets/${event.id}`, '_blank');
+    toast("Opening ticket page");
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -59,12 +66,21 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
               attendees={event.attendees}
               pricing={event.pricing}
             />
-            <EventActionButtons 
-              eventId={event.id} 
-              likes={event.likes} 
-              comments={0}
-              attendees={event.attendees}
-            />
+            <div className="flex flex-col sm:flex-row gap-2">
+              <EventActionButtons 
+                eventId={event.id} 
+                likes={event.likes} 
+                comments={0}
+                attendees={event.attendees}
+              />
+              <Button 
+                className="gap-2 font-medium ml-auto"
+                onClick={handleGetTickets}
+              >
+                <Ticket className="h-4 w-4" />
+                Get Tickets
+              </Button>
+            </div>
           </div>
         </div>
 
