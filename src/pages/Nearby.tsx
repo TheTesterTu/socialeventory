@@ -1,20 +1,17 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, AlertCircle, Search } from "lucide-react";
+import { MapPin, Calendar } from "lucide-react";
 import EventMap from "@/components/EventMap";
-import { SearchBar } from "@/components/SearchBar";
-import { SearchFilters } from "@/components/SearchFilters";
 import { useState, useEffect } from "react";
 import { Event, AccessibilityInfo, Pricing } from "@/lib/types";
-import { EventFilters } from "@/lib/types/filters";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { LocationSearch } from "@/components/LocationSearch";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
 
 interface NearbyEventResponse {
   id: string;
@@ -29,19 +26,30 @@ interface NearbyEventResponse {
 }
 
 const Nearby = () => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date>();
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number }>({
-    lat: 37.7749, // Default to San Francisco
+    lat: 37.7749,
     lng: -122.4194
   });
-  const [searchLocation, setSearchLocation] = useState<string>('');
   const [radius, setRadius] = useState<number>(5);
-  const [filters, setFilters] = useState<EventFilters>({
+  const [filters, setFilters] = useState<{
+    accessibility: {
+      wheelchairAccessible: boolean;
+      familyFriendly: boolean;
+    };
+    pricing: {
+      isFree: boolean;
+      maxPrice: number;
+    };
+    location: {
+      radius: number;
+      coordinates: [number, number];
+    };
+  }>({
     accessibility: {
       wheelchairAccessible: false,
       familyFriendly: false,
@@ -55,6 +63,9 @@ const Nearby = () => {
       coordinates: [37.7749, -122.4194]
     }
   });
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchLocation, setSearchLocation] = useState<string>('');
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -138,15 +149,7 @@ const Nearby = () => {
         attendees: 0
       }));
 
-      const filteredEvents = searchQuery 
-        ? formattedEvents.filter(event => 
-            event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            event.location.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (event.location.venue_name && event.location.venue_name.toLowerCase().includes(searchQuery.toLowerCase()))
-          )
-        : formattedEvents;
-
-      setEvents(filteredEvents);
+      setEvents(formattedEvents);
     } catch (error) {
       console.error('Error fetching events:', error);
       setError('Failed to fetch nearby events. Please try again later.');
@@ -161,118 +164,48 @@ const Nearby = () => {
   };
 
   useEffect(() => {
-    if (filters.location?.coordinates) {
-      fetchNearbyEvents(
-        filters.location.coordinates[0], 
-        filters.location.coordinates[1]
-      );
+    if (userLocation) {
+      fetchNearbyEvents(userLocation.lat, userLocation.lng);
     }
-  }, [selectedCategories, filters, radius, searchQuery]);
+  }, [selectedDate, userLocation]);
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
-  const handleCategoryToggle = (category: string) => {
-    setSelectedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
-  };
-
-  const handleFilterChange = (newFilters: EventFilters) => {
-    setFilters(newFilters);
-  };
-
-  const handleLocationSelect = (address: string, coordinates: [number, number]) => {
-    setSearchLocation(address);
-    setFilters(prev => ({
-      ...prev,
-      location: {
-        ...prev.location,
-        coordinates: coordinates
-      }
-    }));
-  };
-
-  const handleRadiusChange = (value: number[]) => {
-    setRadius(value[0]);
-    setFilters(prev => ({
-      ...prev,
-      location: {
-        ...prev.location,
-        radius: value[0] * 1000 // Convert km to meters
-      }
-    }));
+  const handleDateSelect = (date: Date | undefined) => {
+    setSelectedDate(date);
+    if (userLocation) {
+      fetchNearbyEvents(userLocation.lat, userLocation.lng);
+    }
   };
 
   return (
     <AppLayout pageTitle="Events Near You" showTopBar={true}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative space-y-4">
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="mb-6 flex-1"
+          className="flex items-center justify-between"
         >
-          <p className="text-muted-foreground">Discover events happening around your location</p>
-        </motion.div>
-
-        <motion.div 
-          initial={{ y: -10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="mb-6 space-y-4"
-        >
-          <div className="flex items-center gap-2 flex-wrap md:flex-nowrap">
-            <div className="w-full md:flex-1">
-              <SearchBar onSearch={handleSearch} />
-            </div>
-            
-            <SearchFilters
-              selectedCategories={selectedCategories}
-              onCategoryToggle={handleCategoryToggle}
-              filters={filters}
-              onFilterChange={handleFilterChange}
-            />
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold">Events Near You</h1>
+            <p className="text-muted-foreground">Discover events happening in your area</p>
           </div>
           
-          <div className="glass-panel p-4 rounded-xl">
-            <h3 className="text-lg font-medium mb-3 flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-primary" />
-              Location Settings
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="md:col-span-2">
-                <label className="text-sm font-medium mb-1 block">Search Location</label>
-                <div className="relative">
-                  <LocationSearch 
-                    value={searchLocation}
-                    onChange={setSearchLocation}
-                    onLocationSelect={handleLocationSelect}
-                  />
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium mb-1 block">
-                  Radius: {radius} km
-                </label>
-                <div className="px-2 py-4">
-                  <Slider 
-                    defaultValue={[radius]}
-                    min={1}
-                    max={50}
-                    step={1}
-                    onValueChange={handleRadiusChange}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Calendar className="h-4 w-4" />
+                {selectedDate ? format(selectedDate, 'PPP') : 'Select date'}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <CalendarComponent
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateSelect}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -284,26 +217,25 @@ const Nearby = () => {
               className="mb-6"
             >
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <MapPin className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="bg-muted/20 p-2 mb-4 rounded-lg">
-          <p className="text-sm text-center">
-            Found {events.length} event{events.length !== 1 ? 's' : ''} within {radius} km
-          </p>
+        <div className="bg-muted/20 p-2 rounded-lg text-center text-sm">
+          Found {events.length} event{events.length !== 1 ? 's' : ''} within {radius} km
+          {selectedDate && ` on ${format(selectedDate, 'MMMM d, yyyy')}`}
         </div>
 
-        <div className="rounded-xl overflow-hidden h-[calc(100vh-380px)] mb-8">
+        <div className="rounded-xl overflow-hidden h-[calc(100vh-280px)]">
           {isLoading ? (
             <Skeleton className="w-full h-full" />
           ) : (
             <EventMap 
-              events={events} 
-              showFilters={true}
+              events={events}
+              showFilters={false}
             />
           )}
         </div>

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -21,6 +20,7 @@ import { EventAdvancedFilters } from "./EventAdvancedFilters";
 import { EventFilters } from "@/lib/types/filters";
 import { format } from "date-fns";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface SearchFiltersProps {
   selectedCategories: string[];
@@ -43,6 +43,7 @@ export const SearchFilters = ({
   viewMode = 'list',
   onViewModeChange
 }: SearchFiltersProps) => {
+  const navigate = useNavigate();
   const [date, setDate] = useState<Date | undefined>(selectedDate);
 
   const handleDateSelect = (newDate: Date | undefined) => {
@@ -50,10 +51,8 @@ export const SearchFilters = ({
     onDateChange?.(newDate);
   };
 
-  const handleViewModeToggle = () => {
-    if (onViewModeChange) {
-      onViewModeChange(viewMode === 'list' ? 'map' : 'list');
-    }
+  const handleMapView = () => {
+    navigate('/nearby');
   };
 
   return (
@@ -112,7 +111,7 @@ export const SearchFilters = ({
             size="icon"
             className={`rounded-full transition-all ${selectedDate ? 'bg-primary/10 text-primary' : 'hover:bg-primary/10 hover:text-primary'}`}
           >
-            <CalendarIcon className="h-4 w-4" />
+            <Calendar className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -140,18 +139,16 @@ export const SearchFilters = ({
         </PopoverContent>
       </Popover>
 
-      {/* View Mode Toggle (List/Map) */}
-      {onViewModeChange && (
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleViewModeToggle}
-          className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
-          title={viewMode === 'list' ? 'Switch to map view' : 'Switch to list view'}
-        >
-          {viewMode === 'list' ? <Map className="h-4 w-4" /> : <List className="h-4 w-4" />}
-        </Button>
-      )}
+      {/* Map View Button - Now redirects to Nearby page */}
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={handleMapView}
+        className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
+        title="View events on map"
+      >
+        <Map className="h-4 w-4" />
+      </Button>
     </motion.div>
   );
 };
