@@ -13,7 +13,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Calendar } from "lucide-react";
+import { Calendar, ImagePlus, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +29,9 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
+import { LocationSearch } from "@/components/LocationSearch";
 
 // Example category options
 const categoryOptions = [
@@ -42,11 +45,17 @@ const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
   description: z.string().min(20, "Description must be at least 20 characters"),
   location: z.string().min(5, "Location is required"),
-  category: z.string().min(1, "Please select a category"),
+  venue_name: z.string().optional(),
+  category: z.array(z.string()).min(1, "Please select at least one category"),
   organizerType: z.enum(["personal", "organization"]),
   organizerId: z.string().optional(),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
+  isFree: z.boolean().default(true),
+  price: z.number().min(0).optional(),
+  wheelchairAccessible: z.boolean().default(false),
+  familyFriendly: z.boolean().default(true),
+  coordinates: z.array(z.number()).length(2).optional(),
 });
 
 const CreateEvent = () => {
@@ -54,6 +63,9 @@ const CreateEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,38 +73,133 @@ const CreateEvent = () => {
       title: "",
       description: "",
       location: "",
-      category: "",
+      venue_name: "",
+      category: [],
       organizerType: "personal",
       organizerId: "",
       startDate: "",
       endDate: "",
+      isFree: true,
+      price: 0,
+      wheelchairAccessible: false,
+      familyFriendly: true,
+      coordinates: undefined,
     },
   });
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleLocationSelect = (
+    address: string, 
+    coordinates: [number, number],
+    venue?: string
+  ) => {
+    form.setValue("location", address);
+    form.setValue("coordinates", coordinates);
+    if (venue) {
+      form.setValue("venue_name", venue);
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "You must be signed in to create an event.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
-      // In a real app, this would save to the database
-      console.log("Form values:", values);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Upload image if provided
+      let image_url = null;
+      if (imageFile) {
+        setUploadingImage(true);
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+        const filePath = `event-images/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('events')
+          .upload(filePath, imageFile);
+          
+        if (uploadError) {
+          throw new Error(`Error uploading image: ${uploadError.message}`);
+        }
+        
+        const { data: publicURL } = supabase.storage
+          .from('events')
+          .getPublicUrl(filePath);
+          
+        image_url = publicURL.publicUrl;
+        setUploadingImage(false);
+      }
+      
+      // Prepare event data
+      const eventData = {
+        title: values.title,
+        description: values.description,
+        location: values.location,
+        venue_name: values.venue_name || null,
+        coordinates: values.coordinates ? 
+          `(${values.coordinates[0]}, ${values.coordinates[1]})` : 
+          null,
+        start_date: new Date(values.startDate).toISOString(),
+        end_date: new Date(values.endDate).toISOString(),
+        category: values.category,
+        created_by: user.id,
+        image_url: image_url,
+        pricing: {
+          isFree: values.isFree,
+          priceRange: values.isFree ? [0, 0] : [values.price || 0, values.price || 0],
+          currency: "USD"
+        },
+        accessibility: {
+          wheelchairAccessible: values.wheelchairAccessible,
+          familyFriendly: values.familyFriendly,
+          languages: ["en"]
+        },
+        verification_status: "pending"
+      };
+      
+      // Insert event to database
+      const { data, error } = await supabase
+        .from('events')
+        .insert(eventData)
+        .select('id')
+        .single();
+        
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "Event created successfully!",
         description: "Your event has been created and is pending review.",
       });
       
-      // In real app, navigate to the new event page
-      navigate("/events");
-    } catch (error) {
+      // Navigate to the new event page
+      navigate(`/event/${data.id}`);
+    } catch (error: any) {
+      console.error("Error creating event:", error);
       toast({
         title: "Failed to create event",
-        description: "There was an error creating your event. Please try again.",
+        description: error.message || "There was an error creating your event. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
+      setUploadingImage(false);
     }
   };
 
@@ -153,6 +260,36 @@ const CreateEvent = () => {
                 </FormItem>
               )}
             />
+
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-4">Event Image</h3>
+                <div className="flex items-center gap-4">
+                  <div 
+                    className={`relative flex justify-center items-center border-2 border-dashed rounded-lg w-full h-40 ${imagePreview ? 'border-primary/50' : 'border-muted-foreground/25'} hover:border-primary/50 transition-colors`}
+                  >
+                    {imagePreview ? (
+                      <img 
+                        src={imagePreview} 
+                        alt="Event preview" 
+                        className="h-full w-full object-cover rounded-lg" 
+                      />
+                    ) : (
+                      <div className="text-center p-4">
+                        <ImagePlus className="mx-auto h-10 w-10 text-muted-foreground/50" />
+                        <p className="mt-2 text-sm text-muted-foreground">Click to upload event image</p>
+                      </div>
+                    )}
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
@@ -205,11 +342,39 @@ const CreateEvent = () => {
                 <FormItem>
                   <FormLabel>Location</FormLabel>
                   <FormControl>
+                    <div className="relative">
+                      <LocationSearch 
+                        value={field.value}
+                        onChange={field.onChange}
+                        onLocationSelect={handleLocationSelect}
+                      />
+                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Search for an address or venue
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="venue_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Venue Name (Optional)</FormLabel>
+                  <FormControl>
                     <Input 
-                      placeholder="Enter venue or address" 
+                      placeholder="Enter venue name" 
                       {...field} 
+                      value={field.value || ''}
                     />
                   </FormControl>
+                  <FormDescription>
+                    Add a specific venue name if applicable
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -220,28 +385,124 @@ const CreateEvent = () => {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categoryOptions.map(category => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Categories</FormLabel>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {categoryOptions.map(category => (
+                      <Button
+                        key={category}
+                        type="button"
+                        variant={field.value.includes(category) ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          const newValue = field.value.includes(category)
+                            ? field.value.filter(c => c !== category)
+                            : [...field.value, category];
+                          field.onChange(newValue);
+                        }}
+                      >
+                        {category}
+                      </Button>
+                    ))}
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="isFree"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 mt-1"
+                        checked={field.value}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Free Event</FormLabel>
+                      <FormDescription>
+                        This event is free to attend
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              {!form.watch("isFree") && (
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price ($)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          min="0" 
+                          step="0.01" 
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="wheelchairAccessible"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 mt-1"
+                        checked={field.value}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Wheelchair Accessible</FormLabel>
+                      <FormDescription>
+                        This venue is accessible to wheelchair users
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="familyFriendly"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 mt-1"
+                        checked={field.value}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Family Friendly</FormLabel>
+                      <FormDescription>
+                        This event is suitable for all ages
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
             
             <FormField
               control={form.control}
@@ -321,7 +582,14 @@ const CreateEvent = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting || uploadingImage}
+                className="relative"
+              >
+                {(isSubmitting || uploadingImage) && (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                )}
                 {isSubmitting ? "Creating..." : "Create Event"}
               </Button>
             </div>
