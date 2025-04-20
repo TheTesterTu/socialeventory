@@ -6,7 +6,7 @@ import { EventsNearYou } from "@/components/home/EventsNearYou";
 import { UpcomingEvents } from "@/components/home/UpcomingEvents";
 import { FeaturedCreators } from "@/components/home/FeaturedCreators";
 import { FeaturedBlog } from "@/components/home/FeaturedBlog";
-import { mockBlogPosts } from "@/lib/mock-data/blog-data";
+import { blogPosts } from "@/lib/mock-data/blog-data";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ const Index = () => {
           </div>
         </motion.div>
 
-        <FeaturedBlog posts={mockBlogPosts} />
+        <FeaturedBlog posts={blogPosts} />
 
         {isMobile && (
           <div className="fixed bottom-24 right-4 z-20">
