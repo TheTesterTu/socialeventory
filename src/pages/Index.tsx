@@ -1,4 +1,3 @@
-
 import { AppLayout } from "@/components/layout/AppLayout";
 import { HomeHero } from "@/components/home/HomeHero";
 import { QuickCategories } from "@/components/home/QuickCategories";
@@ -6,6 +5,8 @@ import { FeaturedEvents } from "@/components/home/FeaturedEvents";
 import { EventsNearYou } from "@/components/home/EventsNearYou";
 import { UpcomingEvents } from "@/components/home/UpcomingEvents";
 import { FeaturedCreators } from "@/components/home/FeaturedCreators";
+import { FeaturedBlog } from "@/components/home/FeaturedBlog";
+import { mockBlogPosts } from "@/lib/mock-data/blog-data";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ const Index = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="space-y-10 pb-20 relative"
+        className="space-y-16 pb-20 relative"
       >
         <HomeHero />
         
@@ -59,7 +60,8 @@ const Index = () => {
           </div>
         </motion.div>
 
-        {/* Only show the help button on mobile */}
+        <FeaturedBlog posts={mockBlogPosts} />
+
         {isMobile && (
           <div className="fixed bottom-24 right-4 z-20">
             <Popover>

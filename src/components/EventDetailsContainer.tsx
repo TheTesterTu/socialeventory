@@ -1,22 +1,29 @@
-
 import { Event } from "@/lib/types";
 import { EventHeader } from "./EventHeader";
 import { EventMetadata } from "./EventMetadata";
 import { EventActionButtons } from "./EventActionButtons";
 import { EventComments } from "./EventComments";
-import { Tag, Ticket } from "lucide-react";
+import { Tag, Ticket, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface EventDetailsContainerProps {
   event: Event;
 }
 
 export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => {
+  const navigate = useNavigate();
+
   const handleGetTickets = () => {
     window.open(`https://example.com/tickets/${event.id}`, '_blank');
     toast("Opening ticket page");
+  };
+
+  const handleShowOnMap = () => {
+    navigate(`/nearby?eventId=${event.id}`);
+    toast("Showing event location on map");
   };
 
   return (
@@ -73,13 +80,23 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
                 comments={0}
                 attendees={event.attendees}
               />
-              <Button 
-                className="gap-2 font-medium ml-auto"
-                onClick={handleGetTickets}
-              >
-                <Ticket className="h-4 w-4" />
-                Get Tickets
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline"
+                  className="gap-2"
+                  onClick={handleShowOnMap}
+                >
+                  <MapPin className="h-4 w-4" />
+                  Show on Map
+                </Button>
+                <Button 
+                  className="gap-2 font-medium"
+                  onClick={handleGetTickets}
+                >
+                  <Ticket className="h-4 w-4" />
+                  Get Tickets
+                </Button>
+              </div>
             </div>
           </div>
         </div>
