@@ -1,3 +1,4 @@
+
 import { AppLayout } from "@/components/layout/AppLayout";
 import { HomeHero } from "@/components/home/HomeHero";
 import { QuickCategories } from "@/components/home/QuickCategories";
@@ -25,7 +26,7 @@ const Index = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="space-y-16 pb-20 relative"
+        className="space-y-12 pb-20 relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
       >
         <HomeHero />
         
@@ -33,6 +34,7 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
+          className="py-4"
         >
           <QuickCategories />
         </motion.div>
@@ -41,6 +43,7 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.15 }}
+          className="py-4"
         >
           <FeaturedCreators />
         </motion.div>
@@ -49,7 +52,7 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-8 py-4"
         >
           <div className="lg:col-span-2">
             <FeaturedEvents />
@@ -60,7 +63,14 @@ const Index = () => {
           </div>
         </motion.div>
 
-        <FeaturedBlog posts={blogPosts} />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="py-4"
+        >
+          <FeaturedBlog posts={blogPosts} />
+        </motion.div>
 
         {isMobile && (
           <div className="fixed bottom-24 right-4 z-20">

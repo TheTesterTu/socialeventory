@@ -23,7 +23,7 @@ export const HomeHero = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative space-y-6 mb-8"
+      className="relative space-y-8 mb-12"
     >
       <div className="absolute inset-0 -z-10 opacity-40">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_#8B5CF6_0%,_transparent_50%)]" />
@@ -34,9 +34,9 @@ export const HomeHero = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="space-y-2 text-center"
+        className="space-y-4 text-center"
       >
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full text-primary text-sm mb-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full text-primary text-sm">
           <Sparkles className="h-3.5 w-3.5" />
           <span>Discover the best events in your area</span>
         </div>
@@ -61,7 +61,7 @@ export const HomeHero = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="flex flex-col sm:flex-row gap-3 justify-center pt-2"
+        className="flex flex-col sm:flex-row gap-3 justify-center pt-4"
       >
         <Link to="/create-event">
           <Button 
@@ -88,19 +88,19 @@ export const HomeHero = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.5 }}
-        className="flex items-center justify-center flex-wrap gap-3 pt-4"
+        className="flex items-center justify-center flex-wrap gap-6 pt-8"
       >
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <span className="inline-block h-2 w-2 rounded-full bg-green-400"></span>
-          <span className="text-xs text-muted-foreground">10+ live events now</span>
+          <span className="text-sm text-muted-foreground">10+ live events now</span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <span className="inline-block h-2 w-2 rounded-full bg-primary"></span>
-          <span className="text-xs text-muted-foreground">1000+ events this week</span>
+          <span className="text-sm text-muted-foreground">1000+ events this week</span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <span className="inline-block h-2 w-2 rounded-full bg-orange-400"></span>
-          <span className="text-xs text-muted-foreground">100+ new today</span>
+          <span className="text-sm text-muted-foreground">100+ new today</span>
         </div>
       </motion.div>
     </motion.div>
