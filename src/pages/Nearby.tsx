@@ -1,5 +1,4 @@
-
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, AlertCircle, Search } from "lucide-react";
 import EventMap from "@/components/EventMap";
 import { SearchBar } from "@/components/SearchBar";
@@ -58,7 +57,6 @@ const Nearby = () => {
   });
 
   useEffect(() => {
-    // Try to get user's location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -140,7 +138,6 @@ const Nearby = () => {
         attendees: 0
       }));
 
-      // Filter by search query if provided
       const filteredEvents = searchQuery 
         ? formattedEvents.filter(event => 
             event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
