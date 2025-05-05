@@ -17,6 +17,32 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
+// Define types for the state objects to ensure they're always objects
+interface NotificationSettings {
+  email: boolean;
+  push: boolean;
+  eventReminders: boolean;
+  messageNotifications: boolean;
+  eventUpdates: boolean;
+  followActivity: boolean;
+  marketing: boolean;
+}
+
+interface PrivacySettings {
+  profileVisibility: string;
+  locationSharing: boolean;
+  activityVisibility: string;
+  dataUsage: boolean;
+}
+
+interface ProfileData {
+  fullName: string;
+  username: string;
+  email: string;
+  bio: string;
+  language: string;
+}
+
 const Settings = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -24,7 +50,7 @@ const Settings = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   
-  const [profile, setProfile] = useState({
+  const [profile, setProfile] = useState<ProfileData>({
     fullName: "",
     username: "",
     email: "",
@@ -32,7 +58,7 @@ const Settings = () => {
     language: "en",
   });
   
-  const [notifications, setNotifications] = useState({
+  const [notifications, setNotifications] = useState<NotificationSettings>({
     email: true,
     push: true,
     eventReminders: true,
@@ -42,7 +68,7 @@ const Settings = () => {
     marketing: false,
   });
 
-  const [privacy, setPrivacy] = useState({
+  const [privacy, setPrivacy] = useState<PrivacySettings>({
     profileVisibility: "public",
     locationSharing: false,
     activityVisibility: "friends",
@@ -91,18 +117,18 @@ const Settings = () => {
       if (data) {
         // Update notification settings from database
         if (data.notification_settings) {
-          setNotifications({
-            ...notifications,
-            ...data.notification_settings,
-          });
+          setNotifications(prevNotifications => ({
+            ...prevNotifications,
+            ...(data.notification_settings as Partial<NotificationSettings>)
+          }));
         }
         
         // Update privacy settings from database
         if (data.preferences) {
-          setPrivacy({
-            ...privacy,
-            ...data.preferences,
-          });
+          setPrivacy(prevPrivacy => ({
+            ...prevPrivacy,
+            ...(data.preferences as Partial<PrivacySettings>)
+          }));
         }
       }
     } catch (error) {
