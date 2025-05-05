@@ -1,292 +1,170 @@
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/components/ui/use-toast";
-import { Bell, Moon, Sun, Mail, User, Globe, Shield, LogOut } from "lucide-react";
-import { TopBar } from "@/components/TopBar";
-import { BottomNav } from "@/components/navigation/BottomNav";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/hooks/useAuth";
-import { Textarea } from "@/components/ui/textarea";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Bell, Mail, Shield, User } from "lucide-react";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const Settings = () => {
-  const { toast } = useToast();
-  const { user, signOut } = useAuth();
-  const isMobile = useIsMobile();
-
-  const [profile, setProfile] = useState({
-    displayName: user?.user_metadata?.name || "",
-    bio: user?.user_metadata?.bio || "",
-    email: user?.email || "",
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  
+  const [notifications, setNotifications] = useState({
+    email: true,
+    push: true,
+    eventReminders: true,
+    marketing: false,
   });
-
-  const [preferences, setPreferences] = useState({
-    pushNotifications: true,
-    emailNotifications: true,
-    darkMode: true,
-    language: "English",
-    radius: 10,
-  });
-
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handlePreferenceChange = (key: string, value: boolean | number | string) => {
-    setPreferences(prev => ({ ...prev, [key]: value }));
-  };
 
   const handleSave = () => {
-    toast({
-      title: "Settings saved",
-      description: "Your preferences have been updated successfully.",
-    });
-  };
-
-  const handleSignOut = () => {
-    signOut();
-    toast({
-      title: "Signed out",
-      description: "You have been signed out successfully.",
-    });
+    setLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setLoading(false);
+      toast.success("Settings saved successfully");
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <TopBar />
-      
-      <div className={`pt-16 ${isMobile ? 'pb-20' : 'pb-8'} px-4 md:px-6 max-w-3xl mx-auto`}>
+    <AppLayout pageTitle="Settings" showTopBar={true}>
+      <div className="container max-w-4xl mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
+          className="space-y-6"
         >
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-2">
-            Settings
-          </h1>
-          <p className="text-muted-foreground">
-            Customize your experience on SocialEventory
-          </p>
-        </motion.div>
+          <h1 className="text-2xl font-bold">Settings</h1>
 
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid grid-cols-3 mb-6">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="preferences">Preferences</TabsTrigger>
-            <TabsTrigger value="account">Account</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="profile" className="space-y-6">
-            <div className="glass-panel p-6 rounded-xl space-y-4">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                  <User className="w-8 h-8 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold">{profile.displayName || "Your Profile"}</h2>
-                  <p className="text-muted-foreground">{user?.email}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="displayName">Display Name</Label>
-                  <Input 
-                    id="displayName"
-                    name="displayName"
-                    value={profile.displayName}
-                    onChange={handleProfileChange}
-                    placeholder="Your display name" 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <Textarea 
-                    id="bio"
-                    name="bio"
-                    value={profile.bio}
-                    onChange={handleProfileChange}
-                    placeholder="Tell us about yourself" 
-                    className="min-h-[100px]"
-                  />
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="preferences" className="space-y-6">
-            <div className="glass-panel p-6 rounded-xl space-y-4">
-              <h2 className="text-xl font-semibold mb-4">Notifications</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <Bell className="w-4 h-4" />
-                      <Label htmlFor="push">Push Notifications</Label>
+          <Tabs defaultValue="profile" className="w-full">
+            <TabsList>
+              <TabsTrigger value="profile" className="gap-2">
+                <User className="h-4 w-4" />
+                Profile
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="gap-2">
+                <Bell className="h-4 w-4" />
+                Notifications
+              </TabsTrigger>
+              <TabsTrigger value="privacy" className="gap-2">
+                <Shield className="h-4 w-4" />
+                Privacy
+              </TabsTrigger>
+            </TabsList>
+
+            <div className="mt-6 space-y-6">
+              <TabsContent value="profile">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Profile Information</CardTitle>
+                    <CardDescription>
+                      Update your profile information and email settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name</Label>
+                      <Input 
+                        id="name" 
+                        defaultValue={user?.user_metadata?.full_name || ''} 
+                        placeholder="Enter your name"
+                      />
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Receive push notifications for important updates
-                    </p>
-                  </div>
-                  <Switch 
-                    id="push" 
-                    checked={preferences.pushNotifications}
-                    onCheckedChange={(checked) => handlePreferenceChange('pushNotifications', checked)}
-                  />
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      <Label htmlFor="email">Email Notifications</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        defaultValue={user?.email || ''} 
+                        disabled
+                      />
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Receive email notifications for important updates
-                    </p>
-                  </div>
-                  <Switch 
-                    id="email" 
-                    checked={preferences.emailNotifications}
-                    onCheckedChange={(checked) => handlePreferenceChange('emailNotifications', checked)}
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="glass-panel p-6 rounded-xl space-y-4">
-              <h2 className="text-xl font-semibold mb-4">Appearance</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      {preferences.darkMode ? (
-                        <Moon className="w-4 h-4" />
-                      ) : (
-                        <Sun className="w-4 h-4" />
-                      )}
-                      <Label htmlFor="theme">Dark Mode</Label>
+                    <Button onClick={handleSave} disabled={loading}>
+                      {loading ? "Saving..." : "Save Changes"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="notifications">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Notification Preferences</CardTitle>
+                    <CardDescription>
+                      Choose how you want to receive notifications
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Email Notifications</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Receive notifications via email
+                        </p>
+                      </div>
+                      <Switch
+                        checked={notifications.email}
+                        onCheckedChange={(checked) =>
+                          setNotifications((prev) => ({ ...prev, email: checked }))
+                        }
+                      />
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Toggle between light and dark mode
-                    </p>
-                  </div>
-                  <Switch 
-                    id="theme" 
-                    checked={preferences.darkMode}
-                    onCheckedChange={(checked) => handlePreferenceChange('darkMode', checked)}
-                  />
-                </div>
-                <Separator />
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    <Label htmlFor="language">Language</Label>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Change the application language
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={preferences.language === "English" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handlePreferenceChange('language', 'English')}
-                    >
-                      English
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Push Notifications</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Receive push notifications
+                        </p>
+                      </div>
+                      <Switch
+                        checked={notifications.push}
+                        onCheckedChange={(checked) =>
+                          setNotifications((prev) => ({ ...prev, push: checked }))
+                        }
+                      />
+                    </div>
+                    <Button onClick={handleSave} disabled={loading}>
+                      {loading ? "Saving..." : "Save Changes"}
                     </Button>
-                    <Button
-                      variant={preferences.language === "Italiano" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handlePreferenceChange('language', 'Italiano')}
-                    >
-                      Italiano
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="privacy">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Privacy Settings</CardTitle>
+                    <CardDescription>
+                      Manage your privacy preferences
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Profile Visibility</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Make your profile visible to other users
+                        </p>
+                      </div>
+                      <Switch defaultChecked />
+                    </div>
+                    <Button onClick={handleSave} disabled={loading}>
+                      {loading ? "Saving..." : "Save Changes"}
                     </Button>
-                    <Button
-                      variant={preferences.language === "Español" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handlePreferenceChange('language', 'Español')}
-                    >
-                      Español
-                    </Button>
-                  </div>
-                </div>
-              </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="account" className="space-y-6">
-            <div className="glass-panel p-6 rounded-xl space-y-4">
-              <h2 className="text-xl font-semibold mb-4">Account Settings</h2>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input 
-                    id="email"
-                    name="email"
-                    value={profile.email}
-                    onChange={handleProfileChange}
-                    disabled
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    To change your email, please contact support
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="glass-panel p-6 rounded-xl space-y-4">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-primary" />
-                Privacy & Security
-              </h2>
-              <div className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
-                  Change Password
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  Privacy Settings
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  Data Export
-                </Button>
-              </div>
-            </div>
-            
-            <div className="glass-panel p-6 rounded-xl space-y-4 border-destructive/30">
-              <h2 className="text-xl font-semibold mb-4 text-destructive">Danger Zone</h2>
-              <div className="space-y-4">
-                <Button 
-                  variant="destructive" 
-                  className="w-full"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-        
-        <div className="mt-8 flex justify-end">
-          <Button 
-            onClick={handleSave}
-            className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300"
-          >
-            Save Changes
-          </Button>
-        </div>
+          </Tabs>
+        </motion.div>
       </div>
-      
-      <BottomNav />
-    </div>
+    </AppLayout>
   );
 };
 
