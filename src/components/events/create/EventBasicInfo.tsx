@@ -22,20 +22,24 @@ export const EventBasicInfo = ({
   handleLocationSelect 
 }: EventBasicInfoProps) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Subtle background gradient for better visibility */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/10 via-pink-50/5 to-purple-50/10 -z-10 rounded-lg" />
+      
       <FormField
         control={form.control}
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Event Title</FormLabel>
+            <FormLabel className="font-medium text-white">Event Title</FormLabel>
             <FormControl>
               <Input 
                 placeholder="Enter a clear and descriptive title" 
                 {...field} 
+                className="bg-white/10 backdrop-blur-sm border-primary/20 focus:border-primary/60 placeholder:text-muted-foreground/70 text-white focus:bg-white/15"
               />
             </FormControl>
-            <FormDescription>
+            <FormDescription className="text-blue-200/80">
               A great title is short, descriptive and eye-catching.
             </FormDescription>
             <FormMessage />
@@ -48,11 +52,11 @@ export const EventBasicInfo = ({
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description</FormLabel>
+            <FormLabel className="font-medium text-white">Description</FormLabel>
             <FormControl>
               <Textarea 
                 placeholder="What is your event about? What can attendees expect?" 
-                className="min-h-[150px]" 
+                className="min-h-[150px] bg-white/10 backdrop-blur-sm border-primary/20 focus:border-primary/60 placeholder:text-muted-foreground/70 text-white focus:bg-white/15" 
                 {...field} 
               />
             </FormControl>
@@ -62,10 +66,12 @@ export const EventBasicInfo = ({
       />
 
       <div>
-        <h3 className="text-lg font-medium mb-4">Event Image</h3>
+        <h3 className="text-lg font-medium mb-4 text-white">Event Image</h3>
         <div className="flex items-center gap-4">
           <div 
-            className={`relative flex justify-center items-center border-2 border-dashed rounded-lg w-full h-40 ${imagePreview ? 'border-primary/50' : 'border-muted-foreground/25'} hover:border-primary/50 transition-colors`}
+            className={`relative flex justify-center items-center border-2 border-dashed rounded-lg w-full h-40 
+            ${imagePreview ? 'border-primary/70' : 'border-white/40'} 
+            hover:border-primary/90 transition-colors bg-white/5 backdrop-blur-sm hover:bg-white/10`}
           >
             {imagePreview ? (
               <img 
@@ -75,8 +81,8 @@ export const EventBasicInfo = ({
               />
             ) : (
               <div className="text-center p-4">
-                <ImagePlus className="mx-auto h-10 w-10 text-muted-foreground/50" />
-                <p className="mt-2 text-sm text-muted-foreground">Click to upload event image</p>
+                <ImagePlus className="mx-auto h-10 w-10 text-blue-300/80" />
+                <p className="mt-2 text-sm text-blue-200">Click to upload event image</p>
               </div>
             )}
             <input 
@@ -94,7 +100,7 @@ export const EventBasicInfo = ({
         name="location"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Location</FormLabel>
+            <FormLabel className="font-medium text-white">Location</FormLabel>
             <FormControl>
               <LocationSearch 
                 value={field.value}
@@ -102,7 +108,7 @@ export const EventBasicInfo = ({
                 onLocationSelect={handleLocationSelect}
               />
             </FormControl>
-            <FormDescription>
+            <FormDescription className="text-blue-200/80">
               Search for an address or venue
             </FormDescription>
             <FormMessage />
@@ -115,15 +121,16 @@ export const EventBasicInfo = ({
         name="venue_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Venue Name (Optional)</FormLabel>
+            <FormLabel className="font-medium text-white">Venue Name (Optional)</FormLabel>
             <FormControl>
               <Input 
                 placeholder="Enter venue name" 
                 {...field} 
                 value={field.value || ''}
+                className="bg-white/10 backdrop-blur-sm border-primary/20 focus:border-primary/60 placeholder:text-muted-foreground/70 text-white focus:bg-white/15"
               />
             </FormControl>
-            <FormDescription>
+            <FormDescription className="text-blue-200/80">
               Add a specific venue name if applicable
             </FormDescription>
             <FormMessage />

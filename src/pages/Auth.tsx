@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,16 +8,29 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Mail, Lock, User, UserCircle } from "lucide-react";
+import { Mail, Lock, User, UserCircle, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  
+  // Get the path to redirect to after login
+  const from = location.state?.from || "/";
+  
+  // If user is already logged in, redirect them
+  useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, from]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +52,7 @@ const Auth = () => {
 
       if (data) {
         toast.success("Sign up successful! Please check your email for verification.");
-        navigate("/");
+        navigate(from, { replace: true });
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -61,7 +75,7 @@ const Auth = () => {
 
       if (data) {
         toast.success("Successfully signed in!");
-        navigate("/");
+        navigate(from, { replace: true });
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -127,7 +141,11 @@ const Auth = () => {
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Signing in..." : "Sign In"}
+                    {loading ? (
+                      <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Signing in...</>
+                    ) : (
+                      "Sign In"
+                    )}
                   </Button>
                 </form>
               </TabsContent>
@@ -195,7 +213,11 @@ const Auth = () => {
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Signing up..." : "Sign Up"}
+                    {loading ? (
+                      <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Signing up...</>
+                    ) : (
+                      "Sign Up"
+                    )}
                   </Button>
                 </form>
               </TabsContent>
