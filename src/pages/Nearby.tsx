@@ -249,16 +249,4 @@ const Nearby = () => {
   );
 };
 
-const handleDateSelect = (date: Date | undefined) => {
-  setSelectedDate(date);
-};
-
-const increaseRadius = () => {
-  setRadius(prev => Math.min(prev + 1, 50));
-};
-
-const decreaseRadius = () => {
-  setRadius(prev => Math.max(prev - 1, 1));
-};
-
 export default Nearby;
