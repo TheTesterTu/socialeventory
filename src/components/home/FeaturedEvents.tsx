@@ -11,35 +11,30 @@ export const FeaturedEvents = () => {
   const [newEvents, setNewEvents] = useState<Event[]>([]);
 
   useEffect(() => {
-    // Get top 2 trending events
-    const sortedByLikes = [...mockEvents].sort((a, b) => b.likes - a.likes).slice(0, 2);
-    setTrendingEvents(sortedByLikes);
-
-    // Get newest 2 events
-    const sortedByDate = [...mockEvents]
-      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-      .slice(0, 2);
-    setNewEvents(sortedByDate);
+    // Get top 2 events for each section
+    setTrendingEvents(mockEvents.slice(0, 2));
+    setNewEvents(mockEvents.slice(2, 4));
   }, []);
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-12">
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="space-y-8"
+        className="space-y-6"
       >
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">Trending Now</h2>
         </div>
-        <div className="grid grid-cols-1 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {trendingEvents.map((event) => (
             <motion.div
               key={event.id}
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
               className="h-[400px]"
             >
               <EventCard {...event} />
@@ -52,18 +47,19 @@ export const FeaturedEvents = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="space-y-8"
+        className="space-y-6"
       >
         <div className="flex items-center gap-2 mb-4">
           <Sparkles className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">Just Added</h2>
         </div>
-        <div className="grid grid-cols-1 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {newEvents.map((event) => (
             <motion.div
               key={event.id}
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
               className="h-[400px]"
             >
               <EventCard {...event} />

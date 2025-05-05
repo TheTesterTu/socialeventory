@@ -23,7 +23,7 @@ export const HomeHero = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative space-y-8 mb-12"
+      className="relative space-y-6 mb-10 px-4 md:px-0"
     >
       <div className="absolute inset-0 -z-10 opacity-40">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_#8B5CF6_0%,_transparent_50%)]" />
@@ -44,7 +44,7 @@ export const HomeHero = () => {
           Find Your Next Experience
         </h1>
         <p className="text-muted-foreground max-w-lg mx-auto">
-          Concerts, workshops, meetups, and more — connect with your community and make memories that last.
+          Concerts, workshops, meetups and more. Discover events that match your interests and connect with your community.
         </p>
       </motion.div>
       
@@ -52,7 +52,7 @@ export const HomeHero = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="max-w-2xl mx-auto"
+        className="max-w-2xl mx-auto w-full"
       >
         <SearchBar onSearch={handleSearch} />
       </motion.div>
@@ -61,7 +61,7 @@ export const HomeHero = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="flex flex-col sm:flex-row gap-3 justify-center pt-4"
+        className="flex flex-col sm:flex-row gap-3 justify-center pt-2"
       >
         <Link to="/create-event">
           <Button 
@@ -88,7 +88,7 @@ export const HomeHero = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.5 }}
-        className="flex items-center justify-center flex-wrap gap-6 pt-8"
+        className="flex items-center justify-center flex-wrap gap-6 pt-6"
       >
         <div className="flex items-center gap-2">
           <span className="inline-block h-2 w-2 rounded-full bg-green-400"></span>

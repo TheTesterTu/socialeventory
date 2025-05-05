@@ -26,57 +26,56 @@ const Index = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="space-y-12 pb-20 relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
+        className="px-4 sm:px-6 md:px-8 max-w-7xl mx-auto"
       >
         <HomeHero />
         
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="py-4"
-        >
-          <QuickCategories />
-        </motion.div>
+        <div className="space-y-16 pb-20">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <QuickCategories />
+          </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="py-4"
-        >
-          <FeaturedCreators />
-        </motion.div>
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-8 py-4"
-        >
-          <div className="lg:col-span-2">
-            <FeaturedEvents />
-          </div>
-          <div className="space-y-8">
-            <UpcomingEvents />
-            <EventsNearYou />
-          </div>
-        </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
+            <FeaturedCreators />
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+          >
+            <div className="lg:col-span-2">
+              <FeaturedEvents />
+            </div>
+            <div className="space-y-8">
+              <UpcomingEvents />
+              <EventsNearYou />
+            </div>
+          </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.25 }}
-          className="py-4"
-        >
-          <FeaturedBlog posts={blogPosts} />
-        </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+          >
+            <FeaturedBlog posts={blogPosts} />
+          </motion.div>
+        </div>
 
         {isMobile && (
           <div className="fixed bottom-24 right-4 z-20">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-full h-12 w-12 bg-background/80 backdrop-blur-sm shadow-lg border-primary/20 hover:bg-primary/10">
+                <Button variant="outline" size="icon" className="rounded-full h-12 w-12 bg-background/80 backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10 hover:bg-primary/10">
                   <HelpCircle className="h-6 w-6 text-primary" />
                 </Button>
               </PopoverTrigger>
