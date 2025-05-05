@@ -1,37 +1,21 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { BackButton } from "@/components/navigation/BackButton";
 import { motion } from "framer-motion";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Calendar, ImagePlus, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
-import { LocationSearch } from "@/components/LocationSearch";
+import { EventBasicInfo } from "@/components/events/create/EventBasicInfo";
+import { EventDateTime } from "@/components/events/create/EventDateTime";
+import { EventCategoriesSelect } from "@/components/events/create/EventCategories";
+import { EventSettings } from "@/components/events/create/EventSettings";
 
 // Example category options
 const categoryOptions = [
@@ -223,356 +207,22 @@ const CreateEvent = () => {
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Event Title</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Enter a clear and descriptive title" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    A great title is short, descriptive and eye-catching.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <EventBasicInfo 
+              form={form}
+              imageFile={imageFile}
+              imagePreview={imagePreview}
+              handleImageChange={handleImageChange}
+              handleLocationSelect={handleLocationSelect}
             />
             
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="What is your event about? What can attendees expect?" 
-                      className="min-h-[150px]" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium mb-4">Event Image</h3>
-                <div className="flex items-center gap-4">
-                  <div 
-                    className={`relative flex justify-center items-center border-2 border-dashed rounded-lg w-full h-40 ${imagePreview ? 'border-primary/50' : 'border-muted-foreground/25'} hover:border-primary/50 transition-colors`}
-                  >
-                    {imagePreview ? (
-                      <img 
-                        src={imagePreview} 
-                        alt="Event preview" 
-                        className="h-full w-full object-cover rounded-lg" 
-                      />
-                    ) : (
-                      <div className="text-center p-4">
-                        <ImagePlus className="mx-auto h-10 w-10 text-muted-foreground/50" />
-                        <p className="mt-2 text-sm text-muted-foreground">Click to upload event image</p>
-                      </div>
-                    )}
-                    <input 
-                      type="file" 
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <EventDateTime form={form} />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Start Date & Time</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input 
-                          type="datetime-local" 
-                          {...field} 
-                          className="pl-10" 
-                        />
-                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>End Date & Time</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input 
-                          type="datetime-local" 
-                          {...field} 
-                          className="pl-10" 
-                        />
-                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <LocationSearch 
-                        value={field.value}
-                        onChange={field.onChange}
-                        onLocationSelect={handleLocationSelect}
-                      />
-                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    Search for an address or venue
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="venue_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Venue Name (Optional)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Enter venue name" 
-                      {...field} 
-                      value={field.value || ''}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Add a specific venue name if applicable
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <EventCategoriesSelect 
+              form={form}
+              categoryOptions={categoryOptions}
             />
             
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categories</FormLabel>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {categoryOptions.map(category => (
-                      <Button
-                        key={category}
-                        type="button"
-                        variant={field.value.includes(category) ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => {
-                          const newValue = field.value.includes(category)
-                            ? field.value.filter(c => c !== category)
-                            : [...field.value, category];
-                          field.onChange(newValue);
-                        }}
-                      >
-                        {category}
-                      </Button>
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="isFree"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 mt-1"
-                        checked={field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Free Event</FormLabel>
-                      <FormDescription>
-                        This event is free to attend
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              {!form.watch("isFree") && (
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price ($)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          min="0" 
-                          step="0.01" 
-                          {...field}
-                          onChange={e => field.onChange(parseFloat(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="wheelchairAccessible"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 mt-1"
-                        checked={field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Wheelchair Accessible</FormLabel>
-                      <FormDescription>
-                        This venue is accessible to wheelchair users
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="familyFriendly"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 mt-1"
-                        checked={field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Family Friendly</FormLabel>
-                      <FormDescription>
-                        This event is suitable for all ages
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="organizerType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Organizer Type</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select organizer type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="personal">Personal (Your Profile)</SelectItem>
-                      <SelectItem value="organization">Organization</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    {field.value === "organization" ? (
-                      <>
-                        Select an organization to host this event or{" "}
-                        <Button 
-                          variant="link" 
-                          className="p-0 h-auto" 
-                          onClick={() => navigate("/organizers")}
-                        >
-                          create a new one
-                        </Button>
-                      </>
-                    ) : (
-                      "The event will be associated with your personal profile"
-                    )}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            {form.watch("organizerType") === "organization" && (
-              <FormField
-                control={form.control}
-                name="organizerId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Organization</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an organization" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="org1">EventMasters Group</SelectItem>
-                        <SelectItem value="org2">Community Events Collective</SelectItem>
-                        <SelectItem value="org3">Tech Meetup Organizers</SelectItem>
-                        <SelectItem value="new">+ Create New Organization</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            <EventSettings form={form} />
             
             <div className="pt-4 flex justify-end gap-4">
               <Button 
