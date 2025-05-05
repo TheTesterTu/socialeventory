@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -72,7 +73,7 @@ const EventMap = ({
                 position.coords.longitude,
                 position.coords.latitude
               ];
-              setUserLocation([userCoords[0], userCoords[1]]);
+              setUserLocation(userCoords);
               
               if (map.current) {
                 map.current.flyTo({
@@ -82,16 +83,18 @@ const EventMap = ({
                 });
                 
                 // Add user location marker
-                new mapboxgl.Marker({
-                  color: '#3b82f6',
-                  scale: 0.8
-                })
-                  .setLngLat(userCoords)
-                  .addTo(map.current)
-                  .setPopup(
-                    new mapboxgl.Popup({ offset: 25 })
-                      .setHTML('<div class="p-2"><p class="font-medium">Your location</p></div>')
-                  );
+                if (map.current) {
+                  new mapboxgl.Marker({
+                    color: '#3b82f6',
+                    scale: 0.8
+                  })
+                    .setLngLat(userCoords)
+                    .addTo(map.current)
+                    .setPopup(
+                      new mapboxgl.Popup({ offset: 25 })
+                        .setHTML('<div class="p-2"><p class="font-medium">Your location</p></div>')
+                    );
+                }
               }
             },
             () => {
@@ -103,7 +106,7 @@ const EventMap = ({
       });
 
       // Add controls if interactive
-      if (isInteractive) {
+      if (isInteractive && map.current) {
         map.current.addControl(
           new mapboxgl.NavigationControl({
             showCompass: true,
@@ -116,7 +119,9 @@ const EventMap = ({
 
       // Cleanup
       return () => {
-        map.current?.remove();
+        if (map.current) {
+          map.current.remove();
+        }
       };
     } catch (error) {
       console.error('Error initializing map:', error);
@@ -136,9 +141,18 @@ const EventMap = ({
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
 
-    // Add markers for each event
+    // Add markers for each event with valid coordinates
     events.forEach(event => {
       if (!event.location.coordinates || !map.current) return;
+      
+      // Validate coordinates - skip invalid ones
+      const lat = event.location.coordinates[0];
+      const lng = event.location.coordinates[1];
+      
+      if (isNaN(lat) || isNaN(lng) || !isFinite(lat) || !isFinite(lng)) {
+        console.warn(`Invalid coordinates for event ${event.id}: [${lat}, ${lng}]`);
+        return;
+      }
       
       // Create marker element with modern styling
       const el = document.createElement('div');
@@ -176,39 +190,51 @@ const EventMap = ({
         </div>
       `);
 
-      // Create and add marker
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat([event.location.coordinates[1], event.location.coordinates[0]])
-        .setPopup(popup)
-        .addTo(map.current);
-        
-      markers.current.push(marker);
+      try {
+        // Create and add marker with correct coordinates order (lng, lat for Mapbox!)
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([lng, lat]) // Switched order: Mapbox expects [longitude, latitude]
+          .setPopup(popup);
+          
+        if (map.current) {
+          marker.addTo(map.current);
+          markers.current.push(marker);
+        }
+      } catch (error) {
+        console.error(`Error adding marker for event ${event.id}:`, error);
+      }
     });
 
     // Fit bounds to include all markers if there are any
     if (markers.current.length > 0 && map.current) {
-      const bounds = new mapboxgl.LngLatBounds();
-      
-      events.forEach(event => {
-        if (event.location.coordinates) {
-          bounds.extend([
-            event.location.coordinates[1],
-            event.location.coordinates[0]
-          ]);
-        }
-      });
-      
-      // Include user location in bounds if available
-      if (userLocation) {
-        bounds.extend(userLocation);
-      }
-      
-      // Only adjust bounds if we have valid coordinates
-      if (!bounds.isEmpty()) {
-        map.current.fitBounds(bounds, {
-          padding: 50,
-          maxZoom: 15
+      try {
+        const bounds = new mapboxgl.LngLatBounds();
+        
+        events.forEach(event => {
+          if (event.location.coordinates) {
+            const lat = event.location.coordinates[0];
+            const lng = event.location.coordinates[1];
+            
+            if (!isNaN(lat) && !isNaN(lng) && isFinite(lat) && isFinite(lng)) {
+              bounds.extend([lng, lat]);
+            }
+          }
         });
+        
+        // Include user location in bounds if available
+        if (userLocation) {
+          bounds.extend(userLocation);
+        }
+        
+        // Only adjust bounds if we have valid coordinates
+        if (!bounds.isEmpty()) {
+          map.current.fitBounds(bounds, {
+            padding: 50,
+            maxZoom: 15
+          });
+        }
+      } catch (error) {
+        console.error('Error fitting bounds:', error);
       }
     }
   }, [events, mapLoaded, userLocation]);

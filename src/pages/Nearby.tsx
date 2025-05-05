@@ -67,40 +67,58 @@ const Nearby = () => {
 
       if (error) throw error;
 
-      const formattedEvents: Event[] = (eventsData as any[]).map(event => ({
-        id: event.id,
-        title: event.title,
-        description: '', 
-        location: {
-          coordinates: [event.coordinates.y, event.coordinates.x] as [number, number],
-          address: event.location,
-          venue_name: event.venue_name || ''
-        },
-        startDate: new Date().toISOString(),
-        endDate: new Date().toISOString(),
-        category: event.category,
-        tags: [],
-        accessibility: {
-          languages: event.accessibility?.languages || ['en'],
-          wheelchairAccessible: event.accessibility?.wheelchairAccessible || false,
-          familyFriendly: event.accessibility?.familyFriendly || true,
-        },
-        pricing: {
-          isFree: event.pricing?.isFree || true,
-          priceRange: event.pricing?.priceRange as [number, number],
-          currency: event.pricing?.currency,
-        },
-        creator: {
-          id: '',
-          type: 'user'
-        },
-        verification: {
-          status: 'pending'
-        },
-        imageUrl: '',
-        likes: 0,
-        attendees: 0
-      }));
+      const formattedEvents: Event[] = (eventsData as any[] || []).map(event => {
+        // Ensure coordinates are valid numbers
+        let lat = 0, lng = 0;
+        
+        if (event.coordinates && typeof event.coordinates === 'object') {
+          // Extract coordinates and ensure they're valid numbers
+          lat = event.coordinates.y ? parseFloat(event.coordinates.y) : 0;
+          lng = event.coordinates.x ? parseFloat(event.coordinates.x) : 0;
+          
+          // If still NaN after parsing, use default coordinates
+          if (isNaN(lat) || isNaN(lng)) {
+            console.warn(`Invalid coordinates for event ${event.id}, using defaults`);
+            lat = 0;
+            lng = 0;
+          }
+        }
+        
+        return {
+          id: event.id || `temp-${Math.random().toString(36).substring(2, 11)}`,
+          title: event.title || 'Untitled Event',
+          description: event.description || '', 
+          location: {
+            coordinates: [lat, lng] as [number, number],
+            address: event.location || 'No address provided',
+            venue_name: event.venue_name || ''
+          },
+          startDate: new Date().toISOString(),
+          endDate: new Date().toISOString(),
+          category: event.category || ['Uncategorized'],
+          tags: event.tags || [],
+          accessibility: {
+            languages: event.accessibility?.languages || ['en'],
+            wheelchairAccessible: Boolean(event.accessibility?.wheelchairAccessible),
+            familyFriendly: Boolean(event.accessibility?.familyFriendly || true),
+          },
+          pricing: {
+            isFree: Boolean(event.pricing?.isFree || true),
+            priceRange: Array.isArray(event.pricing?.priceRange) ? event.pricing.priceRange as [number, number] : [0, 0],
+            currency: event.pricing?.currency || 'USD',
+          },
+          creator: {
+            id: event.created_by || '',
+            type: 'user'
+          },
+          verification: {
+            status: event.verification_status || 'pending'
+          },
+          imageUrl: event.image_url || '',
+          likes: event.likes || 0,
+          attendees: event.attendees || 0
+        };
+      });
 
       setEvents(formattedEvents);
     } catch (error) {
@@ -229,6 +247,18 @@ const Nearby = () => {
       </div>
     </AppLayout>
   );
+};
+
+const handleDateSelect = (date: Date | undefined) => {
+  setSelectedDate(date);
+};
+
+const increaseRadius = () => {
+  setRadius(prev => Math.min(prev + 1, 50));
+};
+
+const decreaseRadius = () => {
+  setRadius(prev => Math.max(prev - 1, 1));
 };
 
 export default Nearby;
