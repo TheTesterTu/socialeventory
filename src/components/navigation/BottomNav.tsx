@@ -1,73 +1,64 @@
 
-import { Home, Search, PlusCircle, MapPin, Settings, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { Home, Search, Map, Calendar, Bell, User } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface NavItem {
+  path: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  label: string;
+  requireAuth?: boolean;
+}
 
 export const BottomNav = () => {
   const location = useLocation();
+  const { user } = useAuth();
   
-  const navItems = [
-    { icon: Home, label: "Home", path: "/events" },
-    { icon: Search, label: "Search", path: "/search" },
-    { icon: PlusCircle, label: "Create", path: "/create-event" },
-    { icon: MapPin, label: "Near Me", path: "/nearby" },
-    { icon: Users, label: "Organizers", path: "/organizers" }
+  const navItems: NavItem[] = [
+    { path: "/events", icon: Home, label: "Home" },
+    { path: "/search", icon: Search, label: "Search" },
+    { path: "/nearby", icon: Map, label: "Nearby" },
+    { path: "/notifications", icon: Bell, label: "Alerts", requireAuth: true },
+    { path: user ? "/profile" : "/auth", icon: User, label: user ? "Profile" : "Sign In" }
   ];
+  
+  // Filter items based on authentication status
+  const visibleItems = navItems.filter(item => !item.requireAuth || (item.requireAuth && user));
 
   return (
-    <motion.nav 
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="flex items-center justify-around py-2 px-1 bg-background/80 backdrop-blur-lg border-t border-border/50">
-        {navItems.map((item) => {
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-t border-border/50 py-2 px-4">
+      <nav className="flex justify-around items-center">
+        {visibleItems.map((item) => {
           const isActive = location.pathname === item.path;
-          const Icon = item.icon;
+          const IconComponent = item.icon;
           
           return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className="flex flex-col items-center justify-center p-1"
+            <Link 
+              key={item.path} 
+              to={item.path} 
+              className={cn(
+                "flex flex-col items-center justify-center pt-1 pb-0.5 px-2 relative",
+                "transition-colors duration-200 ease-in-out",
+                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
             >
-              <motion.div
-                whileTap={{ scale: 0.9 }}
-                className="relative flex flex-col items-center justify-center w-16 py-1"
-              >
-                <AnimatePresence mode="wait">
-                  {isActive && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.5, y: 10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.5, y: 10 }}
-                      className="absolute -top-3 w-10 h-1 rounded-full bg-primary"
-                    />
-                  )}
-                </AnimatePresence>
-                <div 
-                  className={cn(
-                    "w-10 h-10 flex items-center justify-center rounded-xl transition-colors",
-                    isActive 
-                      ? "bg-primary/10 text-primary" 
-                      : "text-muted-foreground hover:bg-background"
-                  )}
-                >
-                  <Icon className="w-5 h-5" />
-                </div>
-                <span className={cn(
-                  "text-xs mt-1 transition-colors",
-                  isActive ? "font-medium text-primary" : "text-muted-foreground"
-                )}>
-                  {item.label}
-                </span>
-              </motion.div>
+              <div className="relative">
+                <IconComponent className="h-5 w-5" />
+                {isActive && (
+                  <motion.div
+                    layoutId="bottomNavIndicator"
+                    className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+              </div>
+              <span className="text-[10px] mt-1 font-medium">{item.label}</span>
             </Link>
           );
         })}
-      </div>
-    </motion.nav>
+      </nav>
+    </div>
   );
 };

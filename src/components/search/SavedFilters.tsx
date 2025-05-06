@@ -1,0 +1,152 @@
+
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Save, Trash2, Filter } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+
+interface SavedFilter {
+  id: string;
+  name: string;
+  filters: {
+    categories?: string[];
+    dateRange?: [Date | null, Date | null];
+    priceRange?: [number, number];
+    location?: string;
+    distance?: number;
+  }
+}
+
+interface SavedFiltersProps {
+  onApplyFilter: (filter: any) => void;
+  currentFilters: any;
+}
+
+export const SavedFilters = ({ onApplyFilter, currentFilters }: SavedFiltersProps) => {
+  const { user } = useAuth();
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    if (!user) {
+      setSavedFilters([]);
+      return;
+    }
+    
+    const fetchSavedFilters = async () => {
+      setLoading(true);
+      try {
+        // In a real app, we would fetch saved filters from the database
+        // For now, we'll use mock data
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Mock data
+        setSavedFilters([
+          {
+            id: "1",
+            name: "Weekend Music",
+            filters: {
+              categories: ["Music", "Live", "Festival"],
+              priceRange: [0, 50],
+              distance: 25
+            }
+          },
+          {
+            id: "2",
+            name: "Free Tech Events",
+            filters: {
+              categories: ["Technology", "Workshop", "Conference"],
+              priceRange: [0, 0],
+              location: "San Francisco"
+            }
+          }
+        ]);
+      } catch (error) {
+        console.error("Error fetching saved filters:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchSavedFilters();
+  }, [user]);
+  
+  const handleSaveCurrentFilters = () => {
+    if (!user) {
+      toast.error("Please sign in to save filters");
+      return;
+    }
+    
+    // Ask for a name for the filter
+    const name = prompt("Enter a name for this filter set:");
+    if (!name) return;
+    
+    const newFilter = {
+      id: Date.now().toString(),
+      name,
+      filters: currentFilters
+    };
+    
+    setSavedFilters([...savedFilters, newFilter]);
+    toast.success(`Filter "${name}" saved successfully`);
+  };
+  
+  const handleDeleteFilter = (id: string) => {
+    setSavedFilters(savedFilters.filter(filter => filter.id !== id));
+    toast.success("Filter removed");
+  };
+  
+  if (!user || savedFilters.length === 0) {
+    return null;
+  }
+  
+  return (
+    <Card className="mb-6">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center">
+          <Filter className="h-4 w-4 mr-2" />
+          Saved Filters
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap gap-2">
+          {savedFilters.map((filter) => (
+            <Badge 
+              key={filter.id}
+              variant="outline"
+              className="cursor-pointer px-3 py-1 bg-background hover:bg-accent/50 group"
+              onClick={() => onApplyFilter(filter.filters)}
+            >
+              {filter.name}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-4 w-4 ml-1 opacity-50 group-hover:opacity-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteFilter(filter.id);
+                }}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </Badge>
+          ))}
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-7 text-xs" 
+            onClick={handleSaveCurrentFilters}
+            disabled={!Object.keys(currentFilters || {}).length}
+          >
+            <Save className="h-3 w-3 mr-1" />
+            Save Current
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

@@ -7,6 +7,7 @@ import { EventsNearYou } from "@/components/home/EventsNearYou";
 import { UpcomingEvents } from "@/components/home/UpcomingEvents";
 import { FeaturedCreators } from "@/components/home/FeaturedCreators";
 import { FeaturedBlog } from "@/components/home/FeaturedBlog";
+import { PersonalizedEvents } from "@/components/home/PersonalizedEvents";
 import { blogPosts } from "@/lib/mock-data/blog-data";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -14,9 +15,11 @@ import { Button } from "@/components/ui/button";
 import { HelpCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   
   return (
     <AppLayout 
@@ -41,6 +44,16 @@ const Index = () => {
           >
             <QuickCategories />
           </motion.div>
+
+          {user && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
+              <PersonalizedEvents />
+            </motion.div>
+          )}
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}

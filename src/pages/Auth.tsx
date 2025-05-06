@@ -23,6 +23,17 @@ const Auth = () => {
   const [forgotPassword, setForgotPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("signin");
   
+  // Parse query parameters
+  const queryParams = new URLSearchParams(location.search);
+  const mode = queryParams.get("mode");
+  
+  // Set active tab based on query param
+  useEffect(() => {
+    if (mode === "signup") {
+      setActiveTab("signup");
+    }
+  }, [mode]);
+  
   // Get the path to redirect to after login
   const from = location.state?.from || "/events";
   
@@ -39,7 +50,7 @@ const Auth = () => {
     
     try {
       await signUp(email, password, username, fullName);
-      navigate(from, { replace: true });
+      // Don't navigate here, let the AuthContext handle it when user state changes
     } catch (error) {
       // Error is already handled in the signUp function
     } finally {
@@ -53,7 +64,7 @@ const Auth = () => {
     
     try {
       await signIn(email, password);
-      navigate(from, { replace: true });
+      // Don't navigate here, let the AuthContext handle it when user state changes
     } catch (error) {
       // Error is already handled in the signIn function
     } finally {

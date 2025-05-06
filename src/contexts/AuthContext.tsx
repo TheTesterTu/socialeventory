@@ -13,6 +13,8 @@ interface AuthContextType {
   signUp: (email: string, password: string, username: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,23 +27,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // After checking the session, if user is still authenticated
+      // fetch any additional profile data if needed
+      if (session?.user) {
+        // Use setTimeout to prevent potential deadlocks
+        setTimeout(() => {
+          fetchUserProfile(session.user.id);
+        }, 0);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+  
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+        
+      if (error) throw error;
+      
+      // Store additional user data if needed
+      // This would be used for storing permissions, preferences, etc.
+      if (data) {
+        // You could update a more comprehensive user state here if needed
+        console.log("User profile fetched:", data);
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -52,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       toast.success("Successfully signed in!");
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to sign in");
       throw error;
     }
   };
@@ -72,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       toast.success("Successfully signed up! Please check your email for verification.");
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to sign up");
       throw error;
     }
   };
@@ -87,10 +117,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setSession(null);
       
+      // Navigate to auth page
       navigate("/auth");
       toast.success("Successfully signed out!");
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to sign out");
       throw error;
     } finally {
       setLoading(false);
@@ -105,8 +136,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       toast.success("Password reset instructions sent to your email!");
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to reset password");
       throw error;
+    }
+  };
+  
+  const updatePassword = async (password: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) throw error;
+      toast.success("Password updated successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update password");
+      throw error;
+    }
+  };
+  
+  const refreshSession = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      
+      if (data.session) {
+        setSession(data.session);
+        setUser(data.session.user);
+      }
+    } catch (error: any) {
+      console.error("Error refreshing session:", error);
+      // Don't throw here to avoid breaking the app flow
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,7 +178,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn, 
       signUp, 
       signOut, 
-      resetPassword 
+      resetPassword,
+      updatePassword,
+      refreshSession
     }}>
       {children}
     </AuthContext.Provider>
