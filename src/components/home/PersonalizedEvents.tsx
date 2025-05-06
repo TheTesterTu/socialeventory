@@ -34,7 +34,13 @@ export const PersonalizedEvents = () => {
           .single();
         
         // Get preferred categories if available
-        const preferredCategories = userPreferences?.preferences?.categories || [];
+        const preferredCategories: string[] = [];
+        if (userPreferences?.preferences && 
+            typeof userPreferences.preferences === 'object' && 
+            userPreferences.preferences !== null && 
+            Array.isArray((userPreferences.preferences as any).categories)) {
+          preferredCategories.push(...((userPreferences.preferences as any).categories as string[]));
+        }
         
         // Get events that match user preferences or recent interests
         const { data: eventData, error } = await supabase

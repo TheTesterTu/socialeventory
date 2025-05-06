@@ -6,6 +6,38 @@ import { Json } from "@/integrations/supabase/types";
  * Maps database event format to the application Event interface
  */
 export function mapDatabaseEventToEvent(dbEvent: any): Event {
+  // Handle accessibility JSON data with proper type checking
+  const accessibilityData = dbEvent.accessibility as Json;
+  let languages: string[] = ['en'];
+  let wheelchairAccessible = false;
+  let familyFriendly = true;
+
+  // Safely access accessibility properties
+  if (typeof accessibilityData === 'object' && accessibilityData !== null) {
+    if (Array.isArray((accessibilityData as any).languages)) {
+      languages = (accessibilityData as any).languages as string[];
+    }
+    wheelchairAccessible = Boolean((accessibilityData as any).wheelchairAccessible);
+    familyFriendly = Boolean((accessibilityData as any).familyFriendly);
+  }
+
+  // Handle pricing JSON data with proper type checking
+  const pricingData = dbEvent.pricing as Json;
+  let isFree = true;
+  let priceRange: [number, number] | undefined = undefined;
+  let currency: string | undefined = undefined;
+
+  // Safely access pricing properties
+  if (typeof pricingData === 'object' && pricingData !== null) {
+    isFree = Boolean((pricingData as any).isFree);
+    if (Array.isArray((pricingData as any).priceRange)) {
+      priceRange = (pricingData as any).priceRange as [number, number];
+    }
+    if (typeof (pricingData as any).currency === 'string') {
+      currency = (pricingData as any).currency as string;
+    }
+  }
+
   return {
     id: dbEvent.id,
     title: dbEvent.title,
@@ -23,18 +55,14 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
     tags: dbEvent.tags || [],
     culturalContext: dbEvent.cultural_context || '',
     accessibility: {
-      languages: Array.isArray((dbEvent.accessibility as Json)?.languages) 
-        ? ((dbEvent.accessibility as Json)?.languages as string[]) 
-        : ['en'],
-      wheelchairAccessible: Boolean((dbEvent.accessibility as Json)?.wheelchairAccessible),
-      familyFriendly: Boolean((dbEvent.accessibility as Json)?.familyFriendly)
+      languages,
+      wheelchairAccessible,
+      familyFriendly
     },
     pricing: {
-      isFree: Boolean((dbEvent.pricing as Json)?.isFree),
-      priceRange: Array.isArray((dbEvent.pricing as Json)?.priceRange) 
-        ? ((dbEvent.pricing as Json)?.priceRange as [number, number]) 
-        : undefined,
-      currency: (dbEvent.pricing as Json)?.currency as string
+      isFree,
+      priceRange,
+      currency
     },
     creator: {
       id: dbEvent.created_by || '',
