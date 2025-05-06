@@ -1,29 +1,30 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Mail, Lock, User, UserCircle, Loader2 } from "lucide-react";
+import { Mail, Lock, User, UserCircle, Loader2, ArrowLeft, Github, Facebook } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, signIn, signUp, loading: authLoading, resetPassword } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState("signin");
   
   // Get the path to redirect to after login
-  const from = location.state?.from || "/";
+  const from = location.state?.from || "/events";
   
   // If user is already logged in, redirect them
   useEffect(() => {
@@ -37,25 +38,10 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username,
-            full_name: fullName,
-          },
-        },
-      });
-
-      if (error) throw error;
-
-      if (data) {
-        toast.success("Sign up successful! Please check your email for verification.");
-        navigate(from, { replace: true });
-      }
-    } catch (error: any) {
-      toast.error(error.message);
+      await signUp(email, password, username, fullName);
+      navigate(from, { replace: true });
+    } catch (error) {
+      // Error is already handled in the signUp function
     } finally {
       setLoading(false);
     }
@@ -66,23 +52,89 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      if (data) {
-        toast.success("Successfully signed in!");
-        navigate(from, { replace: true });
-      }
-    } catch (error: any) {
-      toast.error(error.message);
+      await signIn(email, password);
+      navigate(from, { replace: true });
+    } catch (error) {
+      // Error is already handled in the signIn function
     } finally {
       setLoading(false);
     }
   };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      await resetPassword(email);
+      setForgotPassword(false);
+      setActiveTab("signin");
+    } catch (error) {
+      // Error is already handled in the resetPassword function
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (forgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background/95 to-background/90">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <Card className="border-primary/20 shadow-xl shadow-primary/10">
+            <CardHeader className="space-y-1">
+              <div className="flex items-center">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="mr-2"
+                  onClick={() => setForgotPassword(false)}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                  Reset Password
+                </CardTitle>
+              </div>
+              <CardDescription>
+                Enter your email address and we'll send you a link to reset your password
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Sending reset link...</>
+                  ) : (
+                    "Send Reset Link"
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background/95 to-background/90">
@@ -102,7 +154,11 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
+            <Tabs 
+              value={activeTab} 
+              onValueChange={setActiveTab} 
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -126,7 +182,17 @@ const Auth = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Password</Label>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs"
+                        onClick={() => setForgotPassword(true)}
+                        type="button"
+                      >
+                        Forgot password?
+                      </Button>
+                    </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                       <Input
@@ -147,6 +213,26 @@ const Auth = () => {
                       "Sign In"
                     )}
                   </Button>
+                  
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-border"></div>
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                      <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <Button variant="outline" type="button" disabled className="w-full">
+                      <Github className="mr-2 h-4 w-4" />
+                      GitHub
+                    </Button>
+                    <Button variant="outline" type="button" disabled className="w-full">
+                      <Facebook className="mr-2 h-4 w-4" />
+                      Facebook
+                    </Button>
+                  </div>
                 </form>
               </TabsContent>
               

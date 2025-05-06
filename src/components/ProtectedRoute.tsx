@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, session, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -16,9 +16,9 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!user) {
+  if (!user || !session) {
     // Save the current location to redirect back after login
-    return <Navigate to="/auth" state={{ from: location.pathname }} />;
+    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
   }
 
   return <>{children}</>;

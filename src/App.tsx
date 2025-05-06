@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +13,7 @@ import EventDetails from "./pages/EventDetails";
 import CreateEvent from "./pages/CreateEvent";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import Search from "./pages/Search";
@@ -39,7 +41,12 @@ const App = () => (
               <Route path="/event/:id" element={<EventDetails />} />
               <Route path="/search" element={<Search />} />
               <Route path="/nearby" element={<Nearby />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/organizers" element={<Organizers />} />

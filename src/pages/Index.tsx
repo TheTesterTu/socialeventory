@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { HelpCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 
 const Index = () => {
   const isMobile = useIsMobile();
@@ -22,6 +23,8 @@ const Index = () => {
       pageTitle="Discover Events" 
       pageDescription="Find and join exciting events in your community"
     >
+      <WelcomeModal />
+      
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
