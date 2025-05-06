@@ -90,10 +90,10 @@ export function mapMockEventToEvent(mockEvent: any): Event {
     location: {
       coordinates: [0, 0],
       address: mockEvent.location || '',
-      venue_name: ''
+      venue_name: mockEvent.venue_name || ''
     },
     category: mockEvent.category || [],
-    tags: [],
+    tags: mockEvent.tags || [],
     accessibility: {
       languages: ['en'],
       wheelchairAccessible: false,
@@ -105,14 +105,14 @@ export function mapMockEventToEvent(mockEvent: any): Event {
       currency: 'USD'
     },
     creator: {
-      id: '',
+      id: mockEvent.created_by || '',
       type: 'user'
     },
     verification: {
       status: (mockEvent.verification_status || 'pending') as 'pending' | 'verified' | 'featured'
     },
     imageUrl: mockEvent.image_url || '',
-    likes: 0,
-    attendees: 0
+    likes: mockEvent.likes || 0,
+    attendees: mockEvent.attendees || 0
   };
 }
