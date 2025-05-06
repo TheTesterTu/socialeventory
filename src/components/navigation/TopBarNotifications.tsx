@@ -1,3 +1,4 @@
+
 import { Bell, Heart, MessageSquare, Calendar, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,115 +13,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useNotifications, Notification } from "@/hooks/useNotifications";
 
 type NotificationType = "like" | "comment" | "event" | "follow" | "mention";
 
-interface Notification {
-  id: string;
-  type: NotificationType;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-  eventId?: string;
-  userId?: string;
-  avatarUrl?: string;
-}
-
 export const TopBarNotifications = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [notificationCount, setNotificationCount] = useState(0);
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Fetch notifications in a real app
-  useEffect(() => {
-    if (!user) {
-      setNotifications([]);
-      setNotificationCount(0);
-      return;
-    }
-
-    // For demo purposes, we'll use mock notifications
-    // In a real app, you would fetch from Supabase
-    const mockNotifications: Notification[] = [
-      {
-        id: "1",
-        type: "like",
-        message: "John liked your Summer Festival event",
-        timestamp: new Date(),
-        read: false,
-        eventId: "123",
-        userId: "user1",
-        avatarUrl: "https://i.pravatar.cc/100?img=1"
-      },
-      {
-        id: "2",
-        type: "comment",
-        message: "Sarah commented on your Tech Conference",
-        timestamp: new Date(Date.now() - 3600000),
-        read: true,
-        eventId: "456",
-        userId: "user2",
-        avatarUrl: "https://i.pravatar.cc/100?img=2"
-      },
-      {
-        id: "3",
-        type: "event",
-        message: "Your event 'Music Festival' starts in 2 hours",
-        timestamp: new Date(Date.now() - 7200000),
-        read: false,
-        eventId: "789",
-      },
-    ];
-
-    setNotifications(mockNotifications);
-    setNotificationCount(mockNotifications.filter(n => !n.read).length);
-
-    // In a real app, you would subscribe to real-time notifications
-    const channel = supabase
-      .channel('public:notifications')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'notifications',
-        filter: `user_id=eq.${user.id}`,
-      }, (payload) => {
-        console.log('New notification:', payload);
-        // Handle new notification
-        toast.info("You have a new notification!");
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
-
-  const markAllAsRead = async () => {
-    // In a real app, update the database
-    // For now, just update the state
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    setNotificationCount(0);
-    toast.success("All notifications marked as read");
-  };
-
   const handleNotificationClick = (notification: Notification) => {
-    // Mark as read in state
-    setNotifications(prev => 
-      prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
-    );
-    
-    // Update notification count
-    if (!notification.read) {
-      setNotificationCount(prev => prev - 1);
-    }
-    
-    // In a real app, also update in the database
+    // Mark as read
+    markAsRead(notification.id);
     
     // Navigate based on notification type
     if (notification.eventId) {
@@ -152,9 +59,9 @@ export const TopBarNotifications = () => {
           className="rounded-xl hover:bg-primary/10 hover:text-primary transition-colors relative"
         >
           <Bell className="h-5 w-5" />
-          {notificationCount > 0 && (
+          {unreadCount > 0 && (
             <Badge className="absolute -top-1 -right-1 px-1.5 py-0.5 min-w-5 h-5 flex items-center justify-center bg-primary text-white">
-              {notificationCount}
+              {unreadCount}
             </Badge>
           )}
         </Button>

@@ -1,23 +1,15 @@
 
-import { useState } from "react";
 import { Avatar } from "./ui/avatar";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
-import { Send } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-interface Comment {
-  id: string;
-  userId: string;
-  username: string;
-  avatar?: string;
-  content: string;
-  createdAt: Date;
-}
+import { Send, Trash2 } from "lucide-react";
+import { useEventComments } from "@/hooks/useEventComments";
+import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface EventCommentsProps {
   eventId: string;
@@ -25,74 +17,41 @@ interface EventCommentsProps {
 
 export const EventComments = ({ eventId }: EventCommentsProps) => {
   const { user } = useAuth();
-  const [commentText, setCommentText] = useState("");
-  const queryClient = useQueryClient();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+  
+  const {
+    comments,
+    isLoading,
+    commentText,
+    setCommentText,
+    handleSubmitComment,
+    handleDeleteComment,
+    addCommentMutation
+  } = useEventComments(eventId);
 
-  const { data: comments = [], isLoading } = useQuery({
-    queryKey: ['comments', eventId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('comments')
-        .select(`
-          id,
-          content,
-          created_at,
-          user_id,
-          profiles:user_id (
-            username,
-            avatar_url
-          )
-        `)
-        .eq('event_id', eventId)
-        .order('created_at', { ascending: false });
+  const confirmDeleteComment = (commentId: string) => {
+    setCommentToDelete(commentId);
+    setIsDeleteDialogOpen(true);
+  };
 
-      if (error) throw error;
-
-      return data.map(comment => ({
-        id: comment.id,
-        userId: comment.user_id,
-        username: comment.profiles?.username || 'Anonymous',
-        avatar: comment.profiles?.avatar_url,
-        content: comment.content,
-        createdAt: new Date(comment.created_at)
-      }));
+  const executeDelete = () => {
+    if (commentToDelete) {
+      handleDeleteComment(commentToDelete);
+      setIsDeleteDialogOpen(false);
+      setCommentToDelete(null);
     }
-  });
+  };
 
-  const addCommentMutation = useMutation({
-    mutationFn: async (content: string) => {
-      const { data, error } = await supabase
-        .from('comments')
-        .insert({
-          event_id: eventId,
-          user_id: user?.id,
-          content
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments', eventId] });
-      setCommentText("");
-      toast.success("Comment posted!");
-    },
-    onError: () => {
-      toast.error("Failed to post comment");
+  const cancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setCommentToDelete(null);
+  };
+  
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+      handleSubmitComment();
     }
-  });
-
-  const handleSubmitComment = () => {
-    if (!commentText.trim()) return;
-    
-    if (!user) {
-      toast.error("Please sign in to leave a comment");
-      return;
-    }
-    
-    addCommentMutation.mutate(commentText);
   };
 
   return (
@@ -108,25 +67,48 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
             <p>No comments yet. Be the first to leave a comment!</p>
           </div>
         ) : (
-          comments.map((comment) => (
-            <div key={comment.id} className="flex gap-4 p-4 rounded-lg bg-card/50">
-              <Avatar className="h-10 w-10">
-                <img 
-                  src={comment.avatar || `https://ui-avatars.com/api/?name=${comment.username?.charAt(0).toUpperCase() || 'A'}&background=random`}
-                  alt={comment.username} 
-                />
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <h4 className="font-medium">{comment.username}</h4>
-                  <span className="text-xs text-muted-foreground">
-                    {format(comment.createdAt, "MMM d, h:mm a")}
-                  </span>
+          <AnimatePresence>
+            {comments.map((comment) => (
+              <motion.div
+                key={comment.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex gap-4 p-4 rounded-lg bg-card/50 group"
+              >
+                <Avatar className="h-10 w-10">
+                  <img 
+                    src={comment.avatar || `https://ui-avatars.com/api/?name=${comment.username?.charAt(0).toUpperCase() || 'A'}&background=random`}
+                    alt={comment.username} 
+                  />
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-medium">{comment.username}</h4>
+                    <span className="text-xs text-muted-foreground">
+                      {format(comment.createdAt, "MMM d, h:mm a")}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm">{comment.content}</p>
+                  
+                  {user && user.id === comment.userId && (
+                    <div className="mt-2 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 px-2 text-destructive hover:bg-destructive/10"
+                        onClick={() => confirmDeleteComment(comment.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-1" />
+                        <span className="text-xs">Delete</span>
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                <p className="mt-1 text-sm">{comment.content}</p>
-              </div>
-            </div>
-          ))
+              </motion.div>
+            ))}
+          </AnimatePresence>
         )}
       </div>
 
@@ -134,7 +116,7 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
         <div className="flex gap-4">
           <Avatar className="h-10 w-10">
             <img 
-              src={`https://ui-avatars.com/api/?name=${user?.email?.charAt(0).toUpperCase() || 'G'}&background=random`}
+              src={user?.user_metadata?.avatar || `https://ui-avatars.com/api/?name=${user?.email?.charAt(0).toUpperCase() || 'G'}&background=random`}
               alt={user?.email || "Guest"} 
             />
           </Avatar>
@@ -145,8 +127,13 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
               onChange={(e) => setCommentText(e.target.value)}
               disabled={!user || addCommentMutation.isPending}
               className="resize-none"
+              rows={3}
+              onKeyDown={handleKeyDown}
             />
-            <div className="flex justify-end">
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-muted-foreground">
+                Press Ctrl+Enter to post
+              </p>
               <Button 
                 onClick={handleSubmitComment} 
                 disabled={!user || !commentText.trim() || addCommentMutation.isPending}
@@ -160,6 +147,23 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Comment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this comment? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={executeDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

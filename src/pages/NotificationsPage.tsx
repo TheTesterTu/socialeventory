@@ -1,117 +1,33 @@
 
 import { AppLayout } from "@/components/layout/AppLayout";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { Bell, Calendar, Heart, MessageSquare, User, Users, RefreshCcw } from "lucide-react";
 import { motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { useNotifications, Notification } from "@/hooks/useNotifications";
 
 type NotificationType = "like" | "comment" | "event" | "follow" | "mention" | "all";
-
-interface Notification {
-  id: string;
-  type: NotificationType;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-  eventId?: string;
-  userId?: string;
-  icon: React.ReactNode;
-}
 
 const NotificationsPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { notifications, unreadCount, isLoading, fetchNotifications, markAsRead, markAllAsRead } = useNotifications();
   const [activeTab, setActiveTab] = useState<NotificationType>("all");
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-    
-    fetchNotifications();
-  }, [user, navigate]);
-
-  const fetchNotifications = () => {
-    setIsLoading(true);
-    
-    // This would be a real API call in production
-    setTimeout(() => {
-      // Mock notifications data
-      const mockNotifications: Notification[] = [
-        {
-          id: "1",
-          type: "like",
-          message: "John Doe liked your Summer Festival event",
-          timestamp: new Date(),
-          read: false,
-          eventId: "123",
-          userId: "user1",
-          icon: <Heart className="h-4 w-4 text-red-500" />
-        },
-        {
-          id: "2",
-          type: "comment",
-          message: "Sarah commented on your Tech Conference",
-          timestamp: new Date(Date.now() - 3600000),
-          read: true,
-          eventId: "456",
-          userId: "user2",
-          icon: <MessageSquare className="h-4 w-4 text-blue-500" />
-        },
-        {
-          id: "3",
-          type: "event",
-          message: "Your event 'Music Festival' starts in 2 hours",
-          timestamp: new Date(Date.now() - 7200000),
-          read: false,
-          eventId: "789",
-          icon: <Calendar className="h-4 w-4 text-green-500" />
-        },
-        {
-          id: "4",
-          type: "follow",
-          message: "Alex started following you",
-          timestamp: new Date(Date.now() - 86400000),
-          read: true,
-          userId: "user3",
-          icon: <Users className="h-4 w-4 text-purple-500" />
-        },
-        {
-          id: "5",
-          type: "mention",
-          message: "Maria mentioned you in a comment",
-          timestamp: new Date(Date.now() - 172800000),
-          read: false,
-          eventId: "101",
-          icon: <User className="h-4 w-4 text-orange-500" />
-        },
-      ];
-      
-      setNotifications(mockNotifications);
-      setIsLoading(false);
-    }, 800);
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    toast.success("All notifications marked as read");
-  };
+  if (!user) {
+    navigate("/auth", { replace: true });
+    return null;
+  }
 
   const handleNotificationClick = (notification: Notification) => {
     // Mark as read
-    setNotifications(prev => 
-      prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
-    );
+    markAsRead(notification.id);
     
     // Navigate based on notification type
     if (notification.eventId) {
@@ -125,7 +41,16 @@ const NotificationsPage = () => {
     ? notifications 
     : notifications.filter(n => n.type === activeTab);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const getNotificationIcon = (type: NotificationType) => {
+    switch (type) {
+      case "like": return <Heart className="h-4 w-4 text-red-500" />;
+      case "comment": return <MessageSquare className="h-4 w-4 text-blue-500" />;
+      case "event": return <Calendar className="h-4 w-4 text-green-500" />;
+      case "follow": return <Users className="h-4 w-4 text-purple-500" />;
+      case "mention": return <MessageSquare className="h-4 w-4 text-orange-500" />;
+      default: return <Bell className="h-4 w-4 text-gray-500" />;
+    }
+  };
 
   return (
     <AppLayout pageTitle="Notifications" showTopBar={true}>
@@ -195,7 +120,7 @@ const NotificationsPage = () => {
                         onClick={() => handleNotificationClick(notification)}
                       >
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          {notification.icon}
+                          {getNotificationIcon(notification.type)}
                         </div>
                         <div className="flex-1">
                           <p className={`text-sm ${!notification.read ? "font-medium" : ""}`}>
