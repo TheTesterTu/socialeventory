@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { Event } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { mapDatabaseEventToEvent, mapMockEventToEvent } from "@/lib/utils/mappers";
 
 const Profile = () => {
   const { user, session } = useAuth();
@@ -39,11 +40,15 @@ const Profile = () => {
         
         // Use the data if available, otherwise use mock data
         if (data && data.length > 0) {
-          setEvents(data as Event[]);
-          setPublishedEvents(data.filter((event: any) => 
-            event.verification_status === 'verified') as Event[]);
-          setDraftEvents(data.filter((event: any) => 
-            event.verification_status === 'draft') as Event[]);
+          const mappedEvents = data.map(event => mapDatabaseEventToEvent(event));
+          setEvents(mappedEvents);
+          
+          // Filter events by verification status
+          setPublishedEvents(mappedEvents.filter(event => 
+            event.verification.status === 'verified' || event.verification.status === 'featured'));
+          
+          setDraftEvents(mappedEvents.filter(event => 
+            event.verification.status === 'pending'));
         } else {
           // Mock data if no real data available
           const mockEvents = [
@@ -64,14 +69,20 @@ const Profile = () => {
               location: "New York, NY",
               image_url: "https://source.unsplash.com/random/800x600/?art",
               start_date: new Date(Date.now() + 86400000 * 12).toISOString(),
-              verification_status: 'draft',
+              verification_status: 'pending',
               category: ["Art", "Culture"]
             }
-          ] as Event[];
+          ];
           
-          setEvents(mockEvents);
-          setPublishedEvents(mockEvents.filter(e => e.verification_status === 'verified'));
-          setDraftEvents(mockEvents.filter(e => e.verification_status === 'draft'));
+          const mappedMockEvents = mockEvents.map(event => mapMockEventToEvent(event));
+          setEvents(mappedMockEvents);
+          
+          // Filter mock events by verification status
+          setPublishedEvents(mappedMockEvents.filter(event => 
+            event.verification.status === 'verified' || event.verification.status === 'featured'));
+          
+          setDraftEvents(mappedMockEvents.filter(event => 
+            event.verification.status === 'pending'));
         }
         
         // Fetch saved events (likes or bookmarks)
@@ -92,11 +103,12 @@ const Profile = () => {
             .in('id', eventIds);
             
           if (savedEventData) {
-            setSavedEvents(savedEventData as Event[]);
+            const mappedSavedEvents = savedEventData.map(event => mapDatabaseEventToEvent(event));
+            setSavedEvents(mappedSavedEvents);
           }
         } else {
           // Mock saved events
-          setSavedEvents([
+          const mockSavedEvents = [
             {
               id: "3",
               title: "Music Festival",
@@ -106,7 +118,9 @@ const Profile = () => {
               start_date: new Date(Date.now() + 86400000 * 45).toISOString(),
               category: ["Music", "Festival"]
             }
-          ] as Event[]);
+          ].map(event => mapMockEventToEvent(event));
+          
+          setSavedEvents(mockSavedEvents);
         }
       } catch (error) {
         console.error("Error fetching user events:", error);

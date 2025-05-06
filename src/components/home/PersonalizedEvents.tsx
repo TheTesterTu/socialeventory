@@ -8,6 +8,7 @@ import { Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { mapDatabaseEventToEvent, mapMockEventToEvent } from "@/lib/utils/mappers";
 
 export const PersonalizedEvents = () => {
   const { user } = useAuth();
@@ -44,11 +45,41 @@ export const PersonalizedEvents = () => {
           
         if (error) throw error;
         
-        setEvents(eventData as Event[] || []);
+        if (eventData && eventData.length > 0) {
+          // Map database events to our Event interface
+          const mappedEvents = eventData.map(event => mapDatabaseEventToEvent(event));
+          setEvents(mappedEvents);
+        } else {
+          // Fallback to mock data if there's an error
+          const mockEvents = [
+            {
+              id: "rec-1",
+              title: "Tech Conference 2025",
+              description: "Annual technology conference featuring the latest innovations",
+              location: "San Francisco, CA",
+              image_url: "https://source.unsplash.com/random/800x600/?tech",
+              start_date: new Date(Date.now() + 86400000 * 2).toISOString(),
+              category: ["Technology", "Conference"]
+            },
+            {
+              id: "rec-2",
+              title: "Local Art Exhibition",
+              description: "Featuring works from local emerging artists",
+              location: "Portland, OR",
+              image_url: "https://source.unsplash.com/random/800x600/?art",
+              start_date: new Date(Date.now() + 86400000 * 4).toISOString(),
+              category: ["Art", "Exhibition"]
+            },
+          ];
+          
+          // Map mock events to our Event interface
+          const mappedMockEvents = mockEvents.map(event => mapMockEventToEvent(event));
+          setEvents(mappedMockEvents);
+        }
       } catch (error) {
         console.error("Error fetching personalized events:", error);
         // Fallback to mock data if there's an error
-        setEvents([
+        const mockEvents = [
           {
             id: "rec-1",
             title: "Tech Conference 2025",
@@ -67,7 +98,9 @@ export const PersonalizedEvents = () => {
             start_date: new Date(Date.now() + 86400000 * 4).toISOString(),
             category: ["Art", "Exhibition"]
           },
-        ] as Event[]);
+        ].map(event => mapMockEventToEvent(event));
+        
+        setEvents(mockEvents);
       } finally {
         setLoading(false);
       }
