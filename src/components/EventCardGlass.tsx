@@ -1,7 +1,7 @@
 
 import { Event } from "@/lib/types";
 import { format } from "date-fns";
-import { MapPin, Calendar, Users } from "lucide-react";
+import { MapPin, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import { EventVerificationBadge } from "./EventVerificationBadge";
 import { EventSocialActions } from "./EventSocialActions";

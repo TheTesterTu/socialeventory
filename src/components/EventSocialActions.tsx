@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Heart, Share2, MessageSquare, Calendar, Users } from "lucide-react";
+import { Heart, Share2, MessageSquare, Users } from "lucide-react";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -18,6 +18,12 @@ interface EventSocialActionsProps {
   className?: string;
   compact?: boolean;
 }
+
+// Animation variants
+const buttonVariants = {
+  tap: { scale: 0.95 },
+  hover: { scale: 1.05 }
+};
 
 export const EventSocialActions = ({ 
   eventId, 
@@ -66,20 +72,16 @@ export const EventSocialActions = ({
       toast.error("Sharing failed");
     }
   };
-  
-  // Animation variants
-  const buttonVariants = {
-    tap: { scale: 0.95 },
-    hover: { scale: 1.05 }
-  };
 
+  const MotionButton = motion(Button);
+  
   const renderButtons = () => {
     if (compact) {
       return (
         <>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
+              <MotionButton
                 variant="ghost"
                 size="sm"
                 className={cn(
@@ -87,13 +89,12 @@ export const EventSocialActions = ({
                   isLiked && "text-red-500 hover:text-red-600 hover:bg-red-500/10"
                 )}
                 onClick={handleLike}
-                as={motion.button}
                 whileTap="tap"
                 whileHover="hover"
                 variants={buttonVariants}
               >
                 <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
-              </Button>
+              </MotionButton>
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p>{isLiked ? "Unlike" : "Like"} ({likesCount})</p>
@@ -102,18 +103,17 @@ export const EventSocialActions = ({
           
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
+              <MotionButton
                 variant="ghost"
                 size="sm"
                 className="rounded-full p-2 h-9 w-9"
                 onClick={handleComment}
-                as={motion.button}
                 whileTap="tap"
                 whileHover="hover"
                 variants={buttonVariants}
               >
                 <MessageSquare className="h-4 w-4" />
-              </Button>
+              </MotionButton>
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p>Comments ({commentsCount})</p>
@@ -125,7 +125,7 @@ export const EventSocialActions = ({
     
     return (
       <>
-        <Button
+        <MotionButton
           variant="ghost"
           size="sm"
           className={cn(
@@ -133,30 +133,28 @@ export const EventSocialActions = ({
             isLiked && "text-red-500 hover:text-red-600 hover:bg-red-500/10"
           )}
           onClick={handleLike}
-          as={motion.button}
           whileTap="tap"
           whileHover="hover"
           variants={buttonVariants}
         >
           <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
           <span>{likesCount}</span>
-        </Button>
+        </MotionButton>
         
-        <Button
+        <MotionButton
           variant="ghost"
           size="sm"
           className="rounded-full gap-1.5"
           onClick={handleComment}
-          as={motion.button}
           whileTap="tap"
           whileHover="hover"
           variants={buttonVariants}
         >
           <MessageSquare className="h-4 w-4" />
           <span>{commentsCount}</span>
-        </Button>
+        </MotionButton>
         
-        <Button
+        <MotionButton
           variant="ghost"
           size="sm"
           className={cn(
@@ -164,14 +162,13 @@ export const EventSocialActions = ({
             isAttending && "text-primary hover:text-primary/80"
           )}
           onClick={handleAttendance}
-          as={motion.button}
           whileTap="tap"
           whileHover="hover"
           variants={buttonVariants}
         >
           <Users className="h-4 w-4" />
           <span>{attendeesCount}</span>
-        </Button>
+        </MotionButton>
       </>
     );
   };
@@ -182,21 +179,20 @@ export const EventSocialActions = ({
       
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
+          <MotionButton
             variant="ghost"
             size="sm"
             className={cn(
               compact ? "rounded-full p-2 h-9 w-9 ml-auto" : "rounded-full gap-1.5 ml-auto"
             )}
             onClick={handleShare}
-            as={motion.button}
             whileTap="tap"
             whileHover="hover"
             variants={buttonVariants}
           >
             <Share2 className="h-4 w-4" />
             {!compact && <span>Share</span>}
-          </Button>
+          </MotionButton>
         </TooltipTrigger>
         <TooltipContent side="bottom">
           <p>Share event</p>
