@@ -1,7 +1,8 @@
+
 import { Event } from "@/lib/types";
 import { EventHeader } from "./EventHeader";
 import { EventMetadata } from "./EventMetadata";
-import { EventActionButtons } from "./EventActionButtons";
+import { EventSocialActions } from "./EventSocialActions";
 import { EventComments } from "./EventComments";
 import { Tag, Ticket, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
@@ -74,7 +75,7 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
               pricing={event.pricing}
             />
             <div className="flex flex-col sm:flex-row gap-2">
-              <EventActionButtons 
+              <EventSocialActions 
                 eventId={event.id} 
                 likes={event.likes} 
                 comments={0}
