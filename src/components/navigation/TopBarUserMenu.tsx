@@ -11,11 +11,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const TopBarUserMenu = () => {
   const { user, signOut } = useAuth();
+  const location = useLocation();
 
   return (
     <DropdownMenu>
@@ -57,7 +58,7 @@ export const TopBarUserMenu = () => {
             <DropdownMenuItem asChild>
               <Link to="/profile" className="cursor-pointer flex items-center">
                 <User className="mr-2 h-4 w-4" />
-                View Profile
+                My Profile
               </Link>
             </DropdownMenuItem>
             
@@ -68,12 +69,16 @@ export const TopBarUserMenu = () => {
                   My Events
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/create-event" className="cursor-pointer flex items-center">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Create Event
-                </Link>
-              </DropdownMenuItem>
+              
+              {!location.pathname.includes("/create-event") && (
+                <DropdownMenuItem asChild>
+                  <Link to="/create-event" className="cursor-pointer flex items-center">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create Event
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              
               <DropdownMenuItem asChild>
                 <Link to="/notifications" className="cursor-pointer flex items-center">
                   <Bell className="mr-2 h-4 w-4" />

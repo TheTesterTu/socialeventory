@@ -10,6 +10,7 @@ import { Event } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { mapDatabaseEventToEvent, mapMockEventToEvent } from "@/lib/utils/mappers";
+import { Separator } from "@/components/ui/separator";
 
 const Profile = () => {
   const { user, session } = useAuth();
@@ -157,13 +158,13 @@ const Profile = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <ProfileHeader user={user} isLoading={loading} />
         
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-3 lg:col-span-1 space-y-6">
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-1 space-y-4">
             <ProfileCompleteness user={user} />
             {/* Add more widgets in the sidebar as needed */}
           </div>
           
-          <div className="md:col-span-3 lg:col-span-2">
+          <div className="lg:col-span-3">
             <ProfileContent
               events={events}
               savedEvents={savedEvents}

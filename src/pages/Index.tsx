@@ -16,6 +16,7 @@ import { HelpCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
   const isMobile = useIsMobile();
@@ -36,7 +37,7 @@ const Index = () => {
       >
         <HomeHero />
         
-        <div className="space-y-6 sm:space-y-10 pb-16 sm:pb-20">
+        <div className="space-y-8 pb-16">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -46,14 +47,20 @@ const Index = () => {
           </motion.div>
 
           {user && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-            >
-              <PersonalizedEvents />
-            </motion.div>
+            <>
+              <Separator className="my-4 opacity-30" />
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+              >
+                <PersonalizedEvents />
+              </motion.div>
+            </>
           )}
+
+          <Separator className="my-4 opacity-30" />
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -62,6 +69,8 @@ const Index = () => {
           >
             <FeaturedCreators />
           </motion.div>
+          
+          <Separator className="my-4 opacity-30" />
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -77,6 +86,8 @@ const Index = () => {
               <EventsNearYou />
             </div>
           </motion.div>
+
+          <Separator className="my-4 opacity-30" />
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}

@@ -32,11 +32,17 @@ export const TopBarNav = () => {
     { label: "Organizers", path: "/organizers" },
   ];
 
+  // Use the `useLocation` hook to determine if we're on the events page
+  const onEventsPage = location.pathname === "/events";
+
   return (
     <NavigationMenu className="ml-4">
       <NavigationMenuList>
         {navItems.map(item => {
-          const isActive = location.pathname === item.path;
+          // Check if we're on the events page and the item is "Home"
+          const isActive = item.path === "/events" 
+            ? location.pathname === "/events" 
+            : location.pathname.startsWith(item.path);
           
           return (
             <NavigationMenuItem key={item.path}>
@@ -52,7 +58,7 @@ export const TopBarNav = () => {
           );
         })}
         
-        {user && (
+        {user && onEventsPage && (
           <NavigationMenuItem>
             <Link to="/create-event">
               <Button 

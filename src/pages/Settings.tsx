@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { AdminTools } from "@/components/admin/AdminTools";
 import { useAuth } from "@/contexts/AuthContext";
+import { ProfileSettings } from "@/components/profile/ProfileSettings";
+import { Separator } from "@/components/ui/separator";
 
 const Settings = () => {
   const { user } = useAuth();
@@ -16,45 +18,21 @@ const Settings = () => {
   return (
     <AppLayout pageTitle="Settings" pageDescription="Manage your account and application preferences">
       <div className="container mx-auto py-6 space-y-8">
-        <Tabs defaultValue="account" className="space-y-4">
+        <Tabs defaultValue="profile" className="space-y-4">
           <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="account">Account</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="preferences">Preferences</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="account" className="space-y-6">
+          <TabsContent value="profile" className="space-y-6">
+            <ProfileSettings user={user} />
+            
             <Card className="glass-panel">
               <CardHeader>
-                <CardTitle>Profile</CardTitle>
+                <CardTitle>Account Security</CardTitle>
                 <CardDescription>
-                  Manage your profile information visible to other users.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input id="username" defaultValue="eventlover123" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Display Name</Label>
-                  <Input id="name" defaultValue="Alex Johnson" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <Input id="bio" />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button>Save Changes</Button>
-              </CardFooter>
-            </Card>
-
-            <Card className="glass-panel">
-              <CardHeader>
-                <CardTitle>Password</CardTitle>
-                <CardDescription>
-                  Update your account password.
+                  Update your account password and security options
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -82,21 +60,22 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle>Appearance</CardTitle>
                 <CardDescription>
-                  Customize how the app looks and feels.
+                  Customize how the app looks and feels
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="compact-view">Compact View</Label>
-                    <p className="text-sm text-muted-foreground">Show more content in less space.</p>
+                    <p className="text-sm text-muted-foreground">Show more content in less space</p>
                   </div>
                   <Switch id="compact-view" />
                 </div>
+                <Separator className="my-2 opacity-30" />
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="animations">Enable Animations</Label>
-                    <p className="text-sm text-muted-foreground">Show animations throughout the app.</p>
+                    <p className="text-sm text-muted-foreground">Show animations throughout the app</p>
                   </div>
                   <Switch id="animations" defaultChecked />
                 </div>
@@ -112,28 +91,30 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle>Notification Settings</CardTitle>
                 <CardDescription>
-                  Control what you want to be notified about.
+                  Control what you want to be notified about
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="event-invites">Event Invites</Label>
-                    <p className="text-sm text-muted-foreground">When someone invites you to an event.</p>
+                    <p className="text-sm text-muted-foreground">When someone invites you to an event</p>
                   </div>
                   <Switch id="event-invites" defaultChecked />
                 </div>
+                <Separator className="my-2 opacity-30" />
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="event-updates">Event Updates</Label>
-                    <p className="text-sm text-muted-foreground">When an event you're interested in is updated.</p>
+                    <p className="text-sm text-muted-foreground">When an event you're interested in is updated</p>
                   </div>
                   <Switch id="event-updates" defaultChecked />
                 </div>
+                <Separator className="my-2 opacity-30" />
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="new-events">New Events Nearby</Label>
-                    <p className="text-sm text-muted-foreground">When new events are added in your area.</p>
+                    <p className="text-sm text-muted-foreground">When new events are added in your area</p>
                   </div>
                   <Switch id="new-events" />
                 </div>

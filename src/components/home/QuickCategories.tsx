@@ -40,9 +40,9 @@ export const QuickCategories = () => {
               variant={activeCategory === category ? "default" : "outline"}
               onClick={() => handleCategoryClick(category)}
               size={isMobile ? "sm" : "default"}
-              className="w-full py-1.5 md:py-2 text-xs md:text-sm rounded-lg bg-gradient-to-br hover:shadow-md transition-all flex flex-col items-center justify-center gap-1"
+              className="w-full py-1.5 md:py-2 text-xs md:text-sm rounded-lg bg-gradient-to-br hover:shadow-md transition-all flex items-center justify-center gap-1"
             >
-              <span>{category}</span>
+              <span className="line-clamp-1">{category}</span>
             </Button>
           </motion.div>
         ))}

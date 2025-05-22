@@ -40,9 +40,9 @@ export const ProfileHeader = ({ user, isLoading = false }: ProfileHeaderProps) =
   }
   
   return (
-    <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden mb-6">
+    <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden mb-6 shadow-md">
       <div className="h-48 bg-gradient-to-r from-primary/20 to-accent/20" />
-      <div className="px-8 pb-6 relative">
+      <div className="px-4 sm:px-8 pb-6 relative">
         <div className="flex flex-col md:flex-row gap-6 md:items-end">
           <div className="-mt-12">
             <Avatar className="h-24 w-24 border-4 border-background shadow-md">
@@ -69,19 +69,24 @@ export const ProfileHeader = ({ user, isLoading = false }: ProfileHeaderProps) =
               </span>
             </div>
           </div>
-          <div className="flex gap-2 mt-4 md:mt-0">
+          <div className="flex gap-2 mt-2 md:mt-0">
             <Button 
               variant="outline" 
               size="sm" 
-              className="gap-2" 
+              className="gap-1.5" 
               onClick={() => navigate('/settings')}
             >
               <Settings className="h-4 w-4" />
-              Settings
+              <span className="hidden sm:inline">Settings</span>
             </Button>
-            <Button variant="default" size="sm" className="gap-2">
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="gap-1.5"
+              onClick={() => navigate('/settings')}
+            >
               <Edit className="h-4 w-4" />
-              Edit Profile
+              <span className="hidden sm:inline">Edit Profile</span>
             </Button>
           </div>
         </div>

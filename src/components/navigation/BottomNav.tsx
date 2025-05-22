@@ -1,64 +1,78 @@
 
-import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Map, Bell, User } from "lucide-react";
-import { motion } from "framer-motion";
+import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
+import { Home, Search, MapPin, Newspaper, User } from "lucide-react";
 
 interface NavItem {
+  name: string;
   path: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  label: string;
-  requireAuth?: boolean;
+  icon: React.ReactNode;
 }
 
 export const BottomNav = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const navigate = useNavigate();
   
   const navItems: NavItem[] = [
-    { path: "/events", icon: Home, label: "Home" },
-    { path: "/search", icon: Search, label: "Explore" },
-    { path: "/nearby", icon: Map, label: "Nearby" },
-    { path: "/notifications", icon: Bell, label: "Alerts", requireAuth: true },
-    { path: user ? "/profile" : "/auth", icon: User, label: user ? "Profile" : "Sign In" }
+    {
+      name: "Home",
+      path: "/events",
+      icon: <Home className="h-5 w-5" />,
+    },
+    {
+      name: "Search",
+      path: "/search",
+      icon: <Search className="h-5 w-5" />,
+    },
+    {
+      name: "Nearby",
+      path: "/nearby",
+      icon: <MapPin className="h-5 w-5" />,
+    },
+    {
+      name: "Blog",
+      path: "/blog",
+      icon: <Newspaper className="h-5 w-5" />,
+    },
+    {
+      name: "Profile",
+      path: "/profile",
+      icon: <User className="h-5 w-5" />,
+    },
   ];
   
-  // Filter items based on authentication status
-  const visibleItems = navItems.filter(item => !item.requireAuth || (item.requireAuth && user));
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-lg border-t border-border/50 py-1">
-      <nav className="flex justify-around items-center max-w-md mx-auto">
-        {visibleItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          const IconComponent = item.icon;
+    <div className="fixed inset-x-0 bottom-0 z-10 border-t border-border/50 bg-background/80 backdrop-blur-lg px-2">
+      <div className="flex justify-between max-w-screen-sm mx-auto">
+        {navItems.map((item) => {
+          const isActive = 
+            (item.path === "/events" && location.pathname === "/events") || 
+            (item.path !== "/events" && location.pathname.startsWith(item.path));
           
           return (
-            <Link 
-              key={item.path} 
-              to={item.path} 
+            <button
+              key={item.path}
               className={cn(
-                "flex flex-col items-center justify-center pt-1 pb-0.5 px-2",
-                "transition-colors duration-200 ease-in-out",
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                "flex flex-1 flex-col items-center justify-center py-2 text-xs transition-colors",
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               )}
+              onClick={() => navigate(item.path)}
             >
-              <div className="relative">
-                <IconComponent className="h-5 w-5" />
-                {isActive && (
-                  <motion.div
-                    layoutId="bottomNavIndicator"
-                    className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
+              <div
+                className={cn(
+                  "flex items-center justify-center rounded-lg p-1.5",
+                  isActive && "bg-primary/10"
                 )}
+              >
+                {item.icon}
               </div>
-              <span className="text-[9px] mt-0.5 font-medium">{item.label}</span>
-            </Link>
+              <span className="mt-1 text-[10px]">{item.name}</span>
+            </button>
           );
         })}
-      </nav>
+      </div>
     </div>
   );
 };

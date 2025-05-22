@@ -38,7 +38,7 @@ export const FloatingActions = () => {
   return (
     <motion.div 
       className={cn(
-        "fixed bottom-24 right-4 z-40",
+        "fixed bottom-20 right-4 z-40",
         isVisible ? "translate-y-0" : "translate-y-20"
       )}
       animate={{ y: isVisible ? 0 : 80, opacity: isVisible ? 1 : 0 }}
