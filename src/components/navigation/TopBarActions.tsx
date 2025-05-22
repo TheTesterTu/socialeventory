@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { TopBarNotifications } from "./TopBarNotifications";
 import { TopBarUserMenu } from "./TopBarUserMenu";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export const TopBarActions = () => {

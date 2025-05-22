@@ -1,159 +1,111 @@
-
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Heart, Share2, MessageSquare, Calendar } from "lucide-react";
 import { Button } from "./ui/button";
-import { EventSocialActions } from "./EventSocialActions";
-import { UserPlus, UserMinus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { useEventInteractions } from "@/hooks/useEventInteractions";
 
-interface EventActionButtonsProps {
+interface EventSocialActionsProps {
   eventId: string;
-  likes: number;
-  comments: number;
-  isLiked?: boolean;
+  likes?: number;
+  comments?: number;
   attendees?: number;
-  isAttending?: boolean;
 }
 
-export const EventActionButtons = ({ 
+export const EventSocialActions = ({ 
   eventId, 
-  likes, 
-  comments, 
-  isLiked,
-  attendees = 0,
-  isAttending = false 
-}: EventActionButtonsProps) => {
-  const [attending, setAttending] = useState(isAttending);
-  const [attendeeCount, setAttendeeCount] = useState(attendees);
+  likes = 0, 
+  comments = 0,
+  attendees = 0
+}: EventSocialActionsProps) => {
+  const [commentsCount, setCommentsCount] = useState(comments);
   const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   
-  // Check if user is attending this event
-  const { data: attendanceStatus } = useQuery({
-    queryKey: ['event-attendance', eventId, user?.id],
-    queryFn: async () => {
-      if (!user) return false;
-      
-      const { data, error } = await supabase
-        .from('event_attendees')
-        .select('id')
-        .eq('event_id', eventId)
-        .eq('user_id', user.id)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error checking attendance status:', error);
-        return false;
-      }
-      
-      return !!data;
-    },
-    enabled: !!user,
-  });
-  
-  // Update attendance state when attendanceStatus changes
-  useEffect(() => {
-    if (attendanceStatus !== undefined) {
-      setAttending(attendanceStatus);
-    }
-  }, [attendanceStatus]);
+  const {
+    isLiked,
+    likesCount,
+    isAttending,
+    attendeesCount,
+    handleLike,
+    handleAttendance
+  } = useEventInteractions(eventId);
 
-  const attendMutation = useMutation({
-    mutationFn: async () => {
-      if (attending) {
-        const { error } = await supabase
-          .from('event_attendees')
-          .delete()
-          .match({ event_id: eventId, user_id: user?.id });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('event_attendees')
-          .insert({ event_id: eventId, user_id: user?.id });
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      if (attending) {
-        setAttendeeCount(prev => Math.max(0, prev - 1));
-        toast.success("You're no longer attending this event");
-      } else {
-        setAttendeeCount(prev => prev + 1);
-        toast.success("You're now attending this event!");
-      }
-      setAttending(!attending);
-      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['event-attendance', eventId] });
-    },
-    onError: (error) => {
-      console.error("Attendance error:", error);
-      toast.error("Failed to update attendance status");
-    }
-  });
-
-  const handleAttendance = () => {
-    if (!user) {
-      toast("Please sign in to RSVP for events");
-      return;
-    }
-    attendMutation.mutate();
+  const handleComment = () => {
+    // Navigate to event details page focused on comment section
+    navigate(`/event/${eventId}#comments`);
   };
 
-  // Get comments count
-  const { data: commentsCount = comments } = useQuery({
-    queryKey: ['comments-count', eventId],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('comments')
-        .select('id', { count: 'exact', head: true })
-        .eq('event_id', eventId);
-        
-      if (error) {
-        console.error('Error fetching comments count:', error);
-        return comments;
-      }
+  const handleShare = async () => {
+    try {
+      const shareUrl = `${window.location.origin}/event/${eventId}`;
       
-      return count || 0;
+      if (navigator.share) {
+        await navigator.share({
+          title: "Check out this event",
+          text: "I found this interesting event on SocialEventory!",
+          url: shareUrl
+        });
+        toast.success("Event shared successfully");
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copied to clipboard");
+      }
+    } catch (error) {
+      console.error("Sharing failed:", error);
+      toast.error("Sharing failed");
     }
-  });
+  };
 
   return (
-    <div className="flex justify-between items-center">
-      <div className="flex gap-2">
-        <EventSocialActions 
-          eventId={eventId} 
-          likes={likes} 
-          comments={commentsCount}
-          isLiked={isLiked}
-        />
-        <Button 
-          variant={attending ? "default" : "outline"} 
-          size="sm"
-          className="gap-1"
-          onClick={handleAttendance}
-          disabled={attendMutation.isPending}
-        >
-          {attending ? (
-            <>
-              <UserMinus className="h-4 w-4" />
-              Attending ({attendeeCount})
-            </>
-          ) : (
-            <>
-              <UserPlus className="h-4 w-4" />
-              Attend ({attendeeCount})
-            </>
-          )}
-        </Button>
-      </div>
-      <Link to={`/event/${eventId}`}>
-        <Button variant="secondary">
-          View Details
-        </Button>
-      </Link>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        className={cn(
+          "rounded-full transition-colors",
+          isLiked && "text-red-500 hover:text-red-600"
+        )}
+        onClick={handleLike}
+      >
+        <Heart className="h-4 w-4 mr-1" fill={isLiked ? "currentColor" : "none"} />
+        <span>{likesCount}</span>
+      </Button>
+      
+      <Button
+        variant="ghost"
+        size="sm"
+        className="rounded-full"
+        onClick={handleComment}
+      >
+        <MessageSquare className="h-4 w-4 mr-1" />
+        <span>{commentsCount}</span>
+      </Button>
+      
+      <Button
+        variant="ghost"
+        size="sm"
+        className={cn(
+          "rounded-full transition-colors",
+          isAttending && "text-primary hover:text-primary/80"
+        )}
+        onClick={handleAttendance}
+      >
+        <Calendar className="h-4 w-4 mr-1" fill={isAttending ? "currentColor" : "none"} />
+        <span>{attendeesCount}</span>
+      </Button>
+      
+      <Button
+        variant="ghost"
+        size="sm"
+        className="rounded-full ml-auto"
+        onClick={handleShare}
+      >
+        <Share2 className="h-4 w-4" />
+      </Button>
     </div>
   );
 };
