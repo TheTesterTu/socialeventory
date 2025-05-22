@@ -62,12 +62,12 @@ export const HomeHero = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="flex flex-col sm:flex-row gap-3 justify-center pt-2"
+        className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-2"
       >
         <Link to="/create-event">
           <Button 
             size="lg" 
-            className="bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90 transition-all"
+            className="bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90 transition-all w-full sm:w-auto"
           >
             <CalendarPlus className="mr-2 h-5 w-5" />
             Create Event
@@ -77,7 +77,7 @@ export const HomeHero = () => {
           <Button 
             variant="outline" 
             size="lg"
-            className="border border-primary/20 hover:bg-primary/10 hover:text-primary transition-all"
+            className="border border-primary/20 hover:bg-primary/10 hover:text-primary transition-all w-full sm:w-auto"
           >
             <Search className="mr-2 h-5 w-5" />
             Advanced Search

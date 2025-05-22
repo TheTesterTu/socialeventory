@@ -16,7 +16,8 @@ export const FloatingActions = () => {
   // Hide on profile and create event pages to avoid duplicate buttons
   const shouldHide = location.pathname === "/profile" || 
                      location.pathname === "/create-event" ||
-                     location.pathname.includes("/settings");
+                     location.pathname.includes("/settings") ||
+                     location.pathname === "/profile/edit";
   
   useEffect(() => {
     const handleScroll = () => {

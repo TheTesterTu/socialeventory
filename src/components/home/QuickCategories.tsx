@@ -28,7 +28,7 @@ export const QuickCategories = () => {
       className="space-y-3"
     >
       <h2 className="text-xl font-semibold">Explore Categories</h2>
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-2">
+      <div className="grid grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-8">
         {displayCategories.map((category, index) => (
           <motion.div
             key={category}
@@ -40,9 +40,9 @@ export const QuickCategories = () => {
               variant={activeCategory === category ? "default" : "outline"}
               onClick={() => handleCategoryClick(category)}
               size={isMobile ? "sm" : "default"}
-              className="w-full py-1.5 md:py-2 text-xs md:text-sm rounded-lg bg-gradient-to-br hover:shadow-md transition-all flex items-center justify-center gap-1"
+              className="w-full h-9 py-1 md:py-2 text-xs md:text-sm rounded-lg bg-gradient-to-br hover:shadow-md transition-all flex items-center justify-center gap-1"
             >
-              <span className="line-clamp-1">{category}</span>
+              <span className="line-clamp-1 text-center">{category}</span>
             </Button>
           </motion.div>
         ))}

@@ -83,7 +83,7 @@ export const ProfileHeader = ({ user, isLoading = false }: ProfileHeaderProps) =
               variant="default" 
               size="sm" 
               className="gap-1.5"
-              onClick={() => navigate('/settings')}
+              onClick={() => navigate('/profile/edit')}
             >
               <Edit className="h-4 w-4" />
               <span className="hidden sm:inline">Edit Profile</span>

@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { mapDatabaseEventToEvent, mapMockEventToEvent } from "@/lib/utils/mappers";
 import { Separator } from "@/components/ui/separator";
+import { Card } from "@/components/ui/card";
 
 const Profile = () => {
   const { user, session } = useAuth();
@@ -161,7 +162,24 @@ const Profile = () => {
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1 space-y-4">
             <ProfileCompleteness user={user} />
-            {/* Add more widgets in the sidebar as needed */}
+            
+            <Card className="border border-border/50 shadow-sm p-4">
+              <h3 className="text-lg font-semibold mb-2">Quick Links</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Your Events</span>
+                  <span className="font-medium">{events.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Saved Events</span>
+                  <span className="font-medium">{savedEvents.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Organizations</span>
+                  <span className="font-medium">2</span>
+                </div>
+              </div>
+            </Card>
           </div>
           
           <div className="lg:col-span-3">

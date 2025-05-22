@@ -1,5 +1,5 @@
 
-import { User, Settings, LogOut, Calendar, Bell, PlusCircle } from "lucide-react";
+import { User, Settings, LogOut, Calendar, Bell, PlusCircle, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -63,6 +63,13 @@ export const TopBarUserMenu = () => {
             </DropdownMenuItem>
             
             <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link to="/profile/edit" className="cursor-pointer flex items-center">
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Profile
+                </Link>
+              </DropdownMenuItem>
+              
               <DropdownMenuItem asChild>
                 <Link to="/profile" className="cursor-pointer flex items-center">
                   <Calendar className="mr-2 h-4 w-4" />
