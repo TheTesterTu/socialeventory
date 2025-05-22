@@ -17,7 +17,7 @@ export const ProfileHeader = ({ user, isLoading = false }: ProfileHeaderProps) =
   
   if (isLoading) {
     return (
-      <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden mb-8">
+      <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden mb-6">
         <div className="h-48 bg-gradient-to-r from-primary/20 to-accent/20" />
         <div className="px-8 pb-6 relative">
           <div className="flex flex-col md:flex-row gap-6 md:items-end">
@@ -40,7 +40,7 @@ export const ProfileHeader = ({ user, isLoading = false }: ProfileHeaderProps) =
   }
   
   return (
-    <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden mb-8">
+    <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden mb-6">
       <div className="h-48 bg-gradient-to-r from-primary/20 to-accent/20" />
       <div className="px-8 pb-6 relative">
         <div className="flex flex-col md:flex-row gap-6 md:items-end">
@@ -70,11 +70,16 @@ export const ProfileHeader = ({ user, isLoading = false }: ProfileHeaderProps) =
             </div>
           </div>
           <div className="flex gap-2 mt-4 md:mt-0">
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate('/settings')}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2" 
+              onClick={() => navigate('/settings')}
+            >
               <Settings className="h-4 w-4" />
               Settings
             </Button>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="default" size="sm" className="gap-2">
               <Edit className="h-4 w-4" />
               Edit Profile
             </Button>

@@ -12,6 +12,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
+import { PlusCircle } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -29,16 +30,12 @@ export const TopBarNav = () => {
     { label: "Near Me", path: "/nearby" },
     { label: "Blog", path: "/blog" },
     { label: "Organizers", path: "/organizers" },
-    { label: "Create Event", path: "/create-event", requiresAuth: true },
   ];
 
   return (
     <NavigationMenu className="ml-4">
       <NavigationMenuList>
         {navItems.map(item => {
-          // Skip auth-required items for non-authenticated users
-          if (item.requiresAuth && !user) return null;
-          
           const isActive = location.pathname === item.path;
           
           return (
@@ -54,6 +51,21 @@ export const TopBarNav = () => {
             </NavigationMenuItem>
           );
         })}
+        
+        {user && (
+          <NavigationMenuItem>
+            <Link to="/create-event">
+              <Button 
+                variant={location.pathname === "/create-event" ? "secondary" : "default"}
+                className="rounded-lg gap-1 ml-2"
+                size="sm"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Create Event
+              </Button>
+            </Link>
+          </NavigationMenuItem>
+        )}
       </NavigationMenuList>
     </NavigationMenu>
   );

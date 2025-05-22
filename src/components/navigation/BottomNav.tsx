@@ -18,7 +18,7 @@ export const BottomNav = () => {
   
   const navItems: NavItem[] = [
     { path: "/events", icon: Home, label: "Home" },
-    { path: "/search", icon: Search, label: "Search" },
+    { path: "/search", icon: Search, label: "Explore" },
     { path: "/nearby", icon: Map, label: "Nearby" },
     { path: "/notifications", icon: Bell, label: "Alerts", requireAuth: true },
     { path: user ? "/profile" : "/auth", icon: User, label: user ? "Profile" : "Sign In" }
@@ -28,8 +28,8 @@ export const BottomNav = () => {
   const visibleItems = navItems.filter(item => !item.requireAuth || (item.requireAuth && user));
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-lg border-t border-border/50 py-1 px-2">
-      <nav className="flex justify-around items-center">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-lg border-t border-border/50 py-1">
+      <nav className="flex justify-around items-center max-w-md mx-auto">
         {visibleItems.map((item) => {
           const isActive = location.pathname === item.path;
           const IconComponent = item.icon;
@@ -39,7 +39,7 @@ export const BottomNav = () => {
               key={item.path} 
               to={item.path} 
               className={cn(
-                "flex flex-col items-center justify-center pt-1 pb-0.5 px-1",
+                "flex flex-col items-center justify-center pt-1 pb-0.5 px-2",
                 "transition-colors duration-200 ease-in-out",
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               )}

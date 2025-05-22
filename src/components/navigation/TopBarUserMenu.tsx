@@ -54,6 +54,13 @@ export const TopBarUserMenu = () => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             
+            <DropdownMenuItem asChild>
+              <Link to="/profile" className="cursor-pointer flex items-center">
+                <User className="mr-2 h-4 w-4" />
+                View Profile
+              </Link>
+            </DropdownMenuItem>
+            
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link to="/profile" className="cursor-pointer flex items-center">

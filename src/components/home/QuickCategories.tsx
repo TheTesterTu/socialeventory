@@ -17,8 +17,8 @@ export const QuickCategories = () => {
     navigate(`/search?category=${encodeURIComponent(category)}`);
   };
 
-  // Take the first 6 categories to display
-  const displayCategories = categories.slice(0, 6);
+  // Take categories to display - more on desktop, fewer on mobile
+  const displayCategories = isMobile ? categories.slice(0, 6) : categories.slice(0, 8);
 
   return (
     <motion.div
@@ -28,7 +28,7 @@ export const QuickCategories = () => {
       className="space-y-3"
     >
       <h2 className="text-xl font-semibold">Explore Categories</h2>
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-3">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-2">
         {displayCategories.map((category, index) => (
           <motion.div
             key={category}
@@ -39,7 +39,8 @@ export const QuickCategories = () => {
             <Button
               variant={activeCategory === category ? "default" : "outline"}
               onClick={() => handleCategoryClick(category)}
-              className="w-full h-full py-2 md:py-6 text-xs md:text-sm rounded-xl bg-gradient-to-br hover:shadow-md transition-all flex flex-col items-center justify-center gap-1 md:gap-2"
+              size={isMobile ? "sm" : "default"}
+              className="w-full py-1.5 md:py-2 text-xs md:text-sm rounded-lg bg-gradient-to-br hover:shadow-md transition-all flex flex-col items-center justify-center gap-1"
             >
               <span>{category}</span>
             </Button>

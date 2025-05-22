@@ -1,114 +1,58 @@
 
-import { Calendar, MapPin, Plus, Search, User } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useState, useEffect } from "react";
+import { PlusCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const FloatingActions = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const isMobile = useIsMobile();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   
-  // Show on both mobile and desktop with different positions
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
+  // Hide on profile and create event pages to avoid duplicate buttons
+  const shouldHide = location.pathname === "/profile" || 
+                     location.pathname === "/create-event" ||
+                     location.pathname.includes("/settings");
   
-  const quickActions = [
-    { 
-      icon: Calendar, 
-      label: "New Event", 
-      path: "/create-event", 
-      color: "bg-gradient-to-r from-violet-500 to-purple-500" 
-    },
-    { 
-      icon: MapPin, 
-      label: "Near Me", 
-      path: "/nearby", 
-      color: "bg-gradient-to-r from-cyan-500 to-blue-500" 
-    },
-    { 
-      icon: Search, 
-      label: "Search", 
-      path: "/search", 
-      color: "bg-gradient-to-r from-green-500 to-emerald-500" 
-    },
-    { 
-      icon: User, 
-      label: "Profile", 
-      path: user ? "/profile" : "/auth", 
-      color: "bg-gradient-to-r from-amber-500 to-orange-500" 
-    },
-  ];
-
-  const positionClasses = isMobile 
-    ? "fixed bottom-20 right-4 md:bottom-8 md:right-8" 
-    : "fixed bottom-8 right-8";
-
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+  
+  if (shouldHide || !user) return null;
+  
   return (
     <motion.div 
-      className={`flex flex-col gap-4 items-end z-40 ${positionClasses}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      className={cn(
+        "fixed bottom-24 right-4 z-40",
+        isVisible ? "translate-y-0" : "translate-y-20"
+      )}
+      animate={{ y: isVisible ? 0 : 80, opacity: isVisible ? 1 : 0 }}
+      initial={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
+      onClick={() => navigate("/create-event")}
     >
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div 
-            className="flex flex-col gap-3"
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            transition={{ duration: 0.2 }}
-          >
-            {quickActions.map((action, index) => (
-              <motion.div
-                key={action.path}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Link to={action.path}>
-                  <div className="flex items-center gap-2 group">
-                    <motion.span 
-                      className="text-sm font-medium opacity-0 group-hover:opacity-100 text-foreground px-2 py-1 rounded bg-background/80 backdrop-blur-sm"
-                      initial={{ opacity: 0, x: 10 }}
-                      whileHover={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {action.label}
-                    </motion.span>
-                    <Button
-                      variant="default"
-                      size="icon"
-                      className={`w-10 h-10 rounded-full shadow-lg hover:shadow-primary/25 ${action.color}`}
-                    >
-                      <action.icon className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
-      <motion.div
+      <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        className="bg-primary text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-primary/30"
       >
-        <Button
-          variant="default"
-          size="icon"
-          className="w-12 h-12 rounded-full shadow-lg hover:shadow-primary/25 bg-primary hover:bg-primary/90"
-          onClick={toggleExpanded}
-        >
-          <Plus className="w-5 h-5" style={{ transform: isExpanded ? 'rotate(45deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }} />
-        </Button>
-      </motion.div>
+        <PlusCircle className="w-7 h-7" />
+      </motion.button>
     </motion.div>
   );
 };

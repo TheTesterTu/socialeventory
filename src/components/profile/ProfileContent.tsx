@@ -4,10 +4,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SavedEvents } from "@/components/profile/SavedEvents";
 import { ProfileEvents } from "@/components/profile/ProfileEvents";
 import { OrganizationsList } from "@/components/profile/OrganizationsList";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Event } from "@/lib/types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ProfileContentProps {
   events: Event[];
@@ -24,23 +23,19 @@ export const ProfileContent = ({
 }: ProfileContentProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
+  const isMobile = useIsMobile();
   
   return (
-    <div className="mt-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="mt-6">
+      <div className="flex justify-between items-center mb-4">
         <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
-          <div className="flex justify-between items-center mb-4">
-            <TabsList className="grid grid-cols-4 w-fit">
+          <div className="mb-4">
+            <TabsList className="grid grid-cols-4 w-full max-w-md">
               <TabsTrigger value="all">All Events</TabsTrigger>
               <TabsTrigger value="saved">Saved</TabsTrigger>
               <TabsTrigger value="published">Published</TabsTrigger>
               <TabsTrigger value="drafts">Drafts</TabsTrigger>
             </TabsList>
-            
-            <Button onClick={() => navigate("/create-event")} className="gap-1">
-              <Plus size={16} />
-              Create Event
-            </Button>
           </div>
           
           <TabsContent value="all" className="mt-4 space-y-6">
