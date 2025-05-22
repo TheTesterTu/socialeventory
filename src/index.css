@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -98,4 +99,74 @@
 
 .hover-glow {
   @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/25;
+}
+
+/* New utility classes for better spacing and visual effects */
+.responsive-container {
+  @apply px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto;
+}
+
+.responsive-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
+}
+
+.glass-card {
+  @apply rounded-xl backdrop-blur-md bg-white/5 border border-white/10 shadow-xl hover:border-primary/20 transition-all;
+}
+
+.responsive-padding {
+  @apply p-4 sm:p-6 lg:p-8;
+}
+
+.map-marker {
+  @apply bg-primary w-6 h-6 rounded-full border-2 border-primary/30 shadow-lg shadow-primary/25;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(252, 55, 158, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(252, 55, 158, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(252, 55, 158, 0);
+  }
+}
+
+/* Better custom scrollbar for dark mode */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* Custom styles for mapbox popup */
+.mapboxgl-popup-content {
+  @apply bg-card/90 backdrop-blur-md rounded-xl border border-border/50 shadow-lg text-foreground p-0 overflow-hidden;
+}
+
+.mapboxgl-popup-close-button {
+  @apply text-muted-foreground hover:text-foreground bg-transparent text-lg p-2;
+}
+
+.mapboxgl-popup-tip {
+  @apply border-t-card/90;
 }
