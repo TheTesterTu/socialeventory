@@ -41,7 +41,7 @@ export const EventCardGlass = ({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
         
-        <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="absolute bottom-0 left-0 right-0 p-3">
           <div className="flex items-center gap-2">
             {event.verification.status !== "pending" && (
               <EventVerificationBadge status={event.verification.status} size="sm" />
@@ -53,18 +53,18 @@ export const EventCardGlass = ({
         </div>
       </div>
       
-      <div className="p-4 space-y-3">
+      <div className="p-3 space-y-2.5">
         <div className="space-y-1">
           <Link to={`/event/${event.id}`} className="block hover:opacity-90 transition-opacity">
-            <h3 className="font-bold text-lg line-clamp-1">{event.title}</h3>
+            <h3 className="font-bold text-base md:text-lg line-clamp-1">{event.title}</h3>
           </Link>
           
-          <div className="flex items-center text-sm text-muted-foreground gap-1.5">
+          <div className="flex items-center text-xs text-muted-foreground gap-1.5">
             <Calendar className="h-3.5 w-3.5" />
             <span>{formattedDate}, {formattedTime}</span>
           </div>
           
-          <div className="flex items-center text-sm text-muted-foreground gap-1.5">
+          <div className="flex items-center text-xs text-muted-foreground gap-1.5">
             <MapPin className="h-3.5 w-3.5" />
             <span className="line-clamp-1">{event.location.address}</span>
           </div>

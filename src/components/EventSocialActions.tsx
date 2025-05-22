@@ -19,12 +19,6 @@ interface EventSocialActionsProps {
   compact?: boolean;
 }
 
-// Animation variants
-const buttonVariants = {
-  tap: { scale: 0.95 },
-  hover: { scale: 1.05 }
-};
-
 export const EventSocialActions = ({ 
   eventId, 
   likes = 0, 
@@ -73,7 +67,11 @@ export const EventSocialActions = ({
     }
   };
 
-  const MotionButton = motion(Button);
+  // Animation variants
+  const buttonVariants = {
+    tap: { scale: 0.95 },
+    hover: { scale: 1.05 }
+  };
   
   const renderButtons = () => {
     if (compact) {
@@ -81,20 +79,19 @@ export const EventSocialActions = ({
         <>
           <Tooltip>
             <TooltipTrigger asChild>
-              <MotionButton
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  "rounded-full p-2 h-9 w-9",
-                  isLiked && "text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                )}
-                onClick={handleLike}
-                whileTap="tap"
-                whileHover="hover"
-                variants={buttonVariants}
-              >
-                <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
-              </MotionButton>
+              <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "rounded-full p-2 h-9 w-9",
+                    isLiked && "text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                  )}
+                  onClick={handleLike}
+                >
+                  <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
+                </Button>
+              </motion.div>
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p>{isLiked ? "Unlike" : "Like"} ({likesCount})</p>
@@ -103,17 +100,16 @@ export const EventSocialActions = ({
           
           <Tooltip>
             <TooltipTrigger asChild>
-              <MotionButton
-                variant="ghost"
-                size="sm"
-                className="rounded-full p-2 h-9 w-9"
-                onClick={handleComment}
-                whileTap="tap"
-                whileHover="hover"
-                variants={buttonVariants}
-              >
-                <MessageSquare className="h-4 w-4" />
-              </MotionButton>
+              <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full p-2 h-9 w-9"
+                  onClick={handleComment}
+                >
+                  <MessageSquare className="h-4 w-4" />
+                </Button>
+              </motion.div>
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p>Comments ({commentsCount})</p>
@@ -125,50 +121,47 @@ export const EventSocialActions = ({
     
     return (
       <>
-        <MotionButton
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "rounded-full transition-colors gap-1.5",
-            isLiked && "text-red-500 hover:text-red-600 hover:bg-red-500/10"
-          )}
-          onClick={handleLike}
-          whileTap="tap"
-          whileHover="hover"
-          variants={buttonVariants}
-        >
-          <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
-          <span>{likesCount}</span>
-        </MotionButton>
+        <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "rounded-full transition-colors gap-1.5",
+              isLiked && "text-red-500 hover:text-red-600 hover:bg-red-500/10"
+            )}
+            onClick={handleLike}
+          >
+            <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
+            <span>{likesCount}</span>
+          </Button>
+        </motion.div>
         
-        <MotionButton
-          variant="ghost"
-          size="sm"
-          className="rounded-full gap-1.5"
-          onClick={handleComment}
-          whileTap="tap"
-          whileHover="hover"
-          variants={buttonVariants}
-        >
-          <MessageSquare className="h-4 w-4" />
-          <span>{commentsCount}</span>
-        </MotionButton>
+        <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full gap-1.5"
+            onClick={handleComment}
+          >
+            <MessageSquare className="h-4 w-4" />
+            <span>{commentsCount}</span>
+          </Button>
+        </motion.div>
         
-        <MotionButton
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "rounded-full transition-colors gap-1.5",
-            isAttending && "text-primary hover:text-primary/80"
-          )}
-          onClick={handleAttendance}
-          whileTap="tap"
-          whileHover="hover"
-          variants={buttonVariants}
-        >
-          <Users className="h-4 w-4" />
-          <span>{attendeesCount}</span>
-        </MotionButton>
+        <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "rounded-full transition-colors gap-1.5",
+              isAttending && "text-primary hover:text-primary/80"
+            )}
+            onClick={handleAttendance}
+          >
+            <Users className="h-4 w-4" />
+            <span>{attendeesCount}</span>
+          </Button>
+        </motion.div>
       </>
     );
   };
@@ -179,20 +172,19 @@ export const EventSocialActions = ({
       
       <Tooltip>
         <TooltipTrigger asChild>
-          <MotionButton
-            variant="ghost"
-            size="sm"
-            className={cn(
-              compact ? "rounded-full p-2 h-9 w-9 ml-auto" : "rounded-full gap-1.5 ml-auto"
-            )}
-            onClick={handleShare}
-            whileTap="tap"
-            whileHover="hover"
-            variants={buttonVariants}
-          >
-            <Share2 className="h-4 w-4" />
-            {!compact && <span>Share</span>}
-          </MotionButton>
+          <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants} className="ml-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                compact ? "rounded-full p-2 h-9 w-9" : "rounded-full gap-1.5"
+              )}
+              onClick={handleShare}
+            >
+              <Share2 className="h-4 w-4" />
+              {!compact && <span>Share</span>}
+            </Button>
+          </motion.div>
         </TooltipTrigger>
         <TooltipContent side="bottom">
           <p>Share event</p>

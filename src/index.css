@@ -103,11 +103,11 @@
 
 /* New utility classes for better spacing and visual effects */
 .responsive-container {
-  @apply px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto;
+  @apply px-3 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto;
 }
 
 .responsive-grid {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6;
 }
 
 .text-gradient {
@@ -119,7 +119,19 @@
 }
 
 .responsive-padding {
-  @apply p-4 sm:p-6 lg:p-8;
+  @apply p-3 sm:p-6;
+}
+
+.section-spacing {
+  @apply space-y-10 md:space-y-12;
+}
+
+.card-spacing {
+  @apply space-y-3 md:space-y-4;
+}
+
+.tight-spacing {
+  @apply space-y-1 md:space-y-2;
 }
 
 .map-marker {
@@ -141,8 +153,8 @@
 
 /* Better custom scrollbar for dark mode */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -169,4 +181,35 @@
 
 .mapboxgl-popup-tip {
   @apply border-t-card/90;
+}
+
+/* Improved mobile styling */
+.mobile-header {
+  @apply text-lg md:text-xl font-semibold;
+}
+
+.mobile-subheader {
+  @apply text-sm md:text-base font-medium;
+}
+
+.mobile-text {
+  @apply text-xs md:text-sm;
+}
+
+/* Improved touch targets for mobile */
+.touch-target {
+  @apply min-h-10 min-w-10;
+}
+
+/* Fixed z-index for important UI elements */
+.z-floating {
+  @apply z-40;
+}
+
+.z-modal {
+  @apply z-50;
+}
+
+.z-tooltip {
+  @apply z-60;
 }

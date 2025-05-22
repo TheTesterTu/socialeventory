@@ -23,9 +23,10 @@ export const HomeHero = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative space-y-6 mb-10 px-4 md:px-0"
+      className="relative space-y-6 mb-10 w-full overflow-hidden"
     >
       <div className="absolute inset-0 -z-10 opacity-40">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/80 to-background/30" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_#8B5CF6_0%,_transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,_#06B6D4_0%,_transparent_30%)]" />
       </div>
@@ -88,7 +89,7 @@ export const HomeHero = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.5 }}
-        className="flex items-center justify-center flex-wrap gap-6 pt-6"
+        className="flex items-center justify-center flex-wrap gap-6 pt-4"
       >
         <div className="flex items-center gap-2">
           <span className="inline-block h-2 w-2 rounded-full bg-green-400"></span>

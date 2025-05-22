@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,7 +43,7 @@ const mockCreators = [
 ];
 
 export const FeaturedCreators = () => {
-  const [creators, setCreators] = useState(mockCreators);
+  const [creators] = useState(mockCreators);
   const navigate = useNavigate();
 
   return (
@@ -58,12 +58,12 @@ export const FeaturedCreators = () => {
           <Users className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">Top Organizers</h2>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => navigate("/creators")}>
+        <Button variant="ghost" size="sm" onClick={() => navigate("/organizers")}>
           View All
         </Button>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {creators.map((creator, index) => (
           <motion.div
             key={creator.id}
@@ -71,24 +71,24 @@ export const FeaturedCreators = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
             whileHover={{ 
-              scale: 1.03, 
+              scale: 1.03,
               boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)" 
             }}
-            className="glass-panel p-4 rounded-xl flex flex-col items-center text-center cursor-pointer"
-            onClick={() => navigate(`/creator/${creator.id}`)}
+            className="glass-panel p-3 md:p-4 rounded-xl flex flex-col items-center text-center cursor-pointer"
+            onClick={() => navigate(`/organizers/${creator.id}`)}
           >
             <div className="relative">
-              <Avatar className="h-16 w-16 mb-3">
+              <Avatar className="h-14 w-14 md:h-16 md:w-16 mb-2 md:mb-3">
                 <AvatarImage src={creator.avatar} alt={creator.name} />
                 <AvatarFallback>{creator.name.substring(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">
+              <span className="absolute -top-1 -right-1 bg-primary text-white text-[8px] md:text-xs px-1.5 py-0.5 rounded-full">
                 {creator.type}
               </span>
             </div>
-            <h3 className="font-medium">{creator.name}</h3>
-            <p className="text-sm text-muted-foreground">{creator.role}</p>
-            <div className="mt-2 text-xs text-primary font-medium">
+            <h3 className="font-medium text-sm md:text-base">{creator.name}</h3>
+            <p className="text-xs md:text-sm text-muted-foreground">{creator.role}</p>
+            <div className="mt-1 md:mt-2 text-[10px] md:text-xs text-primary font-medium">
               {creator.events} events
             </div>
           </motion.div>

@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Map, Calendar, Bell, User } from "lucide-react";
+import { Home, Search, Map, Bell, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,7 +28,7 @@ export const BottomNav = () => {
   const visibleItems = navItems.filter(item => !item.requireAuth || (item.requireAuth && user));
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-t border-border/50 py-2 px-4">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-lg border-t border-border/50 py-1 px-2">
       <nav className="flex justify-around items-center">
         {visibleItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -39,7 +39,7 @@ export const BottomNav = () => {
               key={item.path} 
               to={item.path} 
               className={cn(
-                "flex flex-col items-center justify-center pt-1 pb-0.5 px-2 relative",
+                "flex flex-col items-center justify-center pt-1 pb-0.5 px-1",
                 "transition-colors duration-200 ease-in-out",
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               )}
@@ -54,7 +54,7 @@ export const BottomNav = () => {
                   />
                 )}
               </div>
-              <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+              <span className="text-[9px] mt-0.5 font-medium">{item.label}</span>
             </Link>
           );
         })}

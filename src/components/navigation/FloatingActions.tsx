@@ -1,32 +1,56 @@
 
-import { Calendar, Search, MapPin, Bell, Plus } from "lucide-react";
+import { Calendar, MapPin, Plus, Search, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const FloatingActions = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   
-  // Only show on mobile
-  if (!isMobile) return null;
-  
+  // Show on both mobile and desktop with different positions
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
   
   const quickActions = [
-    { icon: Calendar, label: "New Event", path: "/create-event", color: "bg-gradient-to-r from-violet-500 to-purple-500" },
-    { icon: MapPin, label: "Near Me", path: "/nearby", color: "bg-gradient-to-r from-cyan-500 to-blue-500" },
-    { icon: Search, label: "Search", path: "/search", color: "bg-gradient-to-r from-green-500 to-emerald-500" },
-    { icon: Bell, label: "Notifications", path: "/settings", color: "bg-gradient-to-r from-amber-500 to-orange-500" },
+    { 
+      icon: Calendar, 
+      label: "New Event", 
+      path: "/create-event", 
+      color: "bg-gradient-to-r from-violet-500 to-purple-500" 
+    },
+    { 
+      icon: MapPin, 
+      label: "Near Me", 
+      path: "/nearby", 
+      color: "bg-gradient-to-r from-cyan-500 to-blue-500" 
+    },
+    { 
+      icon: Search, 
+      label: "Search", 
+      path: "/search", 
+      color: "bg-gradient-to-r from-green-500 to-emerald-500" 
+    },
+    { 
+      icon: User, 
+      label: "Profile", 
+      path: user ? "/profile" : "/auth", 
+      color: "bg-gradient-to-r from-amber-500 to-orange-500" 
+    },
   ];
+
+  const positionClasses = isMobile 
+    ? "fixed bottom-20 right-4 md:bottom-8 md:right-8" 
+    : "fixed bottom-8 right-8";
 
   return (
     <motion.div 
-      className="fixed bottom-8 right-8 flex flex-col gap-4 items-end z-40"
+      className={`flex flex-col gap-4 items-end z-40 ${positionClasses}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
