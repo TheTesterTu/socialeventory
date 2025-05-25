@@ -6,10 +6,10 @@ import { useEffect } from "react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requireAdmin?: boolean;
+  adminOnly?: boolean;
 }
 
-export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ children, adminOnly = false }: ProtectedRouteProps) => {
   const { user, session, loading, refreshSession } = useAuth();
   const location = useLocation();
   
@@ -36,7 +36,7 @@ export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRout
   }
 
   // If this route requires admin access, check the user's role
-  if (requireAdmin && user.user_metadata?.role !== 'admin') {
+  if (adminOnly && user.user_metadata?.role !== 'admin') {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <h1 className="text-2xl font-bold text-destructive mb-2">Access Denied</h1>

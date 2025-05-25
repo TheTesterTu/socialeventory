@@ -12,7 +12,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import EventDetails from "./pages/EventDetails";
 import Profile from "./pages/Profile";
-import ProfileEdit from "./pages/ProfileEdit"; // Add the new page
+import ProfileEdit from "./pages/ProfileEdit";
 import Settings from "./pages/Settings";
 import Search from "./pages/Search";
 import SearchPage from "./pages/SearchPage";
@@ -43,8 +43,8 @@ export default function App() {
   return (
     <ThemeProvider attribute="class">
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <Router>
+        <Router>
+          <AuthProvider>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/events" element={<Index />} />
@@ -89,8 +89,8 @@ export default function App() {
               <Route path="/404" element={<NotFound />} />
               <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
-          </Router>
-        </AuthProvider>
+          </AuthProvider>
+        </Router>
         <Toaster position="top-right" closeButton />
       </QueryClientProvider>
     </ThemeProvider>
