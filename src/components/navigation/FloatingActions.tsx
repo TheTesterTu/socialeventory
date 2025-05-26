@@ -50,7 +50,7 @@ export const FloatingActions = () => {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="bg-primary text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-primary/30"
+        className="gradient-primary text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-primary/30 ring-2 ring-primary/20"
       >
         <PlusCircle className="w-7 h-7" />
       </motion.button>

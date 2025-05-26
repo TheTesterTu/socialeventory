@@ -8,7 +8,7 @@ import { UpcomingEvents } from "@/components/home/UpcomingEvents";
 import { FeaturedCreators } from "@/components/home/FeaturedCreators";
 import { FeaturedBlog } from "@/components/home/FeaturedBlog";
 import { PersonalizedEvents } from "@/components/home/PersonalizedEvents";
-import { blogPosts } from "@/lib/mock-data/blog-data";
+import { useBlogPosts } from "@/hooks/useBlogPosts";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 const Index = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const { data: blogPosts = [] } = useBlogPosts();
   
   return (
     <AppLayout 
@@ -48,7 +49,7 @@ const Index = () => {
 
           {user && (
             <>
-              <Separator className="my-4 opacity-30" />
+              <Separator className="my-4 opacity-30 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
               
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -60,7 +61,7 @@ const Index = () => {
             </>
           )}
 
-          <Separator className="my-4 opacity-30" />
+          <Separator className="my-4 opacity-30 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -70,7 +71,7 @@ const Index = () => {
             <FeaturedCreators />
           </motion.div>
           
-          <Separator className="my-4 opacity-30" />
+          <Separator className="my-4 opacity-30 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -87,7 +88,7 @@ const Index = () => {
             </div>
           </motion.div>
 
-          <Separator className="my-4 opacity-30" />
+          <Separator className="my-4 opacity-30 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -106,9 +107,11 @@ const Index = () => {
                   <HelpCircle className="h-5 w-5 text-primary" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent align="end" className="w-72 p-3">
+              <PopoverContent align="end" className="w-72 p-3 border-primary/20">
                 <div className="space-y-2">
-                  <h3 className="font-medium text-base">Welcome to SocialEventory!</h3>
+                  <h3 className="font-medium text-base bg-gradient-primary bg-clip-text text-transparent">
+                    Welcome to SocialEventory!
+                  </h3>
                   <p className="text-xs text-muted-foreground">
                     Discover events around you, connect with organizers, and never miss out on exciting experiences.
                   </p>
