@@ -7,7 +7,7 @@ import { ArrowLeft, Calendar, Clock, Share2, Bookmark, ThumbsUp } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BlogList } from "@/components/blog/BlogList";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import NotFound from "@/pages/NotFound";
 import { useBlogPost, useBlogPosts } from "@/hooks/useBlogPosts";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -73,7 +73,7 @@ const BlogPost = () => {
           className="mb-6"
         >
           <Link to="/blog">
-            <Button variant="ghost" size="sm" className="mb-6 hover:bg-primary/10">
+            <Button variant="ghost" size="sm" className="mb-6 hover:bg-primary/10 border border-primary/20">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Blog
             </Button>
@@ -88,7 +88,7 @@ const BlogPost = () => {
               ))}
             </div>
             
-            <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-br from-primary to-primary/70 bg-clip-text text-transparent">
               {post.title}
             </h1>
             
@@ -100,7 +100,7 @@ const BlogPost = () => {
                   className="w-10 h-10 rounded-full ring-2 ring-primary/20"
                 />
                 <div>
-                  <div className="font-medium text-foreground">{post.author.name}</div>
+                  <div className="font-medium text-primary">{post.author.name}</div>
                   <div className="text-xs">Author</div>
                 </div>
               </div>
@@ -117,7 +117,7 @@ const BlogPost = () => {
             </div>
           </div>
           
-          <div className="mb-8 rounded-xl overflow-hidden ring-1 ring-primary/10">
+          <div className="mb-8 rounded-xl overflow-hidden ring-1 ring-primary/20">
             <img 
               src={post.coverImage} 
               alt={post.title}
@@ -125,29 +125,29 @@ const BlogPost = () => {
             />
           </div>
           
-          <div className="prose prose-lg dark:prose-invert max-w-none mb-10 prose-headings:bg-gradient-primary prose-headings:bg-clip-text prose-headings:text-transparent" 
+          <div className="prose prose-lg dark:prose-invert max-w-none mb-10 prose-headings:text-primary prose-a:text-primary prose-strong:text-primary" 
             dangerouslySetInnerHTML={{ __html: post.content }} 
           />
           
           <div className="flex flex-wrap items-center justify-between pt-6 border-t border-primary/20">
             <div className="flex gap-2">
               {post.tags.map(tag => (
-                <Badge key={tag} variant="outline" className="border-primary/30 text-primary">
+                <Badge key={tag} variant="outline" className="border-primary/30 text-primary hover:bg-primary/10">
                   #{tag}
                 </Badge>
               ))}
             </div>
             
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10">
+              <Button variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 text-primary">
                 <Share2 className="mr-2 h-4 w-4" />
                 Share
               </Button>
-              <Button variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10">
+              <Button variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 text-primary">
                 <Bookmark className="mr-2 h-4 w-4" />
                 Save
               </Button>
-              <Button variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10">
+              <Button variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 text-primary">
                 <ThumbsUp className="mr-2 h-4 w-4" />
                 Like
               </Button>
@@ -157,7 +157,7 @@ const BlogPost = () => {
         
         {relatedPosts.length > 0 && (
           <div className="mt-16 mb-10">
-            <h2 className="text-2xl font-semibold mb-6 bg-gradient-primary bg-clip-text text-transparent">
+            <h2 className="text-2xl font-semibold mb-6 bg-gradient-to-br from-primary to-primary/70 bg-clip-text text-transparent">
               Related Articles
             </h2>
             <BlogList posts={relatedPosts} />

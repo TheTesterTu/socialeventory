@@ -60,6 +60,104 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_posts: {
+        Row: {
+          author_id: string
+          category: string[] | null
+          content: string
+          cover_image: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_at: string | null
+          read_time: number | null
+          slug: string
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          category?: string[] | null
+          content: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          read_time?: number | null
+          slug: string
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          category?: string[] | null
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          read_time?: number | null
+          slug?: string
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -295,6 +393,50 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -336,6 +478,42 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      saved_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_locations: {
         Row: {

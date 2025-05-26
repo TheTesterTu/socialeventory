@@ -19,7 +19,7 @@ export const BlogCard = ({ post, featured = false }: BlogCardProps) => {
     <motion.div
       whileHover={{ y: -5 }}
       transition={{ duration: 0.2 }}
-      className={`glass-panel overflow-hidden ${featured ? 'p-0' : 'p-0'} rounded-xl flex flex-col h-full`}
+      className={`glass-panel overflow-hidden ${featured ? 'p-0' : 'p-0'} rounded-xl flex flex-col h-full border border-primary/20 hover:border-primary/40`}
     >
       <Link to={`/blog/${post.slug}`} className="group">
         <div className="relative overflow-hidden">
@@ -38,7 +38,7 @@ export const BlogCard = ({ post, featured = false }: BlogCardProps) => {
               <Badge 
                 key={cat} 
                 variant="secondary" 
-                className="bg-background/70 backdrop-blur-sm hover:bg-background/80"
+                className="bg-primary/90 text-primary-foreground backdrop-blur-sm hover:bg-primary"
               >
                 {cat}
               </Badge>
@@ -48,13 +48,13 @@ export const BlogCard = ({ post, featured = false }: BlogCardProps) => {
         
         <div className="p-5">
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-            <img src={post.author.avatar} alt={post.author.name} className="h-6 w-6 rounded-full" />
-            <span>{post.author.name}</span>
+            <img src={post.author.avatar} alt={post.author.name} className="h-6 w-6 rounded-full ring-2 ring-primary/20" />
+            <span className="text-primary font-medium">{post.author.name}</span>
             <span>•</span>
             <span>{timeAgo}</span>
             <span>•</span>
             <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
+              <Clock className="h-3 w-3 text-primary" />
               {post.readTime} min read
             </span>
           </div>

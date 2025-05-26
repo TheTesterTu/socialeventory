@@ -19,7 +19,7 @@ export const FeaturedPost = ({ post }: FeaturedPostProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-panel overflow-hidden rounded-xl mb-10"
+      className="glass-panel overflow-hidden rounded-xl mb-10 border border-primary/20"
     >
       <div className="flex flex-col lg:flex-row">
         <div className="lg:w-2/3 relative overflow-hidden">
@@ -36,7 +36,7 @@ export const FeaturedPost = ({ post }: FeaturedPostProps) => {
               <Badge 
                 key={cat} 
                 variant="secondary" 
-                className="bg-background/70 backdrop-blur-sm hover:bg-background/80"
+                className="bg-primary/90 text-primary-foreground backdrop-blur-sm hover:bg-primary"
               >
                 {cat}
               </Badge>
@@ -46,14 +46,16 @@ export const FeaturedPost = ({ post }: FeaturedPostProps) => {
         
         <div className="lg:w-1/3 p-6 flex flex-col">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-            <img src={post.author.avatar} alt={post.author.name} className="h-10 w-10 rounded-full" />
+            <img src={post.author.avatar} alt={post.author.name} className="h-10 w-10 rounded-full ring-2 ring-primary/20" />
             <div>
-              <div className="font-medium text-foreground">{post.author.name}</div>
+              <div className="font-medium text-primary">{post.author.name}</div>
               <div className="text-xs">{timeAgo}</div>
             </div>
           </div>
           
-          <h2 className="text-2xl font-semibold mb-4">{post.title}</h2>
+          <h2 className="text-2xl font-semibold mb-4 bg-gradient-to-br from-primary to-primary/70 bg-clip-text text-transparent">
+            {post.title}
+          </h2>
           
           <p className="text-muted-foreground mb-6 flex-grow">
             {post.excerpt}
@@ -61,11 +63,11 @@ export const FeaturedPost = ({ post }: FeaturedPostProps) => {
           
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
+              <Clock className="h-4 w-4 text-primary" />
               <span>{post.readTime} min read</span>
             </div>
             
-            <Button asChild>
+            <Button asChild className="bg-primary hover:bg-primary/90">
               <Link to={`/blog/${post.slug}`}>
                 Read Article <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
