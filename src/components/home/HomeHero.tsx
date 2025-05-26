@@ -19,91 +19,108 @@ export const HomeHero = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="relative space-y-6 mb-10 w-full overflow-hidden"
-    >
-      <div className="absolute inset-0 -z-10 opacity-40">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/80 to-background/30" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_#8B5CF6_0%,_transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,_#06B6D4_0%,_transparent_30%)]" />
-      </div>
+    <div className="relative overflow-hidden">
+      {/* Modern background with subtle gradient */}
+      <div className="absolute inset-0 hero-gradient" />
       
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="space-y-4 text-center"
-      >
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full text-primary text-sm">
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>Discover the best events in your area</span>
-        </div>
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-          Find Your Next Experience
-        </h1>
-        <p className="text-muted-foreground max-w-lg mx-auto">
-          Concerts, workshops, meetups and more. Discover events that match your interests and connect with your community.
-        </p>
-      </motion.div>
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="max-w-2xl mx-auto w-full"
-      >
-        <SearchBar onSearch={handleSearch} />
-      </motion.div>
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-2"
-      >
-        <Link to="/create-event">
-          <Button 
-            size="lg" 
-            className="bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90 transition-all w-full sm:w-auto"
+      <div className="relative z-10 container mx-auto px-4 py-12 lg:py-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl mx-auto text-center space-y-8"
+        >
+          {/* Badge */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="inline-flex items-center gap-2 px-4 py-2 glass-card rounded-full text-primary text-sm font-medium"
           >
-            <CalendarPlus className="mr-2 h-5 w-5" />
-            Create Event
-          </Button>
-        </Link>
-        <Link to="/search">
-          <Button 
-            variant="outline" 
-            size="lg"
-            className="border border-primary/20 hover:bg-primary/10 hover:text-primary transition-all w-full sm:w-auto"
-          >
-            <Search className="mr-2 h-5 w-5" />
-            Advanced Search
-          </Button>
-        </Link>
-      </motion.div>
+            <Sparkles className="h-4 w-4" />
+            <span>Discover the best events in your area</span>
+          </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
-        className="flex items-center justify-center flex-wrap gap-6 pt-4"
-      >
-        <div className="flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-full bg-green-400"></span>
-          <span className="text-sm text-muted-foreground">10+ live events now</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-full bg-primary"></span>
-          <span className="text-sm text-muted-foreground">1000+ events this week</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-full bg-orange-400"></span>
-          <span className="text-sm text-muted-foreground">100+ new today</span>
-        </div>
-      </motion.div>
-    </motion.div>
+          {/* Main heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="space-y-4"
+          >
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight">
+              Find Your{" "}
+              <span className="text-gradient">
+                Next Experience
+              </span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Concerts, workshops, meetups and more. Discover events that match your interests and connect with your community.
+            </p>
+          </motion.div>
+
+          {/* Search bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="max-w-2xl mx-auto"
+          >
+            <div className="glass-panel p-2 rounded-2xl">
+              <SearchBar onSearch={handleSearch} />
+            </div>
+          </motion.div>
+
+          {/* Action buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
+          >
+            <Link to="/create-event">
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 h-auto font-medium rounded-xl w-full sm:w-auto modern-shadow"
+              >
+                <CalendarPlus className="mr-2 h-5 w-5" />
+                Create Event
+              </Button>
+            </Link>
+            <Link to="/search">
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="glass-card hover:bg-accent/50 px-8 py-3 h-auto font-medium rounded-xl w-full sm:w-auto"
+              >
+                <Search className="mr-2 h-5 w-5" />
+                Advanced Search
+              </Button>
+            </Link>
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="flex items-center justify-center flex-wrap gap-6 lg:gap-8 pt-8"
+          >
+            <div className="flex items-center gap-2 glass-card px-4 py-2 rounded-lg">
+              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+              <span className="text-sm font-medium text-foreground">10+ live events now</span>
+            </div>
+            <div className="flex items-center gap-2 glass-card px-4 py-2 rounded-lg">
+              <span className="inline-block h-2 w-2 rounded-full bg-primary"></span>
+              <span className="text-sm font-medium text-foreground">1000+ events this week</span>
+            </div>
+            <div className="flex items-center gap-2 glass-card px-4 py-2 rounded-lg">
+              <span className="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
+              <span className="text-sm font-medium text-foreground">100+ new today</span>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+    </div>
   );
 };

@@ -19,6 +19,10 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Inter", "Space Grotesk", "system-ui", "sans-serif"],
+        display: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
+      },
       zIndex: {
         '10': '10',
         '20': '20',
@@ -75,18 +79,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        purple: {
-          50: "hsl(262 100% 97%)",
-          100: "hsl(262 95% 92%)",
-          200: "hsl(262 90% 85%)",
-          300: "hsl(262 85% 75%)",
-          400: "hsl(262 83% 65%)",
-          500: "hsl(262 83% 58%)",
-          600: "hsl(262 83% 50%)",
-          700: "hsl(262 83% 42%)",
-          800: "hsl(262 83% 35%)",
-          900: "hsl(262 83% 28%)",
-        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -110,16 +102,29 @@ const config: Config = {
           "0%": { transform: "translateX(-100%)" },
           "100%": { transform: "translateX(0)" },
         },
+        "scale-in": {
+          "0%": { opacity: "0", transform: "scale(0.95)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
+        "scale-in": "scale-in 0.2s ease-out",
+        "float": "float 3s ease-in-out infinite",
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      },
+      backdropBlur: {
+        xs: '2px',
       },
     },
   },

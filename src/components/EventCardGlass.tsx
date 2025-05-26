@@ -26,52 +26,55 @@ export const EventCardGlass = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.02, y: -5 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        "glass-panel overflow-hidden border border-white/10 hover:border-primary/50 transition-all",
+        "glass-card overflow-hidden rounded-xl hover:shadow-xl transition-all duration-300 group",
         className
       )}
     >
-      <div className="relative">
+      <div className="relative overflow-hidden">
         <img
           src={event.imageUrl || "https://images.unsplash.com/photo-1540575467063-178a50c2df87"}
           alt={event.title}
-          className="aspect-video w-full object-cover"
+          className="aspect-video w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
         
-        <div className="absolute bottom-0 left-0 right-0 p-3">
-          <div className="flex items-center gap-2">
-            {event.verification.status !== "pending" && (
-              <EventVerificationBadge status={event.verification.status} size="sm" />
-            )}
-            <span className="text-xs text-white/70 px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-sm">
-              {event.category[0]}
-            </span>
-          </div>
+        <div className="absolute top-3 left-3">
+          {event.verification.status !== "pending" && (
+            <EventVerificationBadge status={event.verification.status} size="sm" />
+          )}
+        </div>
+        
+        <div className="absolute bottom-3 left-3">
+          <span className="glass-card text-xs text-white px-3 py-1 rounded-full font-medium">
+            {event.category[0]}
+          </span>
         </div>
       </div>
       
-      <div className="p-3 space-y-2.5">
-        <div className="space-y-1">
-          <Link to={`/event/${event.id}`} className="block hover:opacity-90 transition-opacity">
-            <h3 className="font-bold text-base md:text-lg line-clamp-1">{event.title}</h3>
+      <div className="p-4 space-y-3">
+        <div className="space-y-2">
+          <Link to={`/event/${event.id}`} className="block group-hover:text-primary transition-colors">
+            <h3 className="font-display font-semibold text-lg line-clamp-2 leading-tight">
+              {event.title}
+            </h3>
           </Link>
           
-          <div className="flex items-center text-xs text-muted-foreground gap-1.5">
-            <Calendar className="h-3.5 w-3.5" />
+          <div className="flex items-center text-sm text-muted-foreground gap-1.5">
+            <Calendar className="h-4 w-4 text-primary" />
             <span>{formattedDate}, {formattedTime}</span>
           </div>
           
-          <div className="flex items-center text-xs text-muted-foreground gap-1.5">
-            <MapPin className="h-3.5 w-3.5" />
+          <div className="flex items-center text-sm text-muted-foreground gap-1.5">
+            <MapPin className="h-4 w-4 text-primary" />
             <span className="line-clamp-1">{event.location.address}</span>
           </div>
         </div>
         
         {showSocialActions && (
-          <div className="pt-2 border-t border-border/50">
+          <div className="pt-3 border-t border-border/50">
             <EventSocialActions
               eventId={event.id}
               likes={event.likes}

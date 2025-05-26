@@ -17,9 +17,9 @@ export const BlogCard = ({ post, featured = false }: BlogCardProps) => {
 
   return (
     <motion.div
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.2 }}
-      className={`glass-panel overflow-hidden ${featured ? 'p-0' : 'p-0'} rounded-xl flex flex-col h-full border border-primary/20 hover:border-primary/40`}
+      whileHover={{ y: -8, scale: 1.02 }}
+      transition={{ duration: 0.3 }}
+      className="glass-card overflow-hidden rounded-xl flex flex-col h-full hover:shadow-xl group"
     >
       <Link to={`/blog/${post.slug}`} className="group">
         <div className="relative overflow-hidden">
@@ -27,18 +27,16 @@ export const BlogCard = ({ post, featured = false }: BlogCardProps) => {
             <motion.img
               src={post.coverImage}
               alt={post.title}
-              className="w-full h-full object-cover transition-transform group-hover:scale-105"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
           </div>
           
-          <div className="absolute top-4 left-4 flex gap-1">
+          <div className="absolute top-4 left-4 flex gap-2">
             {post.category.slice(0, 2).map((cat) => (
               <Badge 
                 key={cat} 
                 variant="secondary" 
-                className="bg-primary/90 text-primary-foreground backdrop-blur-sm hover:bg-primary"
+                className="glass-card text-primary font-medium"
               >
                 {cat}
               </Badge>
@@ -46,30 +44,37 @@ export const BlogCard = ({ post, featured = false }: BlogCardProps) => {
           </div>
         </div>
         
-        <div className="p-5">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-            <img src={post.author.avatar} alt={post.author.name} className="h-6 w-6 rounded-full ring-2 ring-primary/20" />
-            <span className="text-primary font-medium">{post.author.name}</span>
-            <span>•</span>
-            <span>{timeAgo}</span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3 text-primary" />
-              {post.readTime} min read
-            </span>
+        <div className="p-6">
+          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4">
+            <img 
+              src={post.author.avatar} 
+              alt={post.author.name} 
+              className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/20" 
+            />
+            <div className="flex flex-col">
+              <span className="text-primary font-medium text-sm">{post.author.name}</span>
+              <div className="flex items-center gap-2 text-xs">
+                <span>{timeAgo}</span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {post.readTime} min read
+                </span>
+              </div>
+            </div>
           </div>
           
-          <h3 className={`${featured ? 'text-xl' : 'text-lg'} font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors`}>
+          <h3 className="font-display font-semibold text-xl mb-3 line-clamp-2 group-hover:text-primary transition-colors leading-tight">
             {post.title}
           </h3>
           
-          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+          <p className="text-muted-foreground text-sm mb-6 line-clamp-2 leading-relaxed">
             {post.excerpt}
           </p>
           
           <div className="flex items-center text-primary text-sm font-medium mt-auto">
             Read more
-            <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
           </div>
         </div>
       </Link>

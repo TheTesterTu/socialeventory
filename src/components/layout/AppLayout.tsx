@@ -10,7 +10,7 @@ import { Helmet } from "react-helmet-async";
 interface AppLayoutProps extends PropsWithChildren {
   hideTopBar?: boolean;
   hideFooter?: boolean;
-  showTopBar?: boolean; // Added for backward compatibility
+  showTopBar?: boolean;
   pageTitle?: string;
   pageDescription?: string;
 }
@@ -26,7 +26,6 @@ export const AppLayout = ({
   const isMobile = useIsMobile();
   const [hideTopBar, setHideTopBar] = useState(initialHideTopBar);
   
-  // For backward compatibility - if showTopBar is provided, it overrides hideTopBar
   useEffect(() => {
     if (showTopBar !== undefined) {
       setHideTopBar(!showTopBar);
@@ -36,7 +35,7 @@ export const AppLayout = ({
   }, [showTopBar, initialHideTopBar]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       {pageTitle && (
         <Helmet>
           <title>{pageTitle} | SocialEventory</title>
@@ -44,10 +43,12 @@ export const AppLayout = ({
         </Helmet>
       )}
       {!hideTopBar && <TopBar />}
-      <main className="flex-1 pt-16 pb-20 md:pb-0 w-full mx-auto">
-        {children}
+      <main className={`flex-1 w-full ${!hideTopBar ? 'pt-16' : ''} ${isMobile ? 'pb-20' : ''}`}>
+        <div className="min-h-full">
+          {children}
+        </div>
       </main>
-      {!hideFooter && <Footer />}
+      {!hideFooter && !isMobile && <Footer />}
       {isMobile && (
         <>
           <BottomNav />

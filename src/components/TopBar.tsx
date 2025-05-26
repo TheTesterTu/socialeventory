@@ -33,11 +33,11 @@ export const TopBar = () => {
       transition={{ duration: 0.3 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled 
-          ? "border-b border-border/50 bg-background/90 backdrop-blur-xl shadow-sm" 
-          : "bg-background/50 backdrop-blur-sm"
+          ? "glass-navbar shadow-lg" 
+          : "bg-transparent"
       }`}
     >
-      <div className="container flex h-16 items-center mx-auto">
+      <div className="container flex h-16 items-center mx-auto px-4">
         <TopBarLogo />
         {!isMobile && <TopBarNav />}
         <TopBarActions />
