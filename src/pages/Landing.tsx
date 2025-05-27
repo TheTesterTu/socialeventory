@@ -9,8 +9,11 @@ import { EventsNearYou } from "@/components/home/EventsNearYou";
 import { FeaturedCreators } from "@/components/home/FeaturedCreators";
 import { FeaturedBlog } from "@/components/home/FeaturedBlog";
 import { PersonalizedEvents } from "@/components/home/PersonalizedEvents";
+import { useBlogPosts } from "@/hooks/useBlogPosts";
 
 const Landing = () => {
+  const { data: blogPosts = [] } = useBlogPosts();
+
   return (
     <AppLayout 
       pageTitle="SocialEventory - Discover Amazing Events"
@@ -30,7 +33,7 @@ const Landing = () => {
         <UpcomingEvents />
         <EventsNearYou />
         <FeaturedCreators />
-        <FeaturedBlog />
+        <FeaturedBlog posts={blogPosts} />
       </div>
     </AppLayout>
   );
