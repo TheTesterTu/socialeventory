@@ -32,6 +32,10 @@ import OrganizerProfile from "./pages/OrganizerProfile";
 import Organizers from "./pages/Organizers";
 import NotificationsPage from "./pages/NotificationsPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 // Create a client with production-ready settings
 const queryClient = new QueryClient({
@@ -71,6 +75,10 @@ const AppContent = () => {
       <Route path="/nearby" element={<Nearby />} />
       <Route path="/organizer/:id" element={<OrganizerProfile />} />
       <Route path="/organizers" element={<Organizers />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
 
       {/* Protected Routes */}
       <Route 

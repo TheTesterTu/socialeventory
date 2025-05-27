@@ -51,9 +51,9 @@ export const BottomNav = () => {
   };
   
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 glass-navbar border-t border-border/20 safe-area-bottom">
+    <div className="fixed inset-x-0 bottom-0 z-50 glass-navbar border-t border-border/20 safe-area-bottom bg-background/95 backdrop-blur-xl">
       <div className="mx-auto max-w-screen-sm">
-        <div className="flex justify-between">
+        <div className="flex justify-between px-2">
           {navItems.map((item) => {
             const active = isActive(item.path);
             

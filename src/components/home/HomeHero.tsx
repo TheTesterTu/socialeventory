@@ -27,7 +27,7 @@ export const HomeHero = () => {
           alt="Events background"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-primary/30" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-black/70" />
       </div>
       
       <div className="relative z-10 container mx-auto px-4 py-12">
@@ -42,7 +42,7 @@ export const HomeHero = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 glass-card rounded-full text-white text-sm font-medium border border-white/20"
+            className="inline-flex items-center gap-2 px-4 py-2 glass-card rounded-full text-white text-sm font-medium border border-white/30 bg-black/30 backdrop-blur-xl"
           >
             <Sparkles className="h-4 w-4 text-primary" />
             <span>Discover epic events worldwide</span>
@@ -55,13 +55,13 @@ export const HomeHero = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="space-y-4"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white drop-shadow-xl">
               Find Your{" "}
               <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                 Next Epic Experience
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
               Unforgettable moments await you
             </p>
           </motion.div>
@@ -73,7 +73,7 @@ export const HomeHero = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="max-w-2xl mx-auto"
           >
-            <div className="glass-panel p-2 rounded-2xl border border-white/20 bg-white/10">
+            <div className="glass-panel p-2 rounded-2xl border border-white/30 bg-black/20 backdrop-blur-xl">
               <SearchBar onSearch={handleSearch} />
             </div>
           </motion.div>
@@ -88,7 +88,7 @@ export const HomeHero = () => {
             <Link to="/create-event">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-white px-8 py-3 h-auto font-medium rounded-xl w-full sm:w-auto shadow-xl shadow-primary/25"
+                className="bg-primary hover:bg-primary/90 text-white px-8 py-3 h-auto font-medium rounded-xl w-full sm:w-auto shadow-xl shadow-primary/25 border border-primary/20"
               >
                 <CalendarPlus className="mr-2 h-5 w-5" />
                 Create Event
@@ -98,7 +98,7 @@ export const HomeHero = () => {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-white/30 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm px-8 py-3 h-auto font-medium rounded-xl w-full sm:w-auto"
+                className="border-white/50 bg-black/30 hover:bg-black/50 text-white backdrop-blur-xl px-8 py-3 h-auto font-medium rounded-xl w-full sm:w-auto shadow-lg"
               >
                 <Search className="mr-2 h-5 w-5" />
                 Explore All
@@ -113,15 +113,15 @@ export const HomeHero = () => {
             transition={{ delay: 0.6, duration: 0.6 }}
             className="flex items-center justify-center flex-wrap gap-4 lg:gap-6 pt-6"
           >
-            <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-lg border border-white/20 bg-white/5">
+            <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-lg border border-white/30 bg-black/30 backdrop-blur-xl">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
               <span className="text-sm font-medium text-white">Live now</span>
             </div>
-            <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-lg border border-white/20 bg-white/5">
+            <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-lg border border-white/30 bg-black/30 backdrop-blur-xl">
               <span className="inline-block h-2 w-2 rounded-full bg-primary"></span>
               <span className="text-sm font-medium text-white">1000+ this week</span>
             </div>
-            <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-lg border border-white/20 bg-white/5">
+            <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-lg border border-white/30 bg-black/30 backdrop-blur-xl">
               <span className="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
               <span className="text-sm font-medium text-white">New daily</span>
             </div>

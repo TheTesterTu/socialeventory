@@ -1,144 +1,136 @@
 
-import { motion } from "framer-motion";
-import { Facebook, Instagram, Twitter, Github, Mail, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
-import { buttonVariants } from "../ui/button";
-import { cn } from "@/lib/utils";
+import { Heart, Github, Twitter, Instagram, Linkedin } from "lucide-react";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
-  
-  const socialLinks = [
-    { icon: Twitter, href: "https://twitter.com/socialeventory", label: "Twitter" },
-    { icon: Facebook, href: "https://facebook.com/socialeventory", label: "Facebook" },
-    { icon: Instagram, href: "https://instagram.com/socialeventory", label: "Instagram" },
-    { icon: Github, href: "https://github.com/socialeventory", label: "GitHub" },
-    { icon: Mail, href: "mailto:contact@socialeventory.com", label: "Email" },
-  ];
 
-  const footerLinks = [
-    { section: "Company", links: [
-      { label: "About", href: "/about" },
-      { label: "Blog", href: "/blog" },
-      { label: "Careers", href: "/careers" },
-      { label: "Press Kit", href: "/press" },
-    ]},
-    { section: "Resources", links: [
-      { label: "FAQ", href: "/faq" },
-      { label: "Support", href: "/support" },
-      { label: "Tutorials", href: "/tutorials" },
-      { label: "Partners", href: "/partners" },
-    ]},
-    { section: "Legal", links: [
-      { label: "Privacy", href: "/privacy" },
-      { label: "Terms", href: "/terms" },
-      { label: "Cookies", href: "/cookies" },
-      { label: "Licenses", href: "/licenses" },
-    ]},
-  ];
+  const footerLinks = {
+    product: [
+      { name: "Events", href: "/events" },
+      { name: "Search", href: "/search" },
+      { name: "Nearby", href: "/nearby" },
+      { name: "Create Event", href: "/create-event" },
+    ],
+    company: [
+      { name: "About", href: "/about" },
+      { name: "Blog", href: "/blog" },
+      { name: "Contact", href: "/contact" },
+      { name: "Organizers", href: "/organizers" },
+    ],
+    legal: [
+      { name: "Privacy Policy", href: "/privacy" },
+      { name: "Terms of Service", href: "/terms" },
+      { name: "Cookie Policy", href: "/privacy" },
+    ],
+    social: [
+      { name: "Twitter", href: "https://twitter.com", icon: Twitter },
+      { name: "Instagram", href: "https://instagram.com", icon: Instagram },
+      { name: "LinkedIn", href: "https://linkedin.com", icon: Linkedin },
+      { name: "GitHub", href: "https://github.com", icon: Github },
+    ],
+  };
 
   return (
-    <motion.footer 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 0.2 }}
-      className="bg-card border-t border-border mt-16"
-    >
-      <div className="container px-4 py-12 mx-auto">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-          {/* Brand column */}
-          <div className="mb-6">
+    <footer className="border-t border-border/50 bg-background/95 backdrop-blur-xl">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          {/* Brand */}
+          <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <img
                 src="/lovable-uploads/a6810b37-0f1f-4401-9970-901b029cf540.png"
-                alt="SocialEventory Logo"
-                className="w-8 h-8"
+                alt="SocialEventory"
+                className="h-8 w-8"
               />
-              <span className="font-semibold text-xl">SocialEventory</span>
+              <span className="font-semibold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                SocialEventory
+              </span>
             </Link>
-            <p className="text-muted-foreground text-sm mb-4">
-              Discover and share the best events in your area with SocialEventory, your social event discovery platform.
+            <p className="text-muted-foreground mb-4 max-w-md">
+              Connecting communities through unforgettable experiences. 
+              Discover, create, and share events that matter to you.
             </p>
-            
-            <div className="flex space-x-4 mt-4">
-              {socialLinks.map((link) => {
-                const Icon = link.icon;
+            <div className="flex gap-4">
+              {footerLinks.social.map((social) => {
+                const Icon = social.icon;
                 return (
-                  <a 
-                    key={link.label}
-                    href={link.href}
+                  <a
+                    key={social.name}
+                    href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                    aria-label={link.label}
+                    className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                    aria-label={social.name}
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-4 w-4" />
                   </a>
                 );
               })}
             </div>
           </div>
 
-          {/* Link columns */}
-          {footerLinks.map((section) => (
-            <div key={section.section}>
-              <h3 className="text-base font-medium mb-4">{section.section}</h3>
-              <ul className="space-y-2">
-                {section.links.map((link) => (
-                  <li key={link.label}>
-                    <Link 
-                      to={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Product */}
+          <div>
+            <h3 className="font-semibold mb-4">Product</h3>
+            <ul className="space-y-2">
+              {footerLinks.product.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h3 className="font-semibold mb-4">Company</h3>
+            <ul className="space-y-2">
+              {footerLinks.company.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h3 className="font-semibold mb-4">Legal</h3>
+            <ul className="space-y-2">
+              {footerLinks.legal.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-t border-border mt-8 pt-8">
-          <p className="text-sm text-muted-foreground text-center md:text-left">
-            &copy; {currentYear} SocialEventory. All rights reserved.
+        <div className="border-t border-border/50 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
+          <p className="text-muted-foreground text-sm">
+            © {currentYear} SocialEventory. All rights reserved.
           </p>
-          
-          <div className="flex flex-wrap justify-center gap-2">
-            <Link 
-              to="/events"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "text-xs h-8"
-              )}
-            >
-              Browse Events
-            </Link>
-            <Link
-              to="/create-event"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "text-xs h-8"
-              )}
-            >
-              Create Event
-            </Link>
-            <Link
-              to="/organizers"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "text-xs h-8"
-              )}
-            >
-              Organizers
-            </Link>
-          </div>
-          
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            Made with <Heart className="h-3 w-3 text-red-500 fill-current" /> by SocialEventory Team
+          <p className="text-muted-foreground text-sm flex items-center gap-1 mt-2 sm:mt-0">
+            Made with <Heart className="h-4 w-4 text-red-500" /> for communities worldwide
           </p>
         </div>
       </div>
-    </motion.footer>
+    </footer>
   );
 };

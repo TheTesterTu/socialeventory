@@ -29,7 +29,8 @@ export const TopBarNav = () => {
     { label: "Search", path: "/search" },
     { label: "Near Me", path: "/nearby" },
     { label: "Blog", path: "/blog" },
-    { label: "Organizers", path: "/organizers" },
+    { label: "About", path: "/about" },
+    { label: "Contact", path: "/contact" },
   ];
 
   const isActive = (path: string) => {

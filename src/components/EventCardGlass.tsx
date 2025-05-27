@@ -29,7 +29,7 @@ export const EventCardGlass = ({
       whileHover={{ scale: 1.02, y: -5 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        "glass-card overflow-hidden rounded-xl hover:shadow-xl transition-all duration-300 group",
+        "glass-card overflow-hidden rounded-xl hover:shadow-xl transition-all duration-300 group bg-card/80 backdrop-blur-xl border border-border/50",
         className
       )}
     >
@@ -39,7 +39,7 @@ export const EventCardGlass = ({
           alt={event.title}
           className="aspect-video w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         
         <div className="absolute top-3 left-3">
           {event.verification.status !== "pending" && (
@@ -48,16 +48,16 @@ export const EventCardGlass = ({
         </div>
         
         <div className="absolute bottom-3 left-3">
-          <span className="glass-card text-xs text-white px-3 py-1 rounded-full font-medium">
+          <span className="glass-card text-xs text-white px-3 py-1 rounded-full font-medium bg-black/50 backdrop-blur-xl border border-white/20">
             {event.category[0]}
           </span>
         </div>
       </div>
       
-      <div className="p-4 space-y-3">
+      <div className="p-4 space-y-3 bg-card/90 backdrop-blur-xl">
         <div className="space-y-2">
           <Link to={`/event/${event.id}`} className="block group-hover:text-primary transition-colors">
-            <h3 className="font-display font-semibold text-lg line-clamp-2 leading-tight">
+            <h3 className="font-display font-semibold text-lg line-clamp-2 leading-tight text-foreground">
               {event.title}
             </h3>
           </Link>
