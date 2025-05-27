@@ -25,31 +25,39 @@ export const TopBarNav = () => {
   const location = useLocation();
   
   const navItems: NavItem[] = [
-    { label: "Home", path: "/events" },
+    { label: "Events", path: "/events" },
     { label: "Search", path: "/search" },
     { label: "Near Me", path: "/nearby" },
     { label: "Blog", path: "/blog" },
     { label: "Organizers", path: "/organizers" },
   ];
 
-  // Use the `useLocation` hook to determine if we're on the events page
-  const onEventsPage = location.pathname === "/events";
+  const isActive = (path: string) => {
+    if (path === "/events") {
+      return location.pathname === "/events" || location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  const showCreateButton = user && (location.pathname === "/events" || location.pathname === "/");
 
   return (
     <NavigationMenu className="ml-4">
       <NavigationMenuList>
         {navItems.map(item => {
-          // Check if we're on the events page and the item is "Home"
-          const isActive = item.path === "/events" 
-            ? location.pathname === "/events" 
-            : location.pathname.startsWith(item.path);
+          const active = isActive(item.path);
           
           return (
             <NavigationMenuItem key={item.path}>
               <Link to={item.path}>
                 <Button 
-                  variant={isActive ? "secondary" : "ghost"}
-                  className={`rounded-lg ${isActive ? 'bg-primary/10 text-primary' : ''}`}
+                  variant={active ? "secondary" : "ghost"}
+                  className={cn(
+                    "rounded-lg transition-all duration-200",
+                    active 
+                      ? 'bg-primary/10 text-primary hover:bg-primary/20' 
+                      : 'hover:bg-primary/5 hover:text-primary'
+                  )}
                 >
                   {item.label}
                 </Button>
@@ -58,12 +66,12 @@ export const TopBarNav = () => {
           );
         })}
         
-        {user && onEventsPage && (
+        {showCreateButton && (
           <NavigationMenuItem>
             <Link to="/create-event">
               <Button 
                 variant={location.pathname === "/create-event" ? "secondary" : "default"}
-                className="rounded-lg gap-1 ml-2"
+                className="rounded-lg gap-1 ml-2 gradient-primary"
                 size="sm"
               >
                 <PlusCircle className="h-4 w-4" />

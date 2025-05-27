@@ -7,6 +7,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ThemeProvider } from "next-themes";
 import { HelmetProvider } from "react-helmet-async";
 import { TooltipProvider } from "./components/ui/tooltip";
+import { NotFoundRedirect } from "./components/NotFoundRedirect";
 
 // Main Pages
 import Landing from "./pages/Landing";
@@ -50,6 +51,7 @@ export default function App() {
             <Router>
               <AuthProvider>
                 <Routes>
+                  {/* Public Routes */}
                   <Route path="/" element={<Landing />} />
                   <Route path="/events" element={<Index />} />
                   <Route path="/event/:id" element={<EventDetails />} />
@@ -58,7 +60,7 @@ export default function App() {
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="/search/:query" element={<Search />} />
                   <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:id" element={<BlogPost />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
                   <Route path="/nearby" element={<Nearby />} />
                   <Route path="/organizer/:id" element={<OrganizerProfile />} />
                   <Route path="/organizers" element={<Organizers />} />
@@ -89,9 +91,14 @@ export default function App() {
                     element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>} 
                   />
 
-                  {/* Handle 404 */}
+                  {/* 404 Handling */}
                   <Route path="/404" element={<NotFound />} />
-                  <Route path="*" element={<Navigate to="/404" replace />} />
+                  <Route path="*" element={
+                    <>
+                      <NotFoundRedirect />
+                      <NotFound />
+                    </>
+                  } />
                 </Routes>
               </AuthProvider>
             </Router>

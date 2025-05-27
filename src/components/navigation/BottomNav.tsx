@@ -15,7 +15,7 @@ export const BottomNav = () => {
   
   const navItems: NavItem[] = [
     {
-      name: "Home",
+      name: "Events",
       path: "/events",
       icon: <Home className="h-5 w-5" />,
     },
@@ -41,21 +41,26 @@ export const BottomNav = () => {
     },
   ];
   
+  const isActive = (path: string) => {
+    if (path === "/events") {
+      return location.pathname === "/events" || location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
+  
   return (
-    <div className="fixed inset-x-0 bottom-0 z-10 border-t border-border/50 bg-background/80 backdrop-blur-lg">
+    <div className="fixed inset-x-0 bottom-0 z-50 glass-navbar border-t border-border/20">
       <div className="mx-auto max-w-screen-sm">
         <div className="flex justify-between">
           {navItems.map((item) => {
-            const isActive = 
-              (item.path === "/events" && location.pathname === "/events") || 
-              (item.path !== "/events" && location.pathname.startsWith(item.path));
+            const active = isActive(item.path);
             
             return (
               <button
                 key={item.path}
                 className={cn(
-                  "flex flex-1 flex-col items-center justify-center py-2 text-xs transition-colors",
-                  isActive
+                  "flex flex-1 flex-col items-center justify-center py-3 text-xs transition-all duration-200",
+                  active
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
@@ -63,13 +68,18 @@ export const BottomNav = () => {
               >
                 <div
                   className={cn(
-                    "flex items-center justify-center rounded-lg p-1.5",
-                    isActive && "bg-primary/10"
+                    "flex items-center justify-center rounded-xl p-2 transition-all duration-200",
+                    active && "bg-primary/10 scale-110"
                   )}
                 >
                   {item.icon}
                 </div>
-                <span className="mt-1 text-[10px]">{item.name}</span>
+                <span className={cn(
+                  "mt-1 text-[10px] font-medium transition-all duration-200",
+                  active && "font-semibold"
+                )}>
+                  {item.name}
+                </span>
               </button>
             );
           })}

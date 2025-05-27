@@ -1,267 +1,329 @@
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
-import { Settings, Key, MapPin, Mail, Bell, ArrowLeft, Zap } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { updateAPIConfig } from "@/services/api-config";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { 
+  Users, 
+  Calendar, 
+  TrendingUp, 
+  AlertCircle,
+  Eye,
+  Edit,
+  Trash2,
+  Plus,
+  BarChart3,
+  Settings,
+  Shield
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Mock admin data
+const adminStats = {
+  totalUsers: 2847,
+  totalEvents: 156,
+  activeEvents: 42,
+  pendingApprovals: 8,
+  monthlyGrowth: 12.5,
+  revenueGrowth: 8.3
+};
+
+const recentEvents = [
+  {
+    id: "1",
+    title: "Tech Conference 2024",
+    organizer: "TechCorp Inc.",
+    status: "pending",
+    attendees: 250,
+    date: "2024-03-15"
+  },
+  {
+    id: "2",
+    title: "Music Festival",
+    organizer: "Music Events Co.",
+    status: "approved",
+    attendees: 1500,
+    date: "2024-03-20"
+  }
+];
+
+const recentUsers = [
+  {
+    id: "1",
+    name: "John Smith",
+    email: "john@example.com",
+    role: "user",
+    joinDate: "2024-01-15",
+    eventsCreated: 3
+  },
+  {
+    id: "2", 
+    name: "Sarah Johnson",
+    email: "sarah@example.com",
+    role: "organizer",
+    joinDate: "2024-01-10",
+    eventsCreated: 12
+  }
+];
 
 const AdminDashboard = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-
-  const handleSaveAPIKey = async (key: string, value: string) => {
-    setLoading(true);
-    try {
-      const success = await updateAPIConfig(key, value);
-      if (!success) throw new Error("Failed to save API key");
-
-      toast({
-        title: "API Key Saved",
-        description: "Your API key has been securely stored.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-b from-background to-background/95">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="container mx-auto max-w-5xl"
-      >
-        <div className="flex items-center gap-4 mb-8">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => navigate(-1)}
-            className="rounded-full hover:scale-110 transition-transform"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-secondary/80 to-secondary bg-clip-text text-transparent">
-            Admin Dashboard
-          </h1>
-        </div>
-        
-        <Tabs defaultValue="api-keys" className="w-full">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <TabsTrigger value="api-keys" className="gap-2">
-              <Key className="w-4 h-4" />
-              API Keys
-            </TabsTrigger>
-            <TabsTrigger value="maps" className="gap-2">
-              <MapPin className="w-4 h-4" />
-              Maps Config
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="gap-2">
-              <Bell className="w-4 h-4" />
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="w-4 h-4" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="api-keys">
-            <motion.div 
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-6"
+    <AppLayout
+      pageTitle="Admin Dashboard"
+      pageDescription="Manage your platform and monitor activity"
+    >
+      <div className="space-y-8">
+        {/* Stats Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          {[
+            { 
+              title: "Total Users", 
+              value: adminStats.totalUsers.toLocaleString(), 
+              icon: Users, 
+              trend: `+${adminStats.monthlyGrowth}%`,
+              color: "text-blue-500"
+            },
+            { 
+              title: "Total Events", 
+              value: adminStats.totalEvents.toLocaleString(), 
+              icon: Calendar, 
+              trend: `+${adminStats.revenueGrowth}%`,
+              color: "text-green-500" 
+            },
+            { 
+              title: "Active Events", 
+              value: adminStats.activeEvents.toLocaleString(), 
+              icon: TrendingUp, 
+              trend: "Live",
+              color: "text-purple-500"
+            },
+            { 
+              title: "Pending Approvals", 
+              value: adminStats.pendingApprovals.toLocaleString(), 
+              icon: AlertCircle, 
+              trend: "Needs Review",
+              color: "text-orange-500"
+            }
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
             >
-              <div className="glass-panel p-6 space-y-6">
-                <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-yellow-500" />
-                  <h2 className="text-xl font-semibold">Service API Keys</h2>
-                </div>
-                <div className="grid gap-6">
-                  <div className="space-y-4">
-                    <label className="text-sm font-medium block">OpenAI API Key</label>
-                    <div className="flex gap-2">
-                      <Input 
-                        type="password" 
-                        placeholder="sk-..." 
-                        className="flex-1"
-                        onChange={(e) => {
-                          localStorage.setItem('temp_openai_key', e.target.value);
-                        }}
-                      />
-                      <Button 
-                        onClick={() => {
-                          const key = localStorage.getItem('temp_openai_key');
-                          if (key) {
-                            handleSaveAPIKey('openai_key', key);
-                            localStorage.removeItem('temp_openai_key');
-                          }
-                        }}
-                        disabled={loading}
-                      >
-                        Save
-                      </Button>
+              <Card className="glass-card">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">{stat.title}</p>
+                      <p className="text-2xl font-bold">{stat.value}</p>
+                      <p className={`text-sm ${stat.color} font-medium`}>{stat.trend}</p>
                     </div>
+                    <stat.icon className={`h-8 w-8 ${stat.color}`} />
                   </div>
-                  
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Main Content Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Tabs defaultValue="events" className="space-y-6">
+            <TabsList className="glass-card">
+              <TabsTrigger value="events">Events Management</TabsTrigger>
+              <TabsTrigger value="users">Users Management</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="events" className="space-y-6">
+              <Card className="glass-card">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Recent Events</CardTitle>
+                  <Button size="sm" className="gradient-primary gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Event
+                  </Button>
+                </CardHeader>
+                <CardContent>
                   <div className="space-y-4">
-                    <label className="text-sm font-medium block">Stripe Secret Key</label>
-                    <div className="flex gap-2">
-                      <Input 
-                        type="password" 
-                        placeholder="sk_..." 
-                        className="flex-1"
-                        onChange={(e) => {
-                          localStorage.setItem('temp_stripe_key', e.target.value);
-                        }}
-                      />
-                      <Button 
-                        onClick={() => {
-                          const key = localStorage.getItem('temp_stripe_key');
-                          if (key) {
-                            handleSaveAPIKey('stripe_secret_key', key);
-                            localStorage.removeItem('temp_stripe_key');
-                          }
-                        }}
-                        disabled={loading}
-                      >
-                        Save
-                      </Button>
-                    </div>
+                    {recentEvents.map((event) => (
+                      <div key={event.id} className="flex items-center justify-between p-4 glass-card rounded-lg">
+                        <div className="space-y-1">
+                          <h4 className="font-semibold">{event.title}</h4>
+                          <p className="text-sm text-muted-foreground">by {event.organizer}</p>
+                          <div className="flex items-center gap-4 text-sm">
+                            <span>{event.attendees} attendees</span>
+                            <span>{new Date(event.date).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Badge variant={event.status === 'approved' ? 'default' : 'secondary'}>
+                            {event.status}
+                          </Badge>
+                          <div className="flex gap-1">
+                            <Button size="icon" variant="ghost">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              </div>
-            </motion.div>
-          </TabsContent>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="maps">
-            <motion.div 
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="glass-panel p-6 space-y-6"
-            >
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-500" />
-                <h2 className="text-xl font-semibold">Maps Configuration</h2>
-              </div>
-              <div className="space-y-4">
-                <label className="text-sm font-medium block">Mapbox Access Token</label>
-                <div className="flex gap-2">
-                  <Input 
-                    type="password" 
-                    placeholder="pk_..." 
-                    className="flex-1"
-                    onChange={(e) => {
-                      localStorage.setItem('temp_mapbox_key', e.target.value);
-                    }}
-                  />
-                  <Button 
-                    onClick={() => {
-                      const key = localStorage.getItem('temp_mapbox_key');
-                      if (key) {
-                        handleSaveAPIKey('mapbox_token', key);
-                        localStorage.removeItem('temp_mapbox_key');
-                      }
-                    }}
-                    disabled={loading}
-                  >
-                    Save
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          </TabsContent>
+            <TabsContent value="users" className="space-y-6">
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>Recent Users</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentUsers.map((user) => (
+                      <div key={user.id} className="flex items-center justify-between p-4 glass-card rounded-lg">
+                        <div className="space-y-1">
+                          <h4 className="font-semibold">{user.name}</h4>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                          <div className="flex items-center gap-4 text-sm">
+                            <span>Joined {new Date(user.joinDate).toLocaleDateString()}</span>
+                            <span>{user.eventsCreated} events created</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Badge variant={user.role === 'organizer' ? 'default' : 'secondary'}>
+                            {user.role}
+                          </Badge>
+                          <div className="flex gap-1">
+                            <Button size="icon" variant="ghost">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="notifications">
-            <motion.div 
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="glass-panel p-6 space-y-6"
-            >
-              <div className="flex items-center gap-2">
-                <Mail className="w-5 h-5 text-green-500" />
-                <h2 className="text-xl font-semibold">Email Configuration</h2>
-              </div>
-              <div className="space-y-4">
-                <label className="text-sm font-medium block">SendGrid API Key</label>
-                <div className="flex gap-2">
-                  <Input 
-                    type="password" 
-                    placeholder="SG..." 
-                    className="flex-1"
-                    onChange={(e) => {
-                      localStorage.setItem('temp_sendgrid_key', e.target.value);
-                    }}
-                  />
-                  <Button 
-                    onClick={() => {
-                      const key = localStorage.getItem('temp_sendgrid_key');
-                      if (key) {
-                        handleSaveAPIKey('sendgrid_key', key);
-                        localStorage.removeItem('temp_sendgrid_key');
-                      }
-                    }}
-                    disabled={loading}
-                  >
-                    Save
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          </TabsContent>
+            <TabsContent value="analytics" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="glass-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5" />
+                      User Growth
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">Analytics charts would be implemented here</p>
+                      <p className="text-sm text-muted-foreground mt-2">Integration with charts library needed</p>
+                    </div>
+                  </CardContent>
+                </Card>
 
-          <TabsContent value="settings">
-            <motion.div 
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="glass-panel p-6 space-y-6"
-            >
-              <div className="flex items-center gap-2">
-                <Settings className="w-5 h-5 text-purple-500" />
-                <h2 className="text-xl font-semibold">General Settings</h2>
+                <Card className="glass-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      Event Statistics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">Event performance metrics</p>
+                      <p className="text-sm text-muted-foreground mt-2">Real-time data visualization</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium block mb-2">Default Location</label>
-                  <Input placeholder="Enter default location" />
-                </div>
-                <Button onClick={() => {
-                  toast({
-                    title: "Coming Soon",
-                    description: "This feature is currently under development.",
-                  });
-                }} className="w-full sm:w-auto">
-                  Save Settings
-                </Button>
-              </div>
-            </motion.div>
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
 
-        <div className="mt-8 text-center text-sm text-muted-foreground">
-          <p>Need help? Check out our <a href="#" className="text-primary hover:underline">documentation</a> or contact support.</p>
-        </div>
-      </motion.div>
-    </div>
+            <TabsContent value="settings" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="glass-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="h-5 w-5" />
+                      Platform Settings
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Site Name</label>
+                      <input 
+                        type="text" 
+                        defaultValue="SocialEventory" 
+                        className="w-full p-2 rounded glass-input"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Contact Email</label>
+                      <input 
+                        type="email" 
+                        defaultValue="admin@socialeventory.com" 
+                        className="w-full p-2 rounded glass-input"
+                      />
+                    </div>
+                    <Button className="gradient-primary">Save Settings</Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="glass-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5" />
+                      Security Settings
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Auto-approve events</label>
+                      <select className="w-full p-2 rounded glass-input">
+                        <option>Require manual approval</option>
+                        <option>Auto-approve verified organizers</option>
+                        <option>Auto-approve all events</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">User registration</label>
+                      <select className="w-full p-2 rounded glass-input">
+                        <option>Open registration</option>
+                        <option>Invite only</option>
+                        <option>Admin approval required</option>
+                      </select>
+                    </div>
+                    <Button className="gradient-primary">Update Security</Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+      </div>
+    </AppLayout>
   );
 };
 
