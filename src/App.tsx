@@ -8,6 +8,9 @@ import { ThemeProvider } from "next-themes";
 import { HelmetProvider } from "react-helmet-async";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { NotFoundRedirect } from "./components/NotFoundRedirect";
+import { ProductionLayout } from "./components/layout/ProductionLayout";
+import { OfflineBanner } from "./components/ui/offline-banner";
+import { useAnalytics } from "./hooks/useAnalytics";
 
 // Main Pages
 import Landing from "./pages/Landing";
@@ -30,82 +33,106 @@ import Organizers from "./pages/Organizers";
 import NotificationsPage from "./pages/NotificationsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 
-// Create a client
+// Create a client with production-ready settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
       gcTime: 1000 * 60 * 60, // 1 hour
+      retry: (failureCount, error: any) => {
+        if (error?.status === 404) return false;
+        return failureCount < 3;
+      },
+      networkMode: "online",
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
       retry: 1,
       networkMode: "online",
     },
   },
 });
 
+const AppContent = () => {
+  useAnalytics();
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/events" element={<Index />} />
+      <Route path="/event/:id" element={<EventDetails />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/search" element={<SearchPage />} />
+      <Route path="/search/:query" element={<Search />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/nearby" element={<Nearby />} />
+      <Route path="/organizer/:id" element={<OrganizerProfile />} />
+      <Route path="/organizers" element={<Organizers />} />
+
+      {/* Protected Routes */}
+      <Route 
+        path="/profile" 
+        element={<ProtectedRoute><Profile /></ProtectedRoute>} 
+      />
+      <Route 
+        path="/profile/edit" 
+        element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} 
+      />
+      <Route 
+        path="/create-event" 
+        element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} 
+      />
+      <Route 
+        path="/settings" 
+        element={<ProtectedRoute><Settings /></ProtectedRoute>} 
+      />
+      <Route 
+        path="/notifications" 
+        element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} 
+      />
+      <Route 
+        path="/admin" 
+        element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>} 
+      />
+
+      {/* 404 Handling */}
+      <Route path="/404" element={<NotFound />} />
+      <Route path="*" element={
+        <>
+          <NotFoundRedirect />
+          <NotFound />
+        </>
+      } />
+    </Routes>
+  );
+};
+
 export default function App() {
   return (
-    <HelmetProvider>
-      <ThemeProvider attribute="class">
-        <TooltipProvider>
-          <QueryClientProvider client={queryClient}>
-            <Router>
-              <AuthProvider>
-                <Routes>
-                  {/* Public Routes */}
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/events" element={<Index />} />
-                  <Route path="/event/:id" element={<EventDetails />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/search" element={<SearchPage />} />
-                  <Route path="/search/:query" element={<Search />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:slug" element={<BlogPost />} />
-                  <Route path="/nearby" element={<Nearby />} />
-                  <Route path="/organizer/:id" element={<OrganizerProfile />} />
-                  <Route path="/organizers" element={<Organizers />} />
-
-                  {/* Protected Routes */}
-                  <Route 
-                    path="/profile" 
-                    element={<ProtectedRoute><Profile /></ProtectedRoute>} 
+    <ProductionLayout>
+      <HelmetProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark">
+          <TooltipProvider>
+            <QueryClientProvider client={queryClient}>
+              <Router>
+                <AuthProvider>
+                  <OfflineBanner />
+                  <AppContent />
+                  <Toaster 
+                    position="top-right" 
+                    closeButton 
+                    duration={4000}
+                    richColors
                   />
-                  <Route 
-                    path="/profile/edit" 
-                    element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} 
-                  />
-                  <Route 
-                    path="/create-event" 
-                    element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} 
-                  />
-                  <Route 
-                    path="/settings" 
-                    element={<ProtectedRoute><Settings /></ProtectedRoute>} 
-                  />
-                  <Route 
-                    path="/notifications" 
-                    element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} 
-                  />
-                  <Route 
-                    path="/admin" 
-                    element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>} 
-                  />
-
-                  {/* 404 Handling */}
-                  <Route path="/404" element={<NotFound />} />
-                  <Route path="*" element={
-                    <>
-                      <NotFoundRedirect />
-                      <NotFound />
-                    </>
-                  } />
-                </Routes>
-              </AuthProvider>
-            </Router>
-            <Toaster position="top-right" closeButton />
-          </QueryClientProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-    </HelmetProvider>
+                </AuthProvider>
+              </Router>
+            </QueryClientProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+      </HelmetProvider>
+    </ProductionLayout>
   );
 }

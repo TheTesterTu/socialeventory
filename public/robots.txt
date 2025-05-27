@@ -1,0 +1,21 @@
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://socialeventory.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
+
+# Disallow admin paths
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+
+# Allow important paths
+Allow: /events
+Allow: /search
+Allow: /nearby
+Allow: /blog
+Allow: /organizers

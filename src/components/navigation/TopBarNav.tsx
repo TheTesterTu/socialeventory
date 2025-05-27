@@ -39,7 +39,11 @@ export const TopBarNav = () => {
     return location.pathname.startsWith(path);
   };
 
-  const showCreateButton = user && (location.pathname === "/events" || location.pathname === "/");
+  const showCreateButton = user && (
+    location.pathname === "/events" || 
+    location.pathname === "/" ||
+    location.pathname === "/profile"
+  );
 
   return (
     <NavigationMenu className="ml-4">
@@ -53,7 +57,7 @@ export const TopBarNav = () => {
                 <Button 
                   variant={active ? "secondary" : "ghost"}
                   className={cn(
-                    "rounded-lg transition-all duration-200",
+                    "rounded-lg transition-all duration-200 font-medium",
                     active 
                       ? 'bg-primary/10 text-primary hover:bg-primary/20' 
                       : 'hover:bg-primary/5 hover:text-primary'
@@ -71,7 +75,7 @@ export const TopBarNav = () => {
             <Link to="/create-event">
               <Button 
                 variant={location.pathname === "/create-event" ? "secondary" : "default"}
-                className="rounded-lg gap-1 ml-2 gradient-primary"
+                className="rounded-lg gap-1 ml-2 gradient-primary font-medium"
                 size="sm"
               >
                 <PlusCircle className="h-4 w-4" />
