@@ -34,11 +34,11 @@ const Index = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="px-3 sm:px-6 md:px-8 max-w-7xl mx-auto"
+        className="relative"
       >
         <HomeHero />
         
-        <div className="space-y-8 pb-16">
+        <div className="px-3 sm:px-6 md:px-8 max-w-7xl mx-auto space-y-6 md:space-y-8 pb-16">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -49,7 +49,7 @@ const Index = () => {
 
           {user && (
             <>
-              <Separator className="my-4 opacity-30 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+              <Separator className="my-4 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
               
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -61,7 +61,7 @@ const Index = () => {
             </>
           )}
 
-          <Separator className="my-4 opacity-30 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <Separator className="my-4 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -71,7 +71,7 @@ const Index = () => {
             <FeaturedCreators />
           </motion.div>
           
-          <Separator className="my-4 opacity-30 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <Separator className="my-4 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -88,7 +88,7 @@ const Index = () => {
             </div>
           </motion.div>
 
-          <Separator className="my-4 opacity-30 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <Separator className="my-4 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -109,7 +109,7 @@ const Index = () => {
               </PopoverTrigger>
               <PopoverContent align="end" className="w-72 p-3 border-primary/20">
                 <div className="space-y-2">
-                  <h3 className="font-medium text-base bg-gradient-primary bg-clip-text text-transparent">
+                  <h3 className="font-medium text-base bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                     Welcome to SocialEventory!
                   </h3>
                   <p className="text-xs text-muted-foreground">
@@ -119,7 +119,7 @@ const Index = () => {
                     <ul className="space-y-1 text-xs">
                       <li className="flex gap-1.5">
                         <span className="text-primary">•</span>
-                        <span>Click on any event card to see details</span>
+                        <span>Tap any event card to see details</span>
                       </li>
                       <li className="flex gap-1.5">
                         <span className="text-primary">•</span>
@@ -127,7 +127,7 @@ const Index = () => {
                       </li>
                       <li className="flex gap-1.5">
                         <span className="text-primary">•</span>
-                        <span>Create your own events with the + button</span>
+                        <span>Create your own events easily</span>
                       </li>
                     </ul>
                   </div>

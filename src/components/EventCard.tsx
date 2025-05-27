@@ -42,7 +42,7 @@ export const EventCard = ({
 
   return (
     <motion.div 
-      className="event-card relative h-[280px] overflow-hidden rounded-xl group cursor-pointer"
+      className="event-card relative h-full overflow-hidden rounded-xl group cursor-pointer border border-border/50"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={() => navigate(`/event/${id}`)}
@@ -54,19 +54,19 @@ export const EventCard = ({
           alt={title}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/80" />
       </div>
 
       {/* Content */}
-      <div className="relative h-full p-4 flex flex-col justify-between text-white">
+      <div className="relative h-full p-3 md:p-4 flex flex-col justify-between text-white">
         <div className="space-y-2">
-          <div className="flex justify-between items-start">
-            <div className="space-y-1">
+          <div className="flex justify-between items-start gap-2">
+            <div className="space-y-1 flex-1">
               {category.slice(0, 2).map((cat) => (
                 <Badge 
                   key={cat}
                   variant="secondary" 
-                  className="mr-1 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white"
+                  className="mr-1 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-xs"
                 >
                   {cat}
                 </Badge>
@@ -74,24 +74,24 @@ export const EventCard = ({
             </div>
             <EventVerificationBadge status={verification.status} />
           </div>
-          <h3 className="text-xl font-bold line-clamp-2 mt-2">{title}</h3>
+          <h3 className="text-lg md:text-xl font-bold line-clamp-2">{title}</h3>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex flex-col gap-1.5 text-sm text-white/90">
             <div className="flex items-center gap-1.5">
-              <MapPin className="h-4 w-4" />
+              <MapPin className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{location.venue_name || location.address}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Users className="h-4 w-4" />
+              <Users className="h-4 w-4 flex-shrink-0" />
               <span>{attendees} attending</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm font-medium">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium truncate">
                 {format(new Date(startDate), "MMM d, h:mm a")}
               </div>
               <div className="text-sm text-white/80">
@@ -99,11 +99,11 @@ export const EventCard = ({
               </div>
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-1.5 flex-shrink-0">
               <Button
                 size="sm"
                 variant="ghost"
-                className={`rounded-full hover:bg-white/10 ${isLiked ? 'text-red-500' : 'text-white/90'}`}
+                className={`rounded-full hover:bg-white/10 h-8 w-8 p-0 ${isLiked ? 'text-red-500' : 'text-white/90'}`}
                 onClick={handleLike}
               >
                 <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
@@ -111,11 +111,11 @@ export const EventCard = ({
               
               <Button 
                 size="sm" 
-                className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm gap-1"
+                className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm gap-1 text-xs px-2 h-8"
                 onClick={handleTicketClick}
               >
-                <Ticket className="h-4 w-4" />
-                Get Tickets
+                <Ticket className="h-3 w-3" />
+                <span className="hidden sm:inline">Tickets</span>
               </Button>
             </div>
           </div>
