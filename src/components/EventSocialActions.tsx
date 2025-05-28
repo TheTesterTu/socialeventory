@@ -1,195 +1,151 @@
 
-import { useState } from "react";
-import { Heart, Share2, MessageSquare, Users } from "lucide-react";
-import { Button } from "./ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState, useEffect } from "react";
+import { Heart, MessageCircle, Share2, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
-import { useEventInteractions } from "@/hooks/useEventInteractions";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { motion } from "framer-motion";
+import { useEventInteraction } from "@/hooks/useEvents";
+import { ProtectedEventAction } from "./ProtectedEventAction";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EventSocialActionsProps {
   eventId: string;
-  likes?: number;
-  comments?: number;
-  attendees?: number;
-  className?: string;
+  likes: number;
+  comments: number;
+  attendees: number;
   compact?: boolean;
 }
 
-export const EventSocialActions = ({ 
-  eventId, 
-  likes = 0, 
-  comments = 0,
-  attendees = 0,
-  className = "",
+export const EventSocialActions = ({
+  eventId,
+  likes: initialLikes,
+  comments,
+  attendees: initialAttendees,
   compact = false
 }: EventSocialActionsProps) => {
-  const [commentsCount, setCommentsCount] = useState(comments);
   const { user } = useAuth();
-  const navigate = useNavigate();
-  
-  const {
-    isLiked,
-    likesCount,
-    isAttending,
-    attendeesCount,
-    handleLike,
-    handleAttendance
-  } = useEventInteractions(eventId);
+  const { likeEvent, attendEvent } = useEventInteraction();
+  const [isLiked, setIsLiked] = useState(false);
+  const [isAttending, setIsAttending] = useState(false);
+  const [currentLikes, setCurrentLikes] = useState(initialLikes);
+  const [currentAttendees, setCurrentAttendees] = useState(initialAttendees);
 
-  const handleComment = () => {
-    // Navigate to event details page focused on comment section
-    navigate(`/event/${eventId}#comments`);
-  };
+  // Check if user has liked/is attending this event
+  useEffect(() => {
+    if (!user) return;
 
-  const handleShare = async () => {
-    try {
-      const shareUrl = `${window.location.origin}/event/${eventId}`;
-      
-      if (navigator.share) {
-        await navigator.share({
-          title: "Check out this event",
-          text: "I found this interesting event on SocialEventory!",
-          url: shareUrl
-        });
-        toast.success("Event shared successfully");
-      } else {
-        // Fallback for browsers that don't support Web Share API
-        navigator.clipboard.writeText(shareUrl);
-        toast.success("Link copied to clipboard");
+    const checkUserInteractions = async () => {
+      try {
+        // Check if user liked the event
+        const { data: likeData } = await supabase
+          .from('event_likes')
+          .select('id')
+          .eq('event_id', eventId)
+          .eq('user_id', user.id)
+          .single();
+
+        setIsLiked(!!likeData);
+
+        // Check if user is attending the event
+        const { data: attendeeData } = await supabase
+          .from('event_attendees')
+          .select('id')
+          .eq('event_id', eventId)
+          .eq('user_id', user.id)
+          .single();
+
+        setIsAttending(!!attendeeData);
+      } catch (error) {
+        // Ignore errors (user hasn't liked/attended)
       }
+    };
+
+    checkUserInteractions();
+  }, [user, eventId]);
+
+  const handleLike = async () => {
+    try {
+      const result = await likeEvent.mutateAsync(eventId);
+      setIsLiked(result === 'liked');
+      setCurrentLikes(prev => result === 'liked' ? prev + 1 : prev - 1);
+      toast(result === 'liked' ? "Added to favorites!" : "Removed from favorites");
     } catch (error) {
-      console.error("Sharing failed:", error);
-      toast.error("Sharing failed");
+      toast.error("Failed to update like status");
     }
   };
 
-  // Animation variants
-  const buttonVariants = {
-    tap: { scale: 0.95 },
-    hover: { scale: 1.05 }
-  };
-  
-  const renderButtons = () => {
-    if (compact) {
-      return (
-        <>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "rounded-full p-2 h-9 w-9",
-                    isLiked && "text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                  )}
-                  onClick={handleLike}
-                >
-                  <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
-                </Button>
-              </motion.div>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>{isLiked ? "Unlike" : "Like"} ({likesCount})</p>
-            </TooltipContent>
-          </Tooltip>
-          
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="rounded-full p-2 h-9 w-9"
-                  onClick={handleComment}
-                >
-                  <MessageSquare className="h-4 w-4" />
-                </Button>
-              </motion.div>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Comments ({commentsCount})</p>
-            </TooltipContent>
-          </Tooltip>
-        </>
-      );
+  const handleAttend = async () => {
+    try {
+      const result = await attendEvent.mutateAsync(eventId);
+      setIsAttending(result === 'joined');
+      setCurrentAttendees(prev => result === 'joined' ? prev + 1 : prev - 1);
+      toast(result === 'joined' ? "You're attending!" : "No longer attending");
+    } catch (error) {
+      toast.error("Failed to update attendance");
     }
-    
-    return (
-      <>
-        <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "rounded-full transition-colors gap-1.5",
-              isLiked && "text-red-500 hover:text-red-600 hover:bg-red-500/10"
-            )}
-            onClick={handleLike}
-          >
-            <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
-            <span>{likesCount}</span>
-          </Button>
-        </motion.div>
-        
-        <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="rounded-full gap-1.5"
-            onClick={handleComment}
-          >
-            <MessageSquare className="h-4 w-4" />
-            <span>{commentsCount}</span>
-          </Button>
-        </motion.div>
-        
-        <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "rounded-full transition-colors gap-1.5",
-              isAttending && "text-primary hover:text-primary/80"
-            )}
-            onClick={handleAttendance}
-          >
-            <Users className="h-4 w-4" />
-            <span>{attendeesCount}</span>
-          </Button>
-        </motion.div>
-      </>
-    );
   };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Check out this event!',
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast("Link copied to clipboard!");
+    }
+  };
+
+  const buttonSize = compact ? "sm" : "default";
+  const iconSize = compact ? "h-4 w-4" : "h-5 w-5";
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      {renderButtons()}
-      
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <motion.div whileTap="tap" whileHover="hover" variants={buttonVariants} className="ml-auto">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                compact ? "rounded-full p-2 h-9 w-9" : "rounded-full gap-1.5"
-              )}
-              onClick={handleShare}
-            >
-              <Share2 className="h-4 w-4" />
-              {!compact && <span>Share</span>}
-            </Button>
-          </motion.div>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">
-          <p>Share event</p>
-        </TooltipContent>
-      </Tooltip>
+    <div className={`flex items-center ${compact ? 'gap-1' : 'gap-2'}`}>
+      <ProtectedEventAction>
+        <Button
+          variant="ghost"
+          size={buttonSize}
+          onClick={handleLike}
+          className={`gap-1 ${isLiked ? 'text-red-500 hover:text-red-600' : 'hover:text-red-500'}`}
+          disabled={likeEvent.isPending}
+        >
+          <Heart className={`${iconSize} ${isLiked ? 'fill-current' : ''}`} />
+          {!compact && <span>{currentLikes}</span>}
+        </Button>
+      </ProtectedEventAction>
+
+      <ProtectedEventAction>
+        <Button
+          variant="ghost"
+          size={buttonSize}
+          onClick={handleAttend}
+          className={`gap-1 ${isAttending ? 'text-green-500 hover:text-green-600' : 'hover:text-green-500'}`}
+          disabled={attendEvent.isPending}
+        >
+          <Calendar className={`${iconSize} ${isAttending ? 'fill-current' : ''}`} />
+          {!compact && <span>{currentAttendees}</span>}
+        </Button>
+      </ProtectedEventAction>
+
+      <Button
+        variant="ghost"
+        size={buttonSize}
+        className="gap-1 hover:text-blue-500"
+      >
+        <MessageCircle className={iconSize} />
+        {!compact && <span>{comments}</span>}
+      </Button>
+
+      <Button
+        variant="ghost"
+        size={buttonSize}
+        onClick={handleShare}
+        className="gap-1 hover:text-purple-500"
+      >
+        <Share2 className={iconSize} />
+        {!compact && <span>Share</span>}
+      </Button>
     </div>
   );
 };

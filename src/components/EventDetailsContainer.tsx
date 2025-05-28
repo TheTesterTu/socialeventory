@@ -3,7 +3,7 @@ import { Event } from "@/lib/types";
 import { EventHeader } from "./EventHeader";
 import { EventMetadata } from "./EventMetadata";
 import { EventSocialActions } from "./EventSocialActions";
-import { EventComments } from "./EventComments";
+import { EventCommunity } from "./EventCommunity";
 import { Tag, Ticket, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -42,69 +42,71 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
         <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
       </div>
 
-      <div className="space-y-6">
-        <EventHeader 
-          title={event.title}
-          startDate={event.startDate}
-          endDate={event.endDate}
-          location={event.location}
-          category={event.category}
-        />
+      <div className="grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <EventHeader 
+            title={event.title}
+            startDate={event.startDate}
+            endDate={event.endDate}
+            location={event.location}
+            category={event.category}
+          />
 
-        <div className="prose prose-invert max-w-none">
-          <p>{event.description}</p>
-        </div>
+          <div className="prose prose-invert max-w-none">
+            <p>{event.description}</p>
+          </div>
 
-        <div className="flex flex-wrap gap-4">
-          {event.tags.map((tag) => (
-            <span key={tag} className="text-sm text-muted-foreground flex items-center gap-1 hover:text-primary transition-colors">
-              <Tag className="h-3 w-3" />
-              {tag}
-            </span>
-          ))}
-        </div>
+          <div className="flex flex-wrap gap-4">
+            {event.tags.map((tag) => (
+              <span key={tag} className="text-sm text-muted-foreground flex items-center gap-1 hover:text-primary transition-colors">
+                <Tag className="h-3 w-3" />
+                {tag}
+              </span>
+            ))}
+          </div>
 
-        <div className="border-t border-border pt-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <EventMetadata 
-              startDate={event.startDate}
-              endDate={event.endDate}
-              location={event.location}
-              tags={event.tags}
-              attendees={event.attendees}
-              pricing={event.pricing}
-            />
-            <div className="flex flex-col sm:flex-row gap-2">
-              <EventSocialActions 
-                eventId={event.id} 
-                likes={event.likes} 
-                comments={0}
+          <div className="border-t border-border pt-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <EventMetadata 
+                startDate={event.startDate}
+                endDate={event.endDate}
+                location={event.location}
+                tags={event.tags}
                 attendees={event.attendees}
+                pricing={event.pricing}
               />
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline"
-                  className="gap-2"
-                  onClick={handleShowOnMap}
-                >
-                  <MapPin className="h-4 w-4" />
-                  Show on Map
-                </Button>
-                <Button 
-                  className="gap-2 font-medium"
-                  onClick={handleGetTickets}
-                >
-                  <Ticket className="h-4 w-4" />
-                  Get Tickets
-                </Button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <EventSocialActions 
+                  eventId={event.id} 
+                  likes={event.likes} 
+                  comments={0}
+                  attendees={event.attendees}
+                />
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    className="gap-2"
+                    onClick={handleShowOnMap}
+                  >
+                    <MapPin className="h-4 w-4" />
+                    Show on Map
+                  </Button>
+                  <Button 
+                    className="gap-2 font-medium"
+                    onClick={handleGetTickets}
+                  >
+                    <Ticket className="h-4 w-4" />
+                    Get Tickets
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="pt-8">
-          <h2 className="text-2xl font-semibold mb-6">Comments</h2>
-          <EventComments eventId={event.id} />
+        {/* Community Chat Sidebar */}
+        <div className="lg:col-span-1">
+          <EventCommunity eventId={event.id} />
         </div>
       </div>
     </motion.div>
