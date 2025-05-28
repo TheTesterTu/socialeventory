@@ -48,24 +48,28 @@ export const useCreateEvent = () => {
     mutationFn: async (eventData: Partial<Event>) => {
       if (!user) throw new Error("Must be logged in to create events");
 
+      // Map the Event interface fields to database column names
+      const dbEventData = {
+        title: eventData.title,
+        description: eventData.description,
+        location: eventData.location?.address,
+        venue_name: eventData.location?.venue_name,
+        start_date: eventData.startDate,
+        end_date: eventData.endDate,
+        category: eventData.category,
+        tags: eventData.tags,
+        image_url: eventData.imageUrl,
+        created_by: user.id,
+        coordinates: eventData.location?.coordinates ? 
+          `(${eventData.location.coordinates[0]}, ${eventData.location.coordinates[1]})` : null,
+        accessibility: eventData.accessibility,
+        pricing: eventData.pricing,
+        verification_status: 'pending'
+      };
+
       const { data, error } = await supabase
         .from('events')
-        .insert({
-          title: eventData.title,
-          description: eventData.description,
-          location: eventData.location?.address,
-          venue_name: eventData.location?.venue_name,
-          start_date: eventData.startDate,
-          end_date: eventData.endDate,
-          category: eventData.category,
-          tags: eventData.tags,
-          image_url: eventData.imageUrl,
-          created_by: user.id,
-          coordinates: eventData.location?.coordinates ? 
-            `(${eventData.location.coordinates[0]}, ${eventData.location.coordinates[1]})` : null,
-          accessibility: eventData.accessibility,
-          pricing: eventData.pricing,
-        })
+        .insert(dbEventData)
         .select()
         .single();
 
