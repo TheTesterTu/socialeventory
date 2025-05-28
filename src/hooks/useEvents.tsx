@@ -48,7 +48,7 @@ export const useCreateEvent = () => {
     mutationFn: async (eventData: Partial<Event>) => {
       if (!user) throw new Error("Must be logged in to create events");
 
-      // Map the Event interface fields to database column names
+      // Map the Event interface fields to database column names with proper type casting
       const dbEventData = {
         title: eventData.title,
         description: eventData.description,
@@ -62,9 +62,9 @@ export const useCreateEvent = () => {
         created_by: user.id,
         coordinates: eventData.location?.coordinates ? 
           `(${eventData.location.coordinates[0]}, ${eventData.location.coordinates[1]})` : null,
-        accessibility: eventData.accessibility,
-        pricing: eventData.pricing,
-        verification_status: 'pending'
+        accessibility: eventData.accessibility as any, // Cast to Json type
+        pricing: eventData.pricing as any, // Cast to Json type
+        verification_status: 'pending' as const
       };
 
       const { data, error } = await supabase
