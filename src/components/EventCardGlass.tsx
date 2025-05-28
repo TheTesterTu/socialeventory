@@ -29,7 +29,7 @@ export const EventCardGlass = ({
       whileHover={{ scale: 1.02, y: -5 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        "glass-card overflow-hidden rounded-xl hover:shadow-xl transition-all duration-300 group bg-card/80 backdrop-blur-xl border border-border/50",
+        "glass-card overflow-hidden rounded-xl hover:shadow-xl transition-all duration-300 group bg-card/80 backdrop-blur-xl border border-border/50 mb-4 sm:mb-6",
         className
       )}
     >

@@ -20,14 +20,14 @@ export const HomeHero = () => {
 
   return (
     <div className="relative overflow-hidden min-h-[85vh] flex items-center">
-      {/* Epic background image */}
+      {/* Abstract geometric pattern background */}
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
-          alt="Events background"
+          src="https://images.unsplash.com/photo-1557682250-33bd709cbe85?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+          alt="Abstract geometric pattern"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-black/70 to-black/80" />
       </div>
       
       <div className="relative z-10 container mx-auto px-4 py-12">
@@ -78,7 +78,7 @@ export const HomeHero = () => {
             </div>
           </motion.div>
 
-          {/* Action buttons */}
+          {/* Action buttons with proper contrast */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -98,7 +98,7 @@ export const HomeHero = () => {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-white/50 bg-black/30 hover:bg-black/50 text-white backdrop-blur-xl px-8 py-3 h-auto font-medium rounded-xl w-full sm:w-auto shadow-lg"
+                className="border-white/50 bg-black/50 hover:bg-black/70 text-white backdrop-blur-xl px-8 py-3 h-auto font-medium rounded-xl w-full sm:w-auto shadow-lg hover:border-white/70"
               >
                 <Search className="mr-2 h-5 w-5" />
                 Explore All
