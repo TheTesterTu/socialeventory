@@ -1,12 +1,46 @@
 
 import { motion } from "framer-motion";
 import { EventCard } from "@/components/EventCard";
-import { TrendingUp, Sparkles, Loader2 } from "lucide-react";
-import { useFeaturedEvents, useEvents } from "@/hooks/useEvents";
+import { TrendingUp, Sparkles } from "lucide-react";
+import { useOptimizedEvents } from "@/hooks/useOptimizedEvents";
+import { PageLoader } from "@/components/loading/PageLoader";
+import { ErrorFallback } from "@/components/error/ErrorFallback";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { memo } from "react";
 
-export const FeaturedEvents = () => {
-  const { data: featuredEvents, isLoading: featuredLoading } = useFeaturedEvents();
-  const { data: allEvents, isLoading: allLoading } = useEvents();
+const FeaturedEventsContent = memo(() => {
+  const { 
+    events: featuredEvents, 
+    isLoading: featuredLoading, 
+    error: featuredError,
+    refetch: refetchFeatured 
+  } = useOptimizedEvents({ featured: true, limit: 2 });
+  
+  const { 
+    events: allEvents, 
+    isLoading: allLoading, 
+    error: allError,
+    refetch: refetchAll 
+  } = useOptimizedEvents({ limit: 4 });
+
+  const isLoading = featuredLoading || allLoading;
+  const error = featuredError || allError;
+
+  if (error) {
+    return (
+      <ErrorFallback 
+        error={error as Error} 
+        resetError={() => {
+          refetchFeatured();
+          refetchAll();
+        }}
+      />
+    );
+  }
+
+  if (isLoading) {
+    return <PageLoader message="Loading featured events..." />;
+  }
 
   // Fallback to recent events if no featured events
   const trendingEvents = featuredEvents?.length ? 
@@ -14,17 +48,6 @@ export const FeaturedEvents = () => {
     allEvents?.slice(0, 2) || [];
   
   const newEvents = allEvents?.slice(2, 4) || [];
-  const isLoading = featuredLoading || allLoading;
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -80,5 +103,15 @@ export const FeaturedEvents = () => {
         </motion.section>
       )}
     </div>
+  );
+});
+
+FeaturedEventsContent.displayName = "FeaturedEventsContent";
+
+export const FeaturedEvents = () => {
+  return (
+    <ErrorBoundary>
+      <FeaturedEventsContent />
+    </ErrorBoundary>
   );
 };

@@ -5,17 +5,21 @@ import { ArrowLeft } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Event, AccessibilityInfo, Pricing } from "@/lib/types";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { EventDetailsSkeleton } from "@/components/EventDetailsSkeleton";
 import { EventDetailsContainer } from "@/components/EventDetailsContainer";
-import { getEventById } from "@/lib/mock-data"; // Import the mock data function
+import { getEventById } from "@/lib/mock-data";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { StructuredData } from "@/components/seo/StructuredData";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [event, setEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  const { handleError } = useErrorHandler();
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -46,10 +50,8 @@ const EventDetails = () => {
           const mockEvent = getEventById(id);
           
           if (!mockEvent) {
-            toast({
-              title: "Event not found",
-              description: "The event you're looking for doesn't exist or has been removed.",
-              variant: "destructive"
+            toast.error("Event not found", {
+              description: "The event you're looking for doesn't exist or has been removed."
             });
             navigate('/');
             return;
@@ -70,7 +72,6 @@ const EventDetails = () => {
           familyFriendly: Boolean(rawAccessibility?.familyFriendly)
         };
 
-        // Type assertion with validation for pricing
         const rawPricing = data.pricing as Record<string, unknown>;
         const pricing: Pricing = {
           isFree: Boolean(rawPricing?.isFree),
@@ -108,12 +109,7 @@ const EventDetails = () => {
         };
         setEvent(formattedEvent);
       } catch (error) {
-        console.error('Error fetching event:', error);
-        toast({
-          title: "Error",
-          description: error instanceof Error ? error.message : "Failed to load event details. Please try again later.",
-          variant: "destructive"
-        });
+        handleError(error as Error, 'Event Details Fetch');
         navigate('/');
       } finally {
         setIsLoading(false);
@@ -123,7 +119,7 @@ const EventDetails = () => {
     if (id) {
       fetchEvent();
     }
-  }, [id]);
+  }, [id, navigate, handleError]);
 
   if (isLoading) {
     return <EventDetailsSkeleton />;
@@ -142,19 +138,30 @@ const EventDetails = () => {
   }
 
   return (
-    <div className="min-h-screen p-6 max-w-screen-2xl mx-auto">
-      <Button 
-        onClick={() => navigate(-1)} 
-        variant="outline" 
-        size="lg" 
-        className="mb-4 gap-2 hover:scale-105 transition-transform"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Events
-      </Button>
+    <ErrorBoundary>
+      <SEOHead 
+        title={`${event.title} | SocialEventory`}
+        description={event.description}
+        image={event.imageUrl}
+        type="article"
+      />
       
-      <EventDetailsContainer event={event} />
-    </div>
+      <StructuredData type="Event" data={event} />
+      
+      <div className="min-h-screen p-6 max-w-screen-2xl mx-auto">
+        <Button 
+          onClick={() => navigate(-1)} 
+          variant="outline" 
+          size="lg" 
+          className="mb-4 gap-2 hover:scale-105 transition-transform"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Events
+        </Button>
+        
+        <EventDetailsContainer event={event} />
+      </div>
+    </ErrorBoundary>
   );
 };
 
