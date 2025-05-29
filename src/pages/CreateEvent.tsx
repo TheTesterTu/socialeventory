@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/navigation/BackButton";
@@ -10,7 +11,7 @@ import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { useCreateEvent } from "@/hooks/useEvents";
 import { Loader2 } from "lucide-react";
 import { EventBasicInfo } from "@/components/events/create/EventBasicInfo";
 import { EventDateTime } from "@/components/events/create/EventDateTime";
@@ -40,16 +41,14 @@ const formSchema = z.object({
   wheelchairAccessible: z.boolean().default(false),
   familyFriendly: z.boolean().default(true),
   coordinates: z.array(z.number()).length(2).optional(),
+  imageUrl: z.string().optional(),
 });
 
 const CreateEvent = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const createEventMutation = useCreateEvent();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,16 +67,9 @@ const CreateEvent = () => {
       wheelchairAccessible: false,
       familyFriendly: true,
       coordinates: undefined,
+      imageUrl: "",
     },
   });
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
 
   const handleLocationSelect = (
     address: string, 
@@ -103,87 +95,44 @@ const CreateEvent = () => {
     }
 
     try {
-      setIsSubmitting(true);
-      
-      // Upload image if provided
-      let image_url = null;
-      if (imageFile) {
-        setUploadingImage(true);
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-        const filePath = `event-images/${fileName}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('events')
-          .upload(filePath, imageFile);
-          
-        if (uploadError) {
-          throw new Error(`Error uploading image: ${uploadError.message}`);
-        }
-        
-        const { data: publicURL } = supabase.storage
-          .from('events')
-          .getPublicUrl(filePath);
-          
-        image_url = publicURL.publicUrl;
-        setUploadingImage(false);
-      }
-      
-      // Prepare event data
+      // Prepare event data according to Event interface
       const eventData = {
         title: values.title,
         description: values.description,
-        location: values.location,
-        venue_name: values.venue_name || null,
-        coordinates: values.coordinates ? 
-          `(${values.coordinates[0]}, ${values.coordinates[1]})` : 
-          null,
-        start_date: new Date(values.startDate).toISOString(),
-        end_date: new Date(values.endDate).toISOString(),
-        category: values.category,
-        created_by: user.id,
-        image_url: image_url,
-        pricing: {
-          isFree: values.isFree,
-          priceRange: values.isFree ? [0, 0] : [values.price || 0, values.price || 0],
-          currency: "USD"
+        location: {
+          address: values.location,
+          venue_name: values.venue_name || "",
+          coordinates: values.coordinates || [0, 0] as [number, number],
         },
+        startDate: new Date(values.startDate).toISOString(),
+        endDate: new Date(values.endDate).toISOString(),
+        category: values.category,
+        tags: [], // Default empty tags
+        imageUrl: values.imageUrl || "",
         accessibility: {
           wheelchairAccessible: values.wheelchairAccessible,
           familyFriendly: values.familyFriendly,
           languages: ["en"]
         },
-        verification_status: "pending"
+        pricing: {
+          isFree: values.isFree,
+          priceRange: values.isFree ? [0, 0] as [number, number] : [values.price || 0, values.price || 0] as [number, number],
+          currency: "USD"
+        }
       };
       
-      // Insert event to database
-      const { data, error } = await supabase
-        .from('events')
-        .insert(eventData)
-        .select('id')
-        .single();
-        
-      if (error) {
-        throw error;
-      }
+      await createEventMutation.mutateAsync(eventData);
       
       toast({
         title: "Event created successfully!",
         description: "Your event has been created and is pending review.",
       });
       
-      // Navigate to the new event page
-      navigate(`/event/${data.id}`);
+      // Navigate to events page
+      navigate("/events");
     } catch (error: any) {
       console.error("Error creating event:", error);
-      toast({
-        title: "Failed to create event",
-        description: error.message || "There was an error creating your event. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-      setUploadingImage(false);
+      // Error is already handled by the mutation
     }
   };
 
@@ -209,9 +158,6 @@ const CreateEvent = () => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <EventBasicInfo 
               form={form}
-              imageFile={imageFile}
-              imagePreview={imagePreview}
-              handleImageChange={handleImageChange}
               handleLocationSelect={handleLocationSelect}
             />
             
@@ -234,13 +180,13 @@ const CreateEvent = () => {
               </Button>
               <Button 
                 type="submit" 
-                disabled={isSubmitting || uploadingImage}
+                disabled={createEventMutation.isPending}
                 className="relative"
               >
-                {(isSubmitting || uploadingImage) && (
+                {createEventMutation.isPending && (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 )}
-                {isSubmitting ? "Creating..." : "Create Event"}
+                {createEventMutation.isPending ? "Creating..." : "Create Event"}
               </Button>
             </div>
           </form>

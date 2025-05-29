@@ -6,16 +6,18 @@ import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Loader2, Camera } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/shared/ImageUpload";
 
 const ProfileEdit = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar || "");
   const [formData, setFormData] = useState({
     fullName: user?.user_metadata?.name || "",
     username: user?.user_metadata?.username || "",
@@ -77,19 +79,26 @@ const ProfileEdit = () => {
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
                   <Avatar className="h-32 w-32 border-4 border-background shadow-md">
-                    <AvatarImage src={user?.user_metadata?.avatar || "https://i.pravatar.cc/150?img=12"} />
+                    <AvatarImage src={avatarUrl || "https://i.pravatar.cc/150?img=12"} />
                     <AvatarFallback className="text-4xl">
                       {user?.user_metadata?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="absolute bottom-0 right-0 rounded-full h-10 w-10 p-0"
-                  >
-                    <Camera className="h-5 w-5" />
-                  </Button>
                 </div>
+                
+                <div className="w-full max-w-sm">
+                  <Label className="text-sm font-medium mb-2 block">Profile Photo</Label>
+                  <ImageUpload
+                    onImageSelect={setAvatarUrl}
+                    currentImage={avatarUrl}
+                    placeholder="Upload profile photo"
+                    bucket="profiles"
+                    folder="avatars"
+                    aspectRatio="square"
+                    className="w-full"
+                  />
+                </div>
+                
                 <div className="text-center">
                   <h2 className="text-lg font-medium">{user?.user_metadata?.name || "User Profile"}</h2>
                   <p className="text-sm text-muted-foreground">{user?.email}</p>
