@@ -102,7 +102,9 @@ const CreateEvent = () => {
         location: {
           address: values.location,
           venue_name: values.venue_name || "",
-          coordinates: values.coordinates || [0, 0] as [number, number],
+          coordinates: values.coordinates ? 
+            [values.coordinates[0], values.coordinates[1]] as [number, number] : 
+            [0, 0] as [number, number],
         },
         startDate: new Date(values.startDate).toISOString(),
         endDate: new Date(values.endDate).toISOString(),

@@ -12,12 +12,12 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useNotifications, Notification } from "@/hooks/useNotifications";
 
-type NotificationType = "like" | "comment" | "event" | "follow" | "mention" | "all";
+type NotificationType = "info" | "success" | "warning" | "error" | "all";
 
 const NotificationsPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { notifications, unreadCount, isLoading, fetchNotifications, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useNotifications();
   const [activeTab, setActiveTab] = useState<NotificationType>("all");
 
   if (!user) {
@@ -29,12 +29,14 @@ const NotificationsPage = () => {
     // Mark as read
     markAsRead(notification.id);
     
-    // Navigate based on notification type
-    if (notification.eventId) {
-      navigate(`/event/${notification.eventId}`);
-    } else if (notification.userId) {
-      navigate(`/profile/${notification.userId}`);
+    // Navigate based on notification action URL
+    if (notification.action_url) {
+      window.location.href = notification.action_url;
     }
+  };
+
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
   };
 
   const filteredNotifications = activeTab === "all" 
@@ -43,11 +45,10 @@ const NotificationsPage = () => {
 
   const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
-      case "like": return <Heart className="h-4 w-4 text-red-500" />;
-      case "comment": return <MessageSquare className="h-4 w-4 text-blue-500" />;
-      case "event": return <Calendar className="h-4 w-4 text-green-500" />;
-      case "follow": return <Users className="h-4 w-4 text-purple-500" />;
-      case "mention": return <MessageSquare className="h-4 w-4 text-orange-500" />;
+      case "success": return <Heart className="h-4 w-4 text-green-500" />;
+      case "info": return <MessageSquare className="h-4 w-4 text-blue-500" />;
+      case "warning": return <Calendar className="h-4 w-4 text-yellow-500" />;
+      case "error": return <Users className="h-4 w-4 text-red-500" />;
       default: return <Bell className="h-4 w-4 text-gray-500" />;
     }
   };
@@ -72,18 +73,9 @@ const NotificationsPage = () => {
             </div>
             <div className="flex gap-2">
               <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={fetchNotifications} 
-                disabled={isLoading}
-              >
-                <RefreshCcw className={`h-4 w-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-              <Button 
                 variant="default" 
                 size="sm" 
-                onClick={markAllAsRead}
+                onClick={handleMarkAllAsRead}
                 disabled={unreadCount === 0}
               >
                 Mark all as read
@@ -92,13 +84,12 @@ const NotificationsPage = () => {
           </div>
 
           <Tabs defaultValue="all" onValueChange={(value) => setActiveTab(value as NotificationType)}>
-            <TabsList className="grid grid-cols-6 mb-4">
+            <TabsList className="grid grid-cols-5 mb-4">
               <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="like">Likes</TabsTrigger>
-              <TabsTrigger value="comment">Comments</TabsTrigger>
-              <TabsTrigger value="event">Events</TabsTrigger>
-              <TabsTrigger value="follow">Follows</TabsTrigger>
-              <TabsTrigger value="mention">Mentions</TabsTrigger>
+              <TabsTrigger value="info">Info</TabsTrigger>
+              <TabsTrigger value="success">Success</TabsTrigger>
+              <TabsTrigger value="warning">Warning</TabsTrigger>
+              <TabsTrigger value="error">Error</TabsTrigger>
             </TabsList>
 
             <TabsContent value={activeTab}>
@@ -115,7 +106,7 @@ const NotificationsPage = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className={`p-4 flex items-start gap-3 hover:bg-muted/50 transition-colors cursor-pointer ${
-                          !notification.read ? "bg-primary/5" : ""
+                          !notification.is_read ? "bg-primary/5" : ""
                         }`}
                         onClick={() => handleNotificationClick(notification)}
                       >
@@ -123,11 +114,11 @@ const NotificationsPage = () => {
                           {getNotificationIcon(notification.type)}
                         </div>
                         <div className="flex-1">
-                          <p className={`text-sm ${!notification.read ? "font-medium" : ""}`}>
+                          <p className={`text-sm ${!notification.is_read ? "font-medium" : ""}`}>
                             {notification.message}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {format(notification.timestamp, 'PPpp')}
+                            {format(new Date(notification.created_at), 'PPpp')}
                           </p>
                         </div>
                       </motion.div>

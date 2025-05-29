@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-interface Notification {
+export interface Notification {
   id: string;
   title: string;
   message: string;
@@ -13,6 +13,7 @@ interface Notification {
   is_read: boolean;
   action_url?: string;
   created_at: string;
+  user_id: string;
 }
 
 export const useNotifications = () => {

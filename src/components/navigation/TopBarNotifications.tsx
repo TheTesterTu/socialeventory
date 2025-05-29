@@ -12,13 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useNotifications, Notification } from "@/hooks/useNotifications";
 
-type NotificationType = "like" | "comment" | "event" | "follow" | "mention";
+type NotificationType = "info" | "success" | "warning" | "error";
 
 export const TopBarNotifications = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
@@ -30,22 +29,23 @@ export const TopBarNotifications = () => {
     markAsRead(notification.id);
     
     // Navigate based on notification type
-    if (notification.eventId) {
-      navigate(`/event/${notification.eventId}`);
-    } else if (notification.userId) {
-      navigate(`/profile/${notification.userId}`);
+    if (notification.action_url) {
+      window.location.href = notification.action_url;
     } else {
       navigate('/notifications');
     }
   };
 
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
+  };
+
   const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
-      case "like": return <Heart className="h-4 w-4 text-red-500" />;
-      case "comment": return <MessageSquare className="h-4 w-4 text-blue-500" />;
-      case "event": return <Calendar className="h-4 w-4 text-green-500" />;
-      case "follow": return <Users className="h-4 w-4 text-purple-500" />;
-      case "mention": return <MessageSquare className="h-4 w-4 text-orange-500" />;
+      case "success": return <Heart className="h-4 w-4 text-green-500" />;
+      case "info": return <MessageSquare className="h-4 w-4 text-blue-500" />;
+      case "warning": return <Calendar className="h-4 w-4 text-yellow-500" />;
+      case "error": return <Users className="h-4 w-4 text-red-500" />;
       default: return <Bell className="h-4 w-4 text-gray-500" />;
     }
   };
@@ -73,7 +73,7 @@ export const TopBarNotifications = () => {
             variant="ghost" 
             size="sm" 
             className="h-8 px-2 text-xs"
-            onClick={markAllAsRead}
+            onClick={handleMarkAllAsRead}
           >
             Mark all as read
           </Button>
@@ -86,26 +86,22 @@ export const TopBarNotifications = () => {
                 key={notification.id} 
                 className={cn(
                   "p-3 cursor-pointer",
-                  !notification.read && "bg-muted/50"
+                  !notification.is_read && "bg-muted/50"
                 )}
                 onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex gap-3 items-start">
                   <Avatar className="h-8 w-8">
-                    {notification.avatarUrl ? (
-                      <AvatarImage src={notification.avatarUrl} />
-                    ) : (
-                      <AvatarFallback className="bg-primary/10">
-                        {getNotificationIcon(notification.type)}
-                      </AvatarFallback>
-                    )}
+                    <AvatarFallback className="bg-primary/10">
+                      {getNotificationIcon(notification.type)}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="space-y-1">
                     <p className="text-sm font-medium leading-none">
                       {notification.message}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {format(notification.timestamp, 'Pp')}
+                      {format(new Date(notification.created_at), 'Pp')}
                     </p>
                   </div>
                 </div>
