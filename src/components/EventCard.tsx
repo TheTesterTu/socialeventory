@@ -1,126 +1,135 @@
 
-import { motion } from "framer-motion";
-import { Event } from "@/lib/types";
-import { EventVerificationBadge } from "./EventVerificationBadge";
-import { format } from "date-fns";
-import { MapPin, Users, ExternalLink, Heart, Ticket } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { Calendar, MapPin, Users, Heart } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Event } from "@/lib/types";
+import { EventChatButton } from "./EventChatButton";
+import { EventChatModal } from "./EventChatModal";
+import { useEventChat } from "@/hooks/useEventChat";
+import { useEventInteractions } from "@/hooks/useEventInteractions";
+import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 
-interface EventCardProps extends Event {
-  showViewDetails?: boolean;
+interface EventCardProps {
+  event: Event;
+  variant?: "default" | "featured" | "compact";
+  className?: string;
 }
 
-export const EventCard = ({ 
-  id, 
-  title,
-  startDate,
-  location,
-  imageUrl,
-  category,
-  attendees,
-  verification,
-  pricing,
-}: EventCardProps) => {
+export const EventCard = ({ event, variant = "default", className = "" }: EventCardProps) => {
   const navigate = useNavigate();
-  const [isLiked, setIsLiked] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const { participantCount, joinChat } = useEventChat(event.id);
+  const { isLiked, likesCount, handleLike } = useEventInteractions(event.id);
 
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsLiked(!isLiked);
-    toast(isLiked ? "Removed from favorites" : "Added to favorites");
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent navigation when clicking on interactive elements
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    navigate(`/events/${event.id}`);
   };
 
-  const handleTicketClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    window.open(`https://example.com/tickets/${id}`, '_blank');
-    toast("Opening ticket page");
+  const handleChatClick = () => {
+    joinChat();
+    setIsChatOpen(true);
   };
 
   return (
-    <motion.div 
-      className="event-card relative h-full overflow-hidden rounded-xl group cursor-pointer border border-border/50"
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={() => navigate(`/event/${id}`)}
-    >
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <img
-          src={imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
-          alt={title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/80" />
-      </div>
-
-      {/* Content */}
-      <div className="relative h-full p-3 md:p-4 flex flex-col justify-between text-white">
-        <div className="space-y-2">
-          <div className="flex justify-between items-start gap-2">
-            <div className="space-y-1 flex-1">
-              {category.slice(0, 2).map((cat) => (
-                <Badge 
-                  key={cat}
-                  variant="secondary" 
-                  className="mr-1 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-xs"
-                >
-                  {cat}
-                </Badge>
-              ))}
-            </div>
-            <EventVerificationBadge status={verification.status} />
-          </div>
-          <h3 className="text-lg md:text-xl font-bold line-clamp-2">{title}</h3>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex flex-col gap-1.5 text-sm text-white/90">
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{location.venue_name || location.address}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Users className="h-4 w-4 flex-shrink-0" />
-              <span>{attendees} attending</span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate">
-                {format(new Date(startDate), "MMM d, h:mm a")}
-              </div>
-              <div className="text-sm text-white/80">
-                {pricing.isFree ? "Free" : `$${pricing.priceRange?.[0]}`}
-              </div>
-            </div>
+    <>
+      <motion.div
+        whileHover={{ y: -4 }}
+        transition={{ duration: 0.2 }}
+        className={className}
+      >
+        <Card 
+          className="glass-card border-primary/20 cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden group"
+          onClick={handleCardClick}
+        >
+          <div className="relative h-48 overflow-hidden">
+            <img
+              src={event.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
+              alt={event.title}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
             
-            <div className="flex gap-1.5 flex-shrink-0">
-              <Button
-                size="sm"
-                variant="ghost"
-                className={`rounded-full hover:bg-white/10 h-8 w-8 p-0 ${isLiked ? 'text-red-500' : 'text-white/90'}`}
-                onClick={handleLike}
-              >
-                <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
-              </Button>
-              
-              <Button 
-                size="sm" 
-                className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm gap-1 text-xs px-2 h-8"
-                onClick={handleTicketClick}
-              >
-                <Ticket className="h-3 w-3" />
-                <span className="hidden sm:inline">Tickets</span>
-              </Button>
+            {/* Chat button overlay */}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <EventChatButton
+                eventId={event.id}
+                participantCount={participantCount}
+                onClick={handleChatClick}
+              />
             </div>
           </div>
-        </div>
-      </div>
-    </motion.div>
+
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <div className="flex justify-between items-start">
+                <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
+                  {event.title}
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLike();
+                  }}
+                  className="ml-2 shrink-0"
+                >
+                  <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                  <span className="ml-1 text-sm">{likesCount}</span>
+                </Button>
+              </div>
+
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {event.description}
+              </p>
+
+              <div className="flex flex-wrap gap-1">
+                {event.category.slice(0, 2).map((cat) => (
+                  <Badge key={cat} variant="secondary" className="text-xs">
+                    {cat}
+                  </Badge>
+                ))}
+                {event.category.length > 2 && (
+                  <Badge variant="outline" className="text-xs">
+                    +{event.category.length - 2}
+                  </Badge>
+                )}
+              </div>
+
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>{format(new Date(event.startDate), 'MMM d, yyyy • h:mm a')}</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  <span className="line-clamp-1">{event.location.address}</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  <span>{event.attendees} attending</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <EventChatModal
+        event={event}
+        isOpen={isChatOpen}
+        onOpenChange={setIsChatOpen}
+      />
+    </>
   );
 };
