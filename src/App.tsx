@@ -32,6 +32,7 @@ import OrganizerProfile from "./pages/OrganizerProfile";
 import Organizers from "./pages/Organizers";
 import NotificationsPage from "./pages/NotificationsPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import ProductionAuditPage from "./pages/ProductionAuditPage";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
@@ -101,9 +102,15 @@ const AppContent = () => {
         path="/notifications" 
         element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} 
       />
+      
+      {/* Admin Only Routes */}
       <Route 
         path="/admin" 
         element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>} 
+      />
+      <Route 
+        path="/production-audit" 
+        element={<ProtectedRoute adminOnly={true}><ProductionAuditPage /></ProtectedRoute>} 
       />
 
       {/* 404 Handling */}

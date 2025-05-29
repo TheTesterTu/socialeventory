@@ -36,14 +36,21 @@ export const ProtectedRoute = ({ children, adminOnly = false }: ProtectedRoutePr
   }
 
   // If this route requires admin access, check the user's role
-  if (adminOnly && user.user_metadata?.role !== 'admin') {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <h1 className="text-2xl font-bold text-destructive mb-2">Access Denied</h1>
-        <p className="text-muted-foreground mb-6">You don't have permission to view this page</p>
-        <Navigate to="/events" replace />
-      </div>
-    );
+  if (adminOnly) {
+    const isAdmin = user.user_metadata?.role === 'admin' || user.app_metadata?.role === 'admin';
+    
+    if (!isAdmin) {
+      return (
+        <div className="flex flex-col items-center justify-center h-screen">
+          <h1 className="text-2xl font-bold text-destructive mb-2">Access Denied</h1>
+          <p className="text-muted-foreground mb-6">You don't have permission to view this page</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            Contact an administrator if you believe you should have access to this page.
+          </p>
+          <Navigate to="/events" replace />
+        </div>
+      );
+    }
   }
 
   return <>{children}</>;
