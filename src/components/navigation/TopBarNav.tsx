@@ -47,8 +47,8 @@ export const TopBarNav = () => {
   );
 
   return (
-    <NavigationMenu className="ml-4">
-      <NavigationMenuList>
+    <NavigationMenu className="ml-4 hidden lg:flex">
+      <NavigationMenuList className="gap-1">
         {navItems.map(item => {
           const active = isActive(item.path);
           
@@ -57,11 +57,12 @@ export const TopBarNav = () => {
               <Link to={item.path}>
                 <Button 
                   variant={active ? "secondary" : "ghost"}
+                  size="sm"
                   className={cn(
-                    "rounded-lg transition-all duration-200 font-medium",
+                    "rounded-lg transition-all duration-200 font-medium text-sm px-3 py-2 h-9",
                     active 
-                      ? 'bg-primary/20 text-white hover:bg-primary/30 border border-primary/30' 
-                      : 'hover:bg-primary/10 hover:text-primary'
+                      ? 'bg-primary text-white hover:bg-primary/90 shadow-md' 
+                      : 'text-foreground hover:bg-primary/10 hover:text-primary'
                   )}
                 >
                   {item.label}
@@ -76,7 +77,7 @@ export const TopBarNav = () => {
             <Link to="/create-event">
               <Button 
                 variant={location.pathname === "/create-event" ? "secondary" : "default"}
-                className="rounded-lg gap-1 ml-2 bg-primary hover:bg-primary/90 text-white font-medium shadow-lg"
+                className="rounded-lg gap-2 ml-2 bg-primary hover:bg-primary/90 text-white font-medium shadow-lg text-sm px-4 py-2 h-9"
                 size="sm"
               >
                 <PlusCircle className="h-4 w-4" />

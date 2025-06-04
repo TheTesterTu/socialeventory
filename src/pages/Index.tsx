@@ -38,7 +38,7 @@ const Index = () => {
       >
         <HomeHero />
         
-        <div className="px-3 sm:px-6 md:px-8 max-w-7xl mx-auto space-y-6 md:space-y-8 pb-16">
+        <div className="px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 md:space-y-12 pb-16">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -49,7 +49,7 @@ const Index = () => {
 
           {user && (
             <>
-              <Separator className="my-4 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+              <Separator className="my-8 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
               
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -61,7 +61,7 @@ const Index = () => {
             </>
           )}
 
-          <Separator className="my-4 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+          <Separator className="my-8 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -71,24 +71,24 @@ const Index = () => {
             <FeaturedCreators />
           </motion.div>
           
-          <Separator className="my-4 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+          <Separator className="my-8 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6"
+            className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8"
           >
-            <div className="lg:col-span-2">
+            <div className="xl:col-span-2">
               <FeaturedEvents />
             </div>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <UpcomingEvents />
               <EventsNearYou />
             </div>
           </motion.div>
 
-          <Separator className="my-4 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+          <Separator className="my-8 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -103,29 +103,29 @@ const Index = () => {
           <div className="fixed bottom-24 right-4 z-20">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-full h-10 w-10 bg-background/80 backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10 hover:bg-primary/10">
-                  <HelpCircle className="h-5 w-5 text-primary" />
+                <Button variant="outline" size="icon" className="rounded-full h-12 w-12 bg-background/80 backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10 hover:bg-primary/10">
+                  <HelpCircle className="h-6 w-6 text-primary" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent align="end" className="w-72 p-3 border-primary/20">
-                <div className="space-y-2">
-                  <h3 className="font-medium text-base bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <PopoverContent align="end" className="w-80 p-4 border-primary/20 mr-4">
+                <div className="space-y-3">
+                  <h3 className="font-medium text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                     Welcome to SocialEventory!
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     Discover events around you, connect with organizers, and never miss out on exciting experiences.
                   </p>
-                  <div className="pt-1">
-                    <ul className="space-y-1 text-xs">
-                      <li className="flex gap-1.5">
+                  <div className="pt-2">
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex gap-2">
                         <span className="text-primary">•</span>
                         <span>Tap any event card to see details</span>
                       </li>
-                      <li className="flex gap-1.5">
+                      <li className="flex gap-2">
                         <span className="text-primary">•</span>
                         <span>Use filters to find specific events</span>
                       </li>
-                      <li className="flex gap-1.5">
+                      <li className="flex gap-2">
                         <span className="text-primary">•</span>
                         <span>Create your own events easily</span>
                       </li>

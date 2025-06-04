@@ -35,7 +35,7 @@ export const HomeHero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="max-w-4xl mx-auto text-center space-y-6"
+          className="max-w-4xl mx-auto text-center space-y-8"
         >
           {/* Badge */}
           <motion.div 
@@ -55,13 +55,13 @@ export const HomeHero = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="space-y-4"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white drop-shadow-xl">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white drop-shadow-xl">
               Find Your{" "}
               <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                 Next Epic Experience
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
+            <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-lg px-4">
               Unforgettable moments await you
             </p>
           </motion.div>
@@ -71,34 +71,34 @@ export const HomeHero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="max-w-2xl mx-auto"
+            className="w-full px-4"
           >
-            <div className="glass-panel p-2 rounded-2xl border border-white/30 bg-black/20 backdrop-blur-xl">
+            <div className="glass-panel p-3 rounded-2xl border border-white/30 bg-black/20 backdrop-blur-xl max-w-3xl mx-auto">
               <SearchBar onSearch={handleSearch} />
             </div>
           </motion.div>
 
-          {/* Action buttons with proper contrast */}
+          {/* Action buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 px-4"
           >
-            <Link to="/create-event">
+            <Link to="/create-event" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-white px-8 py-3 h-auto font-medium rounded-xl w-full sm:w-auto shadow-xl shadow-primary/25 border border-primary/20"
+                className="bg-primary hover:bg-primary/90 text-white px-8 py-3 h-auto font-medium rounded-xl w-full shadow-xl shadow-primary/25 border border-primary/20"
               >
                 <CalendarPlus className="mr-2 h-5 w-5" />
                 Create Event
               </Button>
             </Link>
-            <Link to="/search">
+            <Link to="/search" className="w-full sm:w-auto">
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-white/50 bg-black/50 hover:bg-black/70 text-white backdrop-blur-xl px-8 py-3 h-auto font-medium rounded-xl w-full sm:w-auto shadow-lg hover:border-white/70"
+                className="border-white/50 bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl px-8 py-3 h-auto font-medium rounded-xl w-full shadow-lg hover:border-white/70"
               >
                 <Search className="mr-2 h-5 w-5" />
                 Explore All
@@ -111,7 +111,7 @@ export const HomeHero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.6 }}
-            className="flex items-center justify-center flex-wrap gap-4 lg:gap-6 pt-6"
+            className="flex items-center justify-center flex-wrap gap-4 lg:gap-6 pt-6 px-4"
           >
             <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-lg border border-white/30 bg-black/30 backdrop-blur-xl">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>

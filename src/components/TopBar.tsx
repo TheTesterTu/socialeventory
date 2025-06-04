@@ -37,7 +37,7 @@ export const TopBar = () => {
           : "bg-transparent"
       }`}
     >
-      <div className="container flex h-16 items-center mx-auto px-4">
+      <div className="container flex h-16 items-center mx-auto px-3 sm:px-4 lg:px-6">
         <TopBarLogo />
         {!isMobile && <TopBarNav />}
         <TopBarActions />
