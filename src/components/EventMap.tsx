@@ -14,22 +14,24 @@ interface EventMapProps {
   showFilters?: boolean;
   isInteractive?: boolean;
   className?: string;
+  userLocation?: [number, number]; // [lng, lat] format for Mapbox
 }
 
 const EventMap = ({ 
   events, 
   showFilters = false, 
   isInteractive = true,
-  className = '' 
+  className = '',
+  userLocation
 }: EventMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const markers = useRef<mapboxgl.Marker[]>([]);
+  const userMarker = useRef<mapboxgl.Marker | null>(null);
 
   // Fetch Mapbox token from API configurations
   useEffect(() => {
@@ -54,53 +56,19 @@ const EventMap = ({
     try {
       mapboxgl.accessToken = mapboxToken;
       
+      // Use user location as center if available, otherwise default
+      const defaultCenter: [number, number] = userLocation || [-73.935242, 40.730610];
+      
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/dark-v11',
-        zoom: 12,
-        center: [-73.935242, 40.730610], // Default to NYC
+        zoom: userLocation ? 12 : 10,
+        center: defaultCenter,
         interactive: isInteractive,
       });
 
       map.current.on('load', () => {
         setMapLoaded(true);
-        
-        // Try to get user location
-        if (navigator.geolocation && isInteractive) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const userCoords: [number, number] = [
-                position.coords.longitude,
-                position.coords.latitude
-              ];
-              setUserLocation(userCoords);
-              
-              if (map.current) {
-                map.current.flyTo({
-                  center: userCoords,
-                  zoom: 12,
-                  essential: true
-                });
-                
-                // Add user location marker
-                new mapboxgl.Marker({
-                  color: '#3b82f6',
-                  scale: 0.8
-                })
-                  .setLngLat(userCoords)
-                  .addTo(map.current)
-                  .setPopup(
-                    new mapboxgl.Popup({ offset: 25 })
-                      .setHTML('<div class="p-2"><p class="font-medium">Your location</p></div>')
-                  );
-              }
-            },
-            () => {
-              // If geolocation fails, we'll keep the default center
-              console.log('Geolocation permission denied or unavailable');
-            }
-          );
-        }
       });
 
       // Add controls if interactive
@@ -129,7 +97,36 @@ const EventMap = ({
         variant: "destructive"
       });
     }
-  }, [mapboxToken, isInteractive, toast]);
+  }, [mapboxToken, isInteractive, userLocation, toast]);
+
+  // Handle user location marker
+  useEffect(() => {
+    if (!mapLoaded || !map.current || !userLocation) return;
+
+    // Remove existing user marker
+    if (userMarker.current) {
+      userMarker.current.remove();
+    }
+
+    // Add user location marker
+    userMarker.current = new mapboxgl.Marker({
+      color: '#3b82f6',
+      scale: 0.8
+    })
+      .setLngLat(userLocation)
+      .addTo(map.current)
+      .setPopup(
+        new mapboxgl.Popup({ offset: 25 })
+          .setHTML('<div class="p-2"><p class="font-medium">Your location</p></div>')
+      );
+
+    // Center map on user location
+    map.current.flyTo({
+      center: userLocation,
+      zoom: 12,
+      essential: true
+    });
+  }, [mapLoaded, userLocation]);
 
   // Add event markers when events or map changes
   useEffect(() => {
@@ -137,7 +134,7 @@ const EventMap = ({
 
     console.log('Adding markers for events:', events);
 
-    // Clear any existing markers
+    // Clear any existing event markers
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
 
@@ -216,11 +213,12 @@ const EventMap = ({
 
     console.log(`Total markers added: ${markers.current.length}`);
 
-    // Fit bounds to include all markers if there are any
+    // Fit bounds to include all markers and user location if there are any events
     if (markers.current.length > 0 && map.current) {
       try {
         const bounds = new mapboxgl.LngLatBounds();
         
+        // Add event coordinates to bounds
         events.forEach(event => {
           if (event.location.coordinates) {
             const lat = event.location.coordinates[0];

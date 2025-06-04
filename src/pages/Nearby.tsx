@@ -1,139 +1,39 @@
 
 import { motion } from "framer-motion";
-import { MapPin, Calendar, Minus, Plus } from "lucide-react";
+import { MapPin, Calendar } from "lucide-react";
 import EventMap from "@/components/EventMap";
 import { useState, useEffect } from "react";
-import { Event } from "@/lib/types";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Slider } from "@/components/ui/slider";
 import { format } from "date-fns";
-import { mapDatabaseEventToEvent } from "@/lib/utils/mappers";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { useNearbyEvents } from "@/hooks/useNearbyEvents";
+import { RadiusControl } from "@/components/nearby/RadiusControl";
 
 const Nearby = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>();
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number }>({
-    lat: 37.7749,
-    lng: -122.4194
-  });
   const [radius, setRadius] = useState<number>(5);
+  
+  const { coordinates, isLoading: locationLoading, error: locationError } = useGeolocation();
+  const { events, isLoading: eventsLoading, error: eventsError, fetchNearbyEvents } = useNearbyEvents();
 
+  // Fetch events when location or filters change
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userCoords = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          setUserLocation(userCoords);
-          fetchNearbyEvents(userCoords.lat, userCoords.lng);
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          fetchNearbyEvents(userLocation.lat, userLocation.lng);
-        }
-      );
-    } else {
-      fetchNearbyEvents(userLocation.lat, userLocation.lng);
+    if (coordinates) {
+      fetchNearbyEvents(coordinates.lat, coordinates.lng, radius, selectedDate);
     }
-  }, []);
-
-  const fetchNearbyEvents = async (lat: number, lon: number) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const radiusMeters = radius * 1000; // Convert km to meters
-      
-      const { data: eventsData, error } = await supabase
-        .rpc('find_nearby_events', {
-          lat: lat,
-          lon: lon,
-          radius_meters: radiusMeters,
-          category_filter: null,
-          max_price: null,
-          accessibility_filter: null
-        });
-
-      if (error) throw error;
-
-      console.log('Raw events data from RPC:', eventsData);
-
-      // Use the mapDatabaseEventToEvent utility to properly format the data
-      const formattedEvents: Event[] = (eventsData as any[] || []).map(event => {
-        console.log('Processing event:', event);
-        
-        // Create a proper database event object structure
-        const dbEvent = {
-          id: event.id,
-          title: event.title,
-          description: event.description || '',
-          start_date: new Date().toISOString(),
-          end_date: new Date().toISOString(),
-          location: event.location || 'No address provided',
-          venue_name: event.venue_name || '',
-          coordinates: event.coordinates,
-          category: event.category || [],
-          tags: event.tags || [],
-          accessibility: event.accessibility,
-          pricing: event.pricing,
-          created_by: '',
-          verification_status: 'pending',
-          image_url: '',
-          likes: 0,
-          attendees: 0
-        };
-        
-        return mapDatabaseEventToEvent(dbEvent);
-      }).filter(event => {
-        // Filter out events with invalid coordinates
-        const [lat, lng] = event.location.coordinates;
-        return !isNaN(lat) && !isNaN(lng) && !(lat === 0 && lng === 0);
-      });
-
-      console.log('Formatted events:', formattedEvents);
-      setEvents(formattedEvents);
-    } catch (error) {
-      console.error('Error fetching events:', error);
-      setError('Failed to fetch nearby events. Please try again later.');
-      toast({
-        title: "Error",
-        description: "Failed to fetch nearby events. Please try again later.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (userLocation) {
-      fetchNearbyEvents(userLocation.lat, userLocation.lng);
-    }
-  }, [selectedDate, radius, userLocation]);
+  }, [coordinates, radius, selectedDate]);
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
   };
 
-  const increaseRadius = () => {
-    setRadius(prev => Math.min(prev + 1, 50));
-  };
-
-  const decreaseRadius = () => {
-    setRadius(prev => Math.max(prev - 1, 1));
-  };
+  const isLoading = locationLoading || eventsLoading;
+  const error = locationError || eventsError;
 
   return (
     <AppLayout pageTitle="Events Near You" showTopBar={true}>
@@ -146,7 +46,12 @@ const Nearby = () => {
         >
           <div className="flex-1">
             <h1 className="text-2xl font-bold">Events Near You</h1>
-            <p className="text-muted-foreground">Discover events happening in your area</p>
+            <p className="text-muted-foreground">
+              {coordinates 
+                ? `Showing events within ${radius}km of your location` 
+                : "Getting your location to show nearby events"
+              }
+            </p>
           </div>
           
           <Popover>
@@ -181,41 +86,14 @@ const Nearby = () => {
           </motion.div>
         )}
 
-        <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
-          <span className="text-sm">
-            Found {events.length} event{events.length !== 1 ? 's' : ''} within {radius} km
-            {selectedDate && ` on ${format(selectedDate, 'MMMM d, yyyy')}`}
-          </span>
-          
-          <div className="flex items-center gap-3 w-64">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="h-7 w-7 rounded-full"
-              onClick={decreaseRadius}
-            >
-              <Minus className="h-3 w-3" />
-            </Button>
-            
-            <Slider
-              value={[radius]}
-              min={1}
-              max={50}
-              step={1}
-              onValueChange={(value) => setRadius(value[0])}
-              className="w-full"
-            />
-            
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="h-7 w-7 rounded-full"
-              onClick={increaseRadius}
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
+        {coordinates && (
+          <RadiusControl
+            radius={radius}
+            onRadiusChange={setRadius}
+            eventsCount={events.length}
+            selectedDate={selectedDate}
+          />
+        )}
 
         <div className="rounded-xl overflow-hidden h-[calc(100vh-280px)]">
           {isLoading ? (
@@ -224,6 +102,7 @@ const Nearby = () => {
             <EventMap 
               events={events}
               showFilters={false}
+              userLocation={coordinates ? [coordinates.lng, coordinates.lat] : undefined}
             />
           )}
         </div>
