@@ -1,4 +1,3 @@
-
 import { Event } from "@/lib/types";
 import { Json } from "@/integrations/supabase/types";
 
@@ -6,6 +5,8 @@ import { Json } from "@/integrations/supabase/types";
  * Maps database event format to the application Event interface
  */
 export function mapDatabaseEventToEvent(dbEvent: any): Event {
+  console.log('Mapping database event:', dbEvent);
+  
   // Handle accessibility JSON data with proper type checking
   const accessibilityData = dbEvent.accessibility as Json;
   let languages: string[] = ['en'];
@@ -30,24 +31,61 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
   // Safely access pricing properties
   if (typeof pricingData === 'object' && pricingData !== null) {
     isFree = Boolean((pricingData as any).isFree);
-    if (Array.isArray((pricingData as any).priceRange)) {
-      priceRange = (pricingData as any).priceRange as [number, number];
+    if (Array.isArray((pricingData as any).priceRange) && (pricingData as any).priceRange.length >= 2) {
+      priceRange = [(pricingData as any).priceRange[0], (pricingData as any).priceRange[1]];
     }
     if (typeof (pricingData as any).currency === 'string') {
       currency = (pricingData as any).currency as string;
     }
   }
 
-  return {
+  // Handle coordinates properly - different formats from database
+  let coordinates: [number, number] = [0, 0];
+  
+  if (dbEvent.coordinates) {
+    console.log('Processing coordinates:', dbEvent.coordinates, typeof dbEvent.coordinates);
+    
+    // Handle PostgreSQL point format: "(x,y)" or {x: number, y: number}
+    if (typeof dbEvent.coordinates === 'string') {
+      // Parse string format "(x,y)"
+      const match = dbEvent.coordinates.match(/\(([^,]+),([^)]+)\)/);
+      if (match) {
+        const lat = parseFloat(match[1]);
+        const lng = parseFloat(match[2]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          coordinates = [lat, lng];
+        }
+      }
+    } else if (typeof dbEvent.coordinates === 'object' && dbEvent.coordinates !== null) {
+      // Handle object format {x: number, y: number}
+      if ('x' in dbEvent.coordinates && 'y' in dbEvent.coordinates) {
+        const lat = parseFloat(dbEvent.coordinates.x);
+        const lng = parseFloat(dbEvent.coordinates.y);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          coordinates = [lat, lng];
+        }
+      }
+      // Handle array format [lat, lng]
+      else if (Array.isArray(dbEvent.coordinates) && dbEvent.coordinates.length >= 2) {
+        const lat = parseFloat(dbEvent.coordinates[0]);
+        const lng = parseFloat(dbEvent.coordinates[1]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          coordinates = [lat, lng];
+        }
+      }
+    }
+  }
+  
+  console.log('Final coordinates:', coordinates);
+
+  const mappedEvent: Event = {
     id: dbEvent.id,
     title: dbEvent.title,
     description: dbEvent.description || '',
     startDate: dbEvent.start_date,
     endDate: dbEvent.end_date || dbEvent.start_date,
     location: {
-      coordinates: dbEvent.coordinates ? 
-        [parseFloat(dbEvent.coordinates.x || 0), parseFloat(dbEvent.coordinates.y || 0)] : 
-        [0, 0],
+      coordinates,
       address: dbEvent.location || '',
       venue_name: dbEvent.venue_name || ''
     },
@@ -75,6 +113,9 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
     likes: dbEvent.likes || 0,
     attendees: dbEvent.attendees || 0
   };
+  
+  console.log('Mapped event:', mappedEvent);
+  return mappedEvent;
 }
 
 /**

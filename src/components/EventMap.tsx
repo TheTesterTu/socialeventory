@@ -56,18 +56,19 @@ const EventMap = ({
     try {
       mapboxgl.accessToken = mapboxToken;
       
-      // Use user location as center if available, otherwise default
-      const defaultCenter: [number, number] = userLocation || [-73.935242, 40.730610];
+      // Use user location as center if available, otherwise default to a central location
+      const defaultCenter: [number, number] = userLocation || [12.4964, 41.9028]; // Rome, Italy as default
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/dark-v11',
-        zoom: userLocation ? 12 : 10,
+        zoom: userLocation ? 12 : 6,
         center: defaultCenter,
         interactive: isInteractive,
       });
 
       map.current.on('load', () => {
+        console.log('Map loaded successfully');
         setMapLoaded(true);
       });
 
@@ -103,6 +104,8 @@ const EventMap = ({
   useEffect(() => {
     if (!mapLoaded || !map.current || !userLocation) return;
 
+    console.log('Adding user location marker at:', userLocation);
+
     // Remove existing user marker
     if (userMarker.current) {
       userMarker.current.remove();
@@ -111,7 +114,7 @@ const EventMap = ({
     // Add user location marker
     userMarker.current = new mapboxgl.Marker({
       color: '#3b82f6',
-      scale: 0.8
+      scale: 1.0
     })
       .setLngLat(userLocation)
       .addTo(map.current)
@@ -130,7 +133,10 @@ const EventMap = ({
 
   // Add event markers when events or map changes
   useEffect(() => {
-    if (!mapLoaded || !map.current) return;
+    if (!mapLoaded || !map.current) {
+      console.log('Map not ready for markers');
+      return;
+    }
 
     console.log('Adding markers for events:', events);
 
@@ -139,15 +145,16 @@ const EventMap = ({
     markers.current = [];
 
     // Add markers for each event with valid coordinates
-    events.forEach(event => {
+    events.forEach((event, index) => {
       if (!event.location.coordinates || !map.current) return;
       
-      // Validate coordinates - skip invalid ones
-      const lat = event.location.coordinates[0];
-      const lng = event.location.coordinates[1];
+      // Get coordinates - ensure we have valid numbers
+      let lat = event.location.coordinates[0];
+      let lng = event.location.coordinates[1];
       
-      console.log(`Processing event "${event.title}" with coordinates: lat=${lat}, lng=${lng}`);
+      console.log(`Processing event "${event.title}" (${index}) with coordinates: lat=${lat}, lng=${lng}`);
       
+      // Validate coordinates
       if (isNaN(lat) || isNaN(lng) || !isFinite(lat) || !isFinite(lng)) {
         console.warn(`Invalid coordinates for event ${event.id}: [${lat}, ${lng}]`);
         return;
@@ -159,39 +166,43 @@ const EventMap = ({
         return;
       }
       
-      // Create marker element with modern styling
+      // Create marker element with vibrant styling
       const el = document.createElement('div');
-      el.className = 'marker';
+      el.className = 'event-marker';
       el.style.backgroundColor = '#8B5CF6';
-      el.style.width = '24px';
-      el.style.height = '24px';
+      el.style.width = '20px';
+      el.style.height = '20px';
       el.style.borderRadius = '50%';
       el.style.cursor = 'pointer';
-      el.style.border = '3px solid rgba(139, 92, 246, 0.3)';
-      el.style.boxShadow = '0 0 15px rgba(139, 92, 246, 0.4)';
+      el.style.border = '3px solid white';
+      el.style.boxShadow = '0 2px 10px rgba(139, 92, 246, 0.5)';
       el.style.transition = 'all 0.2s ease';
 
       // Hover effects
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.1)';
-        el.style.boxShadow = '0 0 20px rgba(139, 92, 246, 0.6)';
+        el.style.transform = 'scale(1.2)';
+        el.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.8)';
       });
       el.addEventListener('mouseleave', () => {
         el.style.transform = 'scale(1)';
-        el.style.boxShadow = '0 0 15px rgba(139, 92, 246, 0.4)';
+        el.style.boxShadow = '0 2px 10px rgba(139, 92, 246, 0.5)';
       });
 
-      // Add popup with modern styling
+      // Add popup with event details
       const popup = new mapboxgl.Popup({ 
         offset: 25,
         className: 'custom-popup'
       })
       .setHTML(`
-        <div class="p-3 space-y-2">
-          <h3 class="font-bold text-lg">${event.title}</h3>
-          <p class="text-sm text-muted-foreground">${event.location.address}</p>
-          ${event.location.venue_name ? `<p class="text-sm font-medium">${event.location.venue_name}</p>` : ''}
-          <a href="/event/${event.id}" class="text-primary hover:underline text-sm font-medium">View details</a>
+        <div class="p-3 space-y-2 min-w-[200px]">
+          <h3 class="font-bold text-lg text-white">${event.title}</h3>
+          <p class="text-sm text-gray-300">${event.location.address}</p>
+          ${event.location.venue_name ? `<p class="text-sm font-medium text-blue-300">${event.location.venue_name}</p>` : ''}
+          <div class="pt-2">
+            <button onclick="window.location.href='/event/${event.id}'" class="bg-primary hover:bg-primary/90 text-white px-3 py-1 rounded text-sm font-medium">
+              View Details
+            </button>
+          </div>
         </div>
       `);
 
@@ -204,14 +215,14 @@ const EventMap = ({
         if (map.current) {
           marker.addTo(map.current);
           markers.current.push(marker);
-          console.log(`Added marker for event "${event.title}" at [${lng}, ${lat}]`);
+          console.log(`✅ Added marker for event "${event.title}" at [${lng}, ${lat}]`);
         }
       } catch (error) {
-        console.error(`Error adding marker for event ${event.id}:`, error);
+        console.error(`❌ Error adding marker for event ${event.id}:`, error);
       }
     });
 
-    console.log(`Total markers added: ${markers.current.length}`);
+    console.log(`Total markers added: ${markers.current.length} out of ${events.length} events`);
 
     // Fit bounds to include all markers and user location if there are any events
     if (markers.current.length > 0 && map.current) {
