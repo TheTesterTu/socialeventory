@@ -41,7 +41,8 @@ export const SampleEventsLoader = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            source: "admin-ui"
+            source: "admin-ui",
+            locations: ["sicily", "luxembourg", "amsterdam", "nice"]
           }),
         }
       );
@@ -53,8 +54,8 @@ export const SampleEventsLoader = () => {
       
       if (response.ok) {
         setSuccess(true);
-        setMessage(data.message || "Sample events added successfully");
-        toast.success(`Added ${data.count || "multiple"} sample events`);
+        setMessage(`Successfully added ${data.count || "multiple"} sample events across Sicily, Luxembourg, Amsterdam, and Nice`);
+        toast.success(`Added ${data.count || "multiple"} sample events to test the map and location features`);
       } else {
         throw new Error(data.message || "Failed to add sample events");
       }
@@ -76,7 +77,8 @@ export const SampleEventsLoader = () => {
           Sample Events Loader
         </CardTitle>
         <CardDescription>
-          Load sample events for testing in Sicily, Luxembourg, Amsterdam, and Nice.
+          Load realistic sample events for testing in Sicily, Luxembourg, Amsterdam, and Nice, France. 
+          These events will populate your "Near You", "Upcoming", and trending sections.
         </CardDescription>
       </CardHeader>
       
@@ -88,7 +90,7 @@ export const SampleEventsLoader = () => {
             className="space-y-2"
           >
             <Progress value={progress} className="h-2" />
-            <p className="text-sm text-muted-foreground">Loading sample events...</p>
+            <p className="text-sm text-muted-foreground">Loading sample events across multiple locations...</p>
           </motion.div>
         )}
         
@@ -122,10 +124,10 @@ export const SampleEventsLoader = () => {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Loading...
+              Loading Sample Events...
             </>
           ) : (
-            "Load Sample Events"
+            "Load Sample Events for Testing"
           )}
         </Button>
       </CardFooter>
