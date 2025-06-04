@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { MapPin, Calendar, Minus, Plus } from "lucide-react";
 import EventMap from "@/components/EventMap";
@@ -69,74 +70,37 @@ const Nearby = () => {
 
       console.log('Raw events data from RPC:', eventsData);
 
+      // Use the mapDatabaseEventToEvent utility to properly format the data
       const formattedEvents: Event[] = (eventsData as any[] || []).map(event => {
         console.log('Processing event:', event);
         
-        // Handle coordinates from the RPC function
-        let lat = 0, lng = 0;
-        
-        if (event.coordinates) {
-          // The coordinates come as a PostgreSQL point type from the RPC
-          if (typeof event.coordinates === 'string') {
-            // Parse string format like "(lat,lng)"
-            const coordString = event.coordinates.replace(/[()]/g, '');
-            const [latStr, lngStr] = coordString.split(',');
-            lat = parseFloat(latStr);
-            lng = parseFloat(lngStr);
-          } else if (event.coordinates.x !== undefined && event.coordinates.y !== undefined) {
-            // Handle point object format
-            lat = parseFloat(event.coordinates.y);
-            lng = parseFloat(event.coordinates.x);
-          } else if (Array.isArray(event.coordinates)) {
-            // Handle array format [lat, lng]
-            lat = parseFloat(event.coordinates[0]);
-            lng = parseFloat(event.coordinates[1]);
-          }
-        }
-        
-        console.log(`Event ${event.title} coordinates: lat=${lat}, lng=${lng}`);
-        
-        // If coordinates are still invalid, skip this event
-        if (isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0)) {
-          console.warn(`Invalid coordinates for event ${event.id}: lat=${lat}, lng=${lng}`);
-          return null;
-        }
-        
-        return {
-          id: event.id || `temp-${Math.random().toString(36).substring(2, 11)}`,
-          title: event.title || 'Untitled Event',
-          description: event.description || '', 
-          location: {
-            coordinates: [lat, lng] as [number, number],
-            address: event.location || 'No address provided',
-            venue_name: event.venue_name || ''
-          },
-          startDate: new Date().toISOString(),
-          endDate: new Date().toISOString(),
-          category: event.category || ['Uncategorized'],
+        // Create a proper database event object structure
+        const dbEvent = {
+          id: event.id,
+          title: event.title,
+          description: event.description || '',
+          start_date: new Date().toISOString(),
+          end_date: new Date().toISOString(),
+          location: event.location || 'No address provided',
+          venue_name: event.venue_name || '',
+          coordinates: event.coordinates,
+          category: event.category || [],
           tags: event.tags || [],
-          accessibility: {
-            languages: event.accessibility?.languages || ['en'],
-            wheelchairAccessible: Boolean(event.accessibility?.wheelchairAccessible),
-            familyFriendly: Boolean(event.accessibility?.familyFriendly || true),
-          },
-          pricing: {
-            isFree: Boolean(event.pricing?.isFree || true),
-            priceRange: Array.isArray(event.pricing?.priceRange) ? event.pricing.priceRange as [number, number] : [0, 0],
-            currency: event.pricing?.currency || 'USD',
-          },
-          creator: {
-            id: event.created_by || '',
-            type: 'user'
-          },
-          verification: {
-            status: event.verification_status || 'pending'
-          },
-          imageUrl: event.image_url || '',
-          likes: event.likes || 0,
-          attendees: event.attendees || 0
+          accessibility: event.accessibility,
+          pricing: event.pricing,
+          created_by: '',
+          verification_status: 'pending',
+          image_url: '',
+          likes: 0,
+          attendees: 0
         };
-      }).filter(event => event !== null); // Remove null events
+        
+        return mapDatabaseEventToEvent(dbEvent);
+      }).filter(event => {
+        // Filter out events with invalid coordinates
+        const [lat, lng] = event.location.coordinates;
+        return !isNaN(lat) && !isNaN(lng) && !(lat === 0 && lng === 0);
+      });
 
       console.log('Formatted events:', formattedEvents);
       setEvents(formattedEvents);
