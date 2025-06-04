@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { MapPin, Calendar, Minus, Plus } from "lucide-react";
 import EventMap from "@/components/EventMap";
@@ -14,6 +13,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { format } from "date-fns";
+import { mapDatabaseEventToEvent } from "@/lib/utils/mappers";
 
 const Nearby = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -67,21 +67,39 @@ const Nearby = () => {
 
       if (error) throw error;
 
+      console.log('Raw events data from RPC:', eventsData);
+
       const formattedEvents: Event[] = (eventsData as any[] || []).map(event => {
-        // Ensure coordinates are valid numbers
+        console.log('Processing event:', event);
+        
+        // Handle coordinates from the RPC function
         let lat = 0, lng = 0;
         
-        if (event.coordinates && typeof event.coordinates === 'object') {
-          // Extract coordinates and ensure they're valid numbers
-          lat = event.coordinates.y ? parseFloat(event.coordinates.y) : 0;
-          lng = event.coordinates.x ? parseFloat(event.coordinates.x) : 0;
-          
-          // If still NaN after parsing, use default coordinates
-          if (isNaN(lat) || isNaN(lng)) {
-            console.warn(`Invalid coordinates for event ${event.id}, using defaults`);
-            lat = 0;
-            lng = 0;
+        if (event.coordinates) {
+          // The coordinates come as a PostgreSQL point type from the RPC
+          if (typeof event.coordinates === 'string') {
+            // Parse string format like "(lat,lng)"
+            const coordString = event.coordinates.replace(/[()]/g, '');
+            const [latStr, lngStr] = coordString.split(',');
+            lat = parseFloat(latStr);
+            lng = parseFloat(lngStr);
+          } else if (event.coordinates.x !== undefined && event.coordinates.y !== undefined) {
+            // Handle point object format
+            lat = parseFloat(event.coordinates.y);
+            lng = parseFloat(event.coordinates.x);
+          } else if (Array.isArray(event.coordinates)) {
+            // Handle array format [lat, lng]
+            lat = parseFloat(event.coordinates[0]);
+            lng = parseFloat(event.coordinates[1]);
           }
+        }
+        
+        console.log(`Event ${event.title} coordinates: lat=${lat}, lng=${lng}`);
+        
+        // If coordinates are still invalid, skip this event
+        if (isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0)) {
+          console.warn(`Invalid coordinates for event ${event.id}: lat=${lat}, lng=${lng}`);
+          return null;
         }
         
         return {
@@ -118,8 +136,9 @@ const Nearby = () => {
           likes: event.likes || 0,
           attendees: event.attendees || 0
         };
-      });
+      }).filter(event => event !== null); // Remove null events
 
+      console.log('Formatted events:', formattedEvents);
       setEvents(formattedEvents);
     } catch (error) {
       console.error('Error fetching events:', error);

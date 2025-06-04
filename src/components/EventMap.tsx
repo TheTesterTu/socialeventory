@@ -83,18 +83,16 @@ const EventMap = ({
                 });
                 
                 // Add user location marker
-                if (map.current) {
-                  new mapboxgl.Marker({
-                    color: '#3b82f6',
-                    scale: 0.8
-                  })
-                    .setLngLat(userCoords)
-                    .addTo(map.current)
-                    .setPopup(
-                      new mapboxgl.Popup({ offset: 25 })
-                        .setHTML('<div class="p-2"><p class="font-medium">Your location</p></div>')
-                    );
-                }
+                new mapboxgl.Marker({
+                  color: '#3b82f6',
+                  scale: 0.8
+                })
+                  .setLngLat(userCoords)
+                  .addTo(map.current)
+                  .setPopup(
+                    new mapboxgl.Popup({ offset: 25 })
+                      .setHTML('<div class="p-2"><p class="font-medium">Your location</p></div>')
+                  );
               }
             },
             () => {
@@ -137,6 +135,8 @@ const EventMap = ({
   useEffect(() => {
     if (!mapLoaded || !map.current) return;
 
+    console.log('Adding markers for events:', events);
+
     // Clear any existing markers
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
@@ -149,8 +149,16 @@ const EventMap = ({
       const lat = event.location.coordinates[0];
       const lng = event.location.coordinates[1];
       
+      console.log(`Processing event "${event.title}" with coordinates: lat=${lat}, lng=${lng}`);
+      
       if (isNaN(lat) || isNaN(lng) || !isFinite(lat) || !isFinite(lng)) {
         console.warn(`Invalid coordinates for event ${event.id}: [${lat}, ${lng}]`);
+        return;
+      }
+      
+      // Skip events with zero coordinates (likely invalid)
+      if (lat === 0 && lng === 0) {
+        console.warn(`Zero coordinates for event ${event.id}, skipping`);
         return;
       }
       
@@ -193,17 +201,20 @@ const EventMap = ({
       try {
         // Create and add marker with correct coordinates order (lng, lat for Mapbox!)
         const marker = new mapboxgl.Marker(el)
-          .setLngLat([lng, lat]) // Switched order: Mapbox expects [longitude, latitude]
+          .setLngLat([lng, lat]) // Mapbox expects [longitude, latitude]
           .setPopup(popup);
           
         if (map.current) {
           marker.addTo(map.current);
           markers.current.push(marker);
+          console.log(`Added marker for event "${event.title}" at [${lng}, ${lat}]`);
         }
       } catch (error) {
         console.error(`Error adding marker for event ${event.id}:`, error);
       }
     });
+
+    console.log(`Total markers added: ${markers.current.length}`);
 
     // Fit bounds to include all markers if there are any
     if (markers.current.length > 0 && map.current) {
@@ -215,7 +226,7 @@ const EventMap = ({
             const lat = event.location.coordinates[0];
             const lng = event.location.coordinates[1];
             
-            if (!isNaN(lat) && !isNaN(lng) && isFinite(lat) && isFinite(lng)) {
+            if (!isNaN(lat) && !isNaN(lng) && isFinite(lat) && isFinite(lng) && !(lat === 0 && lng === 0)) {
               bounds.extend([lng, lat]);
             }
           }
