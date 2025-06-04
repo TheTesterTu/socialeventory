@@ -11,6 +11,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { EventCard } from "@/components/EventCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { mapDatabaseEventToEvent } from "@/lib/utils/mappers";
 
 export const UpcomingEvents = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
@@ -40,37 +41,7 @@ export const UpcomingEvents = () => {
 
       if (error) throw error;
 
-      const formattedEvents: Event[] = (eventsData || []).map(event => ({
-        id: event.id,
-        title: event.title,
-        description: event.description || '',
-        startDate: event.start_date,
-        endDate: event.end_date,
-        location: {
-          coordinates: event.coordinates ? [event.coordinates.x, event.coordinates.y] as [number, number] : [0, 0],
-          address: event.location || '',
-          venue_name: event.venue_name || ''
-        },
-        category: event.category || [],
-        tags: event.tags || [],
-        culturalContext: event.cultural_context,
-        accessibility: event.accessibility || {
-          languages: ['en'],
-          wheelchairAccessible: false,
-          familyFriendly: true
-        },
-        pricing: event.pricing || { isFree: true },
-        creator: {
-          id: event.created_by || '',
-          type: 'user'
-        },
-        verification: {
-          status: event.verification_status || 'pending'
-        },
-        imageUrl: event.image_url || '',
-        likes: event.likes || 0,
-        attendees: event.attendees || 0
-      }));
+      const formattedEvents: Event[] = (eventsData || []).map(mapDatabaseEventToEvent);
 
       setUpcomingEvents(formattedEvents);
     } catch (error) {
