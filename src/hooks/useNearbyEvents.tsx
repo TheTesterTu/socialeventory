@@ -46,24 +46,47 @@ export const useNearbyEvents = () => {
       console.log('Raw events data from RPC:', eventsData);
 
       // If RPC returns no results, fall back to all events and filter manually
-      let finalEventsData = eventsData;
+      let finalEventsData;
       if (!eventsData || eventsData.length === 0) {
         console.log('No events from RPC, falling back to manual filtering');
         finalEventsData = allEvents?.filter(event => {
           if (!event.coordinates) return false;
           // Basic distance check (simplified)
-          const eventLat = typeof event.coordinates === 'object' && 'x' in event.coordinates 
-            ? event.coordinates.x 
-            : Array.isArray(event.coordinates) ? event.coordinates[0] : 0;
-          const eventLng = typeof event.coordinates === 'object' && 'x' in event.coordinates 
-            ? event.coordinates.y 
-            : Array.isArray(event.coordinates) ? event.coordinates[1] : 0;
+          let eventLat: number;
+          let eventLng: number;
+          
+          if (typeof event.coordinates === 'string') {
+            // Parse string format "(x,y)"
+            const match = event.coordinates.match(/\(([^,]+),([^)]+)\)/);
+            if (match) {
+              eventLat = parseFloat(match[1]);
+              eventLng = parseFloat(match[2]);
+            } else {
+              return false;
+            }
+          } else if (typeof event.coordinates === 'object' && event.coordinates !== null) {
+            // Handle object format {x: number, y: number}
+            const coords = event.coordinates as any;
+            if ('x' in coords && 'y' in coords) {
+              eventLat = coords.x;
+              eventLng = coords.y;
+            } else if (Array.isArray(coords) && coords.length >= 2) {
+              eventLat = coords[0];
+              eventLng = coords[1];
+            } else {
+              return false;
+            }
+          } else {
+            return false;
+          }
           
           // Simple distance check (within reasonable bounds)
           const latDiff = Math.abs(lat - eventLat);
           const lngDiff = Math.abs(lng - eventLng);
           return latDiff < 1 && lngDiff < 1; // Rough 100km radius
         }) || [];
+      } else {
+        finalEventsData = eventsData;
       }
 
       console.log('Final events data to process:', finalEventsData);
