@@ -1,14 +1,15 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react'; // Removed React
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Event } from '@/lib/types';
 import { getAPIConfig } from '@/services/api-config';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from './ui/button';
-import { Search, Filter, Loader2 } from 'lucide-react'; // Added Loader2
-import { Skeleton } from '@/components/ui/skeleton'; // Added Skeleton
+import { Search, Filter, Loader2 } from 'lucide-react';
+// import { Skeleton } from '@/components/ui/skeleton'; // Removed unused Skeleton
 import { useNavigate } from 'react-router-dom';
+import Supercluster from 'supercluster';
 
 interface EventMapProps {
   events: Event[];
@@ -33,8 +34,99 @@ const EventMap = ({
   const [mapLoaded, setMapLoaded] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const markers = useRef<mapboxgl.Marker[]>([]);
+  const markers = useRef<mapboxgl.Marker[]>([]); // Will now store both single and cluster markers
   const userMarker = useRef<mapboxgl.Marker | null>(null);
+  const [clusterer, setClusterer] = useState<Supercluster | null>(null);
+  const [pointsToRender, setPointsToRender] = useState<any[]>([]); // GeoJSON features (points or clusters)
+
+  // Initialize/Update Supercluster when events change
+  useEffect(() => {
+    if (!events) return;
+
+    const geoJsonPoints = events
+      .filter(event => event.location?.coordinates && event.location.coordinates.length === 2 && !isNaN(event.location.coordinates[0]) && !isNaN(event.location.coordinates[1]))
+      .map(event => ({
+      type: 'Feature' as const,
+      properties: {
+        cluster: false,
+        eventId: event.id,
+        title: event.title,
+        eventData: event, // Store full event data for single point rendering
+      },
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [event.location.coordinates[1], event.location.coordinates[0]], // [lng, lat]
+      },
+    }));
+
+    const sc = new Supercluster({
+      radius: 75, // Cluster radius in pixels, increased for better visual grouping
+      maxZoom: 16, // Max zoom to cluster points on
+      minZoom: 0, // Min zoom to cluster points on
+    });
+
+    sc.load(geoJsonPoints);
+    setClusterer(sc);
+    console.log('Supercluster initialized/updated with points:', geoJsonPoints.length);
+
+  }, [events]);
+
+  const updateMarkers = () => {
+    if (!map.current || !clusterer || !mapLoaded) {
+      // console.log('Map, clusterer, or mapLoaded not ready for updating markers.');
+      return;
+    }
+
+    const bounds = map.current.getBounds();
+    const zoom = map.current.getZoom();
+
+    if (!bounds) {
+      // console.warn('Map bounds not available yet.');
+      setPointsToRender([]); // Clear points if bounds are not available
+      return;
+    }
+
+    try {
+      const clusters = clusterer.getClusters(
+        [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
+        Math.floor(zoom)
+      );
+      setPointsToRender(clusters);
+      // console.log(`Updating markers for zoom: ${zoom}, bounds: ${JSON.stringify(bounds)}, found clusters/points: ${clusters.length}`);
+    } catch (e) {
+      console.error("Error getting clusters:", e);
+      setPointsToRender([]);
+    }
+  };
+
+  // Update markers when map view changes or clusterer is ready
+  useEffect(() => {
+    if (!map.current || !mapLoaded) return;
+
+    // Initial update when clusterer is ready and map is loaded
+    if (clusterer) {
+      updateMarkers();
+    }
+
+    const handleMapViewChange = () => {
+      // console.log('Map view changed, updating markers...');
+      updateMarkers();
+    };
+
+    map.current.on('moveend', handleMapViewChange);
+    map.current.on('zoomend', handleMapViewChange);
+    // Using 'idle' might be better to avoid too many updates during rapid changes
+    // map.current.on('idle', handleMapViewChange);
+
+
+    return () => {
+      if (map.current) {
+        map.current.off('moveend', handleMapViewChange);
+        map.current.off('zoomend', handleMapViewChange);
+        // map.current.off('idle', handleMapViewChange);
+      }
+    };
+  }, [mapLoaded, clusterer]); // Rerun if mapLoaded or clusterer changes
 
   // Fetch Mapbox token from API configurations
   useEffect(() => {
@@ -134,133 +226,140 @@ const EventMap = ({
     });
   }, [mapLoaded, userLocation]);
 
-  // Add event markers when events or map changes
+  // Render markers for pointsToRender (clusters or single events)
   useEffect(() => {
-    if (!mapLoaded || !map.current) {
-      console.log('Map not ready for markers');
+    if (!mapLoaded || !map.current || !clusterer) {
+      // console.log('Map or clusterer not ready for rendering pointsToRender');
       return;
     }
 
-    console.log('Adding markers for events:', events);
+    // console.log('Rendering pointsToRender:', pointsToRender.length);
 
-    // Clear any existing event markers
+    // Clear existing markers
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
 
-    // Add markers for each event with valid coordinates
-    events.forEach((event, index) => {
-      if (!event.location.coordinates || !map.current) return;
+    pointsToRender.forEach(point => {
+      const coordinates = point.geometry.coordinates as [number, number]; // [lng, lat]
       
-      // Get coordinates - ensure we have valid numbers
-      let lat = event.location.coordinates[0];
-      let lng = event.location.coordinates[1];
-      
-      console.log(`Processing event "${event.title}" (${index}) with coordinates: lat=${lat}, lng=${lng}`);
-      
-      // Validate coordinates
-      if (isNaN(lat) || isNaN(lng) || !isFinite(lat) || !isFinite(lng)) {
-        console.warn(`Invalid coordinates for event ${event.id}: [${lat}, ${lng}]`);
-        return;
-      }
-      
-      // Skip events with zero coordinates (likely invalid)
-      if (lat === 0 && lng === 0) {
-        console.warn(`Zero coordinates for event ${event.id}, skipping`);
-        return;
-      }
-      
-      // Create marker element with vibrant styling
-      const el = document.createElement('div');
-      el.className = 'event-marker';
-      el.style.backgroundColor = '#8B5CF6';
-      el.style.width = '20px';
-      el.style.height = '20px';
-      el.style.borderRadius = '50%';
-      el.style.cursor = 'pointer';
-      el.style.border = '3px solid white';
-      el.style.boxShadow = '0 2px 10px rgba(139, 92, 246, 0.5)';
-      el.style.transition = 'all 0.2s ease';
+      if (point.properties.cluster) {
+        // It's a cluster
+        const clusterId = point.id;
+        const pointCount = point.properties.point_count;
 
-      // Hover effects
-      el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.2)';
-        el.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.8)';
-      });
-      el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)';
-        el.style.boxShadow = '0 2px 10px rgba(139, 92, 246, 0.5)';
-      });
+        const el = document.createElement('div');
+        el.className = 'cluster-marker';
+        el.textContent = pointCount.toString();
+        el.style.width = `${30 + (pointCount / geoJsonPoints.length) * 20}px`; // Example dynamic size
+        el.style.height = `${30 + (pointCount / geoJsonPoints.length) * 20}px`;
+        el.style.backgroundColor = '#f0abfc'; // Purple for clusters
+        el.style.color = '#581c87'; // Dark purple text
+        el.style.borderRadius = '50%';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.style.fontWeight = 'bold';
+        el.style.cursor = 'pointer';
+        el.style.border = '2px solid #581c87';
+        el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
 
-      // Add popup with event details
-      const popup = new mapboxgl.Popup({ 
-        offset: 25,
-        className: 'custom-popup'
-      })
-      .setHTML(`
-        <div class="p-3 space-y-2 min-w-[200px]">
-          <h3 class="font-bold text-lg text-white">${event.title}</h3>
-          <p class="text-sm text-gray-300">${event.location.address}</p>
-          ${event.location.venue_name ? `<p class="text-sm font-medium text-blue-300">${event.location.venue_name}</p>` : ''}
-          <div class="pt-2">
-            <button onclick="window.location.href='/event/${event.id}'" class="bg-primary hover:bg-primary/90 text-white px-3 py-1 rounded text-sm font-medium">
-              View Details
-            </button>
-          </div>
-        </div>
-      `);
-
-      try {
-        // Create and add marker with correct coordinates order (lng, lat for Mapbox!)
         const marker = new mapboxgl.Marker(el)
-          .setLngLat([lng, lat]) // Mapbox expects [longitude, latitude]
-          .setPopup(popup);
-          
-        if (map.current) {
-          marker.addTo(map.current);
-          markers.current.push(marker);
-          console.log(`✅ Added marker for event "${event.title}" at [${lng}, ${lat}]`);
-        }
-      } catch (error) {
-        console.error(`❌ Error adding marker for event ${event.id}:`, error);
-      }
-    });
+          .setLngLat(coordinates)
+          .addTo(map.current!);
 
-    console.log(`Total markers added: ${markers.current.length} out of ${events.length} events`);
-
-    // Fit bounds to include all markers and user location if there are any events
-    if (markers.current.length > 0 && map.current) {
-      try {
-        const bounds = new mapboxgl.LngLatBounds();
-        
-        // Add event coordinates to bounds
-        events.forEach(event => {
-          if (event.location.coordinates) {
-            const lat = event.location.coordinates[0];
-            const lng = event.location.coordinates[1];
-            
-            if (!isNaN(lat) && !isNaN(lng) && isFinite(lat) && isFinite(lng) && !(lat === 0 && lng === 0)) {
-              bounds.extend([lng, lat]);
+        el.addEventListener('click', () => {
+          if (map.current && clusterer) {
+            try {
+              const expansionZoom = clusterer.getClusterExpansionZoom(clusterId as number);
+              map.current.flyTo({ center: coordinates, zoom: expansionZoom });
+            } catch(e) {
+              console.error("Error getting cluster expansion zoom", e);
+               map.current.flyTo({ center: coordinates, zoom: map.current.getZoom() + 2 }); // Fallback zoom
             }
           }
         });
-        
-        // Include user location in bounds if available
+        markers.current.push(marker);
+
+      } else {
+        // It's a single event point
+        const event = point.properties.eventData as Event;
+        if (!event) return;
+
+        const el = document.createElement('div');
+        el.className = 'event-marker';
+        el.style.backgroundColor = '#8B5CF6'; // Original purple for single events
+        el.style.width = '20px';
+        el.style.height = '20px';
+        el.style.borderRadius = '50%';
+        el.style.cursor = 'pointer';
+        el.style.border = '3px solid white';
+        el.style.boxShadow = '0 2px 10px rgba(139, 92, 246, 0.5)';
+        el.style.transition = 'all 0.2s ease';
+        el.style.transformOrigin = 'center center';
+
+        el.addEventListener('mouseenter', () => {
+          el.style.transform = 'scale(1.2)';
+          el.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.8)';
+        });
+        el.addEventListener('mouseleave', () => {
+          el.style.transform = 'scale(1)';
+          el.style.boxShadow = '0 2px 10px rgba(139, 92, 246, 0.5)';
+        });
+
+        const popup = new mapboxgl.Popup({ offset: 25, className: 'custom-popup' })
+          .setHTML(`
+            <div class="p-3 space-y-2 min-w-[200px]">
+              <h3 class="font-bold text-lg">${event.title}</h3> {/* text-white removed */}
+              <p class="text-sm">${event.location.address}</p> {/* text-gray-300 removed */}
+              ${event.location.venue_name ? `<p class="text-sm font-medium">${event.location.venue_name}</p>` : ''} {/* text-blue-300 removed */}
+              <div class="pt-2">
+                <button onclick="window.location.href='/events/${event.id}'" class="bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-1 rounded text-sm font-medium">
+                  View Details
+                </button>
+              </div>
+            </div>
+          `);
+
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat(coordinates)
+          .setPopup(popup)
+          .addTo(map.current!);
+        markers.current.push(marker);
+      }
+    });
+
+    // The fitBounds logic might need adjustment or be removed if clustering handles zoom/view well.
+    // For now, commenting out to prevent conflicts with cluster zoom behavior.
+    /*
+    if (markers.current.length > 0 && map.current) {
+      try {
+        const bounds = new mapboxgl.LngLatBounds();
+        pointsToRender.forEach(point => {
+          bounds.extend(point.geometry.coordinates as [number, number]);
+        });
         if (userLocation) {
           bounds.extend(userLocation);
         }
-        
-        // Only adjust bounds if we have valid coordinates
         if (!bounds.isEmpty()) {
-          map.current.fitBounds(bounds, {
-            padding: 50,
-            maxZoom: 15
-          });
+          map.current.fitBounds(bounds, { padding: 75, maxZoom: 15 });
         }
       } catch (error) {
-        console.error('Error fitting bounds:', error);
+        console.error('Error fitting bounds to pointsToRender:', error);
       }
     }
-  }, [events, mapLoaded, userLocation]);
+    */
+
+  }, [pointsToRender, mapLoaded, clusterer, userLocation]); // Rerun when pointsToRender changes
+
+  // Helper to get geoJsonPoints, used for cluster marker sizing. Could be optimized.
+  const geoJsonPoints = events
+    .filter(event => event.location?.coordinates && event.location.coordinates.length === 2 && !isNaN(event.location.coordinates[0]) && !isNaN(event.location.coordinates[1]))
+    .map(event => ({
+      type: 'Feature' as const,
+      properties: { /* ... */ },
+      geometry: { type: 'Point' as const, coordinates: [event.location.coordinates[1], event.location.coordinates[0]] },
+  }));
+
 
   const handleSearchNearby = () => {
     navigate('/nearby');

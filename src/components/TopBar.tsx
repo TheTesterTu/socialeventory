@@ -8,7 +8,7 @@ import { TopBarNav } from "./navigation/TopBarNav";
 import { TopBarActions } from "./navigation/TopBarActions";
 
 export const TopBar = () => {
-  const location = useLocation();
+  // const location = useLocation(); // Removed unused location
   const [scrolled, setScrolled] = useState(false);
   const isMobile = useIsMobile();
 

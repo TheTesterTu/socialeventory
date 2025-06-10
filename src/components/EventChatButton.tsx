@@ -9,7 +9,7 @@ interface EventChatButtonProps {
   onClick: () => void;
 }
 
-export const EventChatButton = ({ eventId, participantCount = 0, onClick }: EventChatButtonProps) => {
+export const EventChatButton = ({ eventId: _eventId, participantCount = 0, onClick }: EventChatButtonProps) => {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}

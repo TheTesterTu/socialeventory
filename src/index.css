@@ -65,6 +65,55 @@
   }
 }
 
+@layer components {
+  /* Mapbox GL Popup Styling */
+  .mapboxgl-popup-content {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground)); /* Default text color for popup content */
+    border-radius: var(--radius); /* Use app's border radius */
+    box-shadow: 0 4px 12px hsl(var(--primary) / 0.15); /* Themed shadow */
+    padding: 1rem; /* Consistent padding */
+    border: 1px solid hsl(var(--border)); /* Add a border like other cards */
+  }
+
+  /* Popup Tip/Arrow Styling */
+  /* These selectors target the tip element based on its position relative to the anchor */
+  .mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
+    border-bottom-color: hsl(var(--card)); /* Tip color for popups anchored above */
+  }
+
+  .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+    border-top-color: hsl(var(--card)); /* Tip color for popups anchored below */
+  }
+
+  .mapboxgl-popup-anchor-left .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-left-top .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-left-bottom .mapboxgl-popup-tip {
+    border-right-color: hsl(var(--card)); /* Tip color for popups anchored to the left */
+  }
+
+  .mapboxgl-popup-anchor-right .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-right-top .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-right-bottom .mapboxgl-popup-tip {
+    border-left-color: hsl(var(--card)); /* Tip color for popups anchored to the right */
+  }
+
+  /* Optional: If Mapbox adds its own padding that conflicts, remove it */
+  /* .mapboxgl-popup-content > *:first-child { margin-top: 0; }
+     .mapboxgl-popup-content > *:last-child { margin-bottom: 0; } */
+
+  /* Ensure buttons inside popups get some default styling if not explicitly styled by Tailwind in setHTML */
+  .mapboxgl-popup-content button {
+    /* Example: if you want all buttons in popups to have a certain look by default */
+    /* @apply bg-primary text-primary-foreground hover:bg-primary/90; */
+    /* However, the current setHTML for event popups already styles the button with Tailwind. */
+  }
+}
+
 @layer utilities {
   .font-display {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;

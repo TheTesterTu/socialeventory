@@ -14,12 +14,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Filter, Calendar as CalendarIcon, Map, List } from "lucide-react";
+import { Filter, Calendar as CalendarIcon, Map } from "lucide-react"; // List removed
 import { categories } from "@/lib/mock-data";
 import { motion } from "framer-motion";
 import { EventAdvancedFilters } from "./EventAdvancedFilters";
 import { EventFilters } from "@/lib/types/filters";
-import { format } from "date-fns";
+// import { format } from "date-fns"; // format removed
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -41,11 +41,14 @@ export const SearchFilters = ({
   onFilterChange,
   onDateChange,
   selectedDate,
-  viewMode = 'list',
+  viewMode = 'list', // Default is fine, but will be prefixed
   onViewModeChange
 }: SearchFiltersProps) => {
   const navigate = useNavigate();
   const [date, setDate] = useState<Date | undefined>(selectedDate);
+  // Prefix unused parameters
+  const _viewMode = viewMode;
+  const _onViewModeChange = onViewModeChange;
 
   const handleDateSelect = (newDate: Date | undefined) => {
     setDate(newDate);

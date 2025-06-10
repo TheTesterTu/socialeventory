@@ -45,7 +45,7 @@ export const EventCommunity = ({ eventId }: EventCommunityProps) => {
           table: 'comments',
           filter: `event_id=eq.${eventId}`,
         },
-        (payload) => {
+        (_payload) => { // payload is unused
           fetchComments(); // Refetch to get user data
         }
       )

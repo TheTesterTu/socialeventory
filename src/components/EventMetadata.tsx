@@ -19,7 +19,7 @@ interface EventMetadataProps {
 
 export const EventMetadata = ({
   startDate,
-  endDate,
+  endDate: _endDate, // Prefixed
   location,
   tags,
   attendees,

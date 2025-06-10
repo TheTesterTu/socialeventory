@@ -6,8 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { Send, Trash2 } from "lucide-react";
 import { useEventComments } from "@/hooks/useEventComments";
-import { toast } from "sonner";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
+// import { toast } from "sonner"; // Removed unused toast
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"; // Removed AlertDialogTrigger
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 

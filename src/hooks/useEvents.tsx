@@ -49,22 +49,41 @@ export const useCreateEvent = () => {
     mutationFn: async (eventData: Partial<Event>) => {
       if (!user) throw new Error("Must be logged in to create events");
 
-      // Map the Event interface fields to database column names with proper type casting
+      // Ensure required string fields are present, especially for date fields if DB expects strings
+      if (typeof eventData.startDate !== 'string' || typeof eventData.endDate !== 'string') {
+        // Or if other specific fields like title are absolutely mandatory
+        // For now, focusing on startDate and endDate as per the TS error
+        throw new Error("Start date and end date must be provided as strings.");
+      }
+      // At this point, TypeScript knows eventData.startDate and eventData.endDate are strings
+      // if they were part of the Partial<Event> and not undefined.
+      // However, Partial<Event> means they *could* be undefined.
+      // The check above ensures they are strings if the event creation is to proceed.
+      // Additional checks for other potentially required fields:
+      if (typeof eventData.title !== 'string' || !eventData.title.trim()) {
+        throw new Error("Title must be provided as a non-empty string.");
+      }
+      if (!eventData.location || typeof eventData.location.address !== 'string' || !eventData.location.address.trim()) {
+        throw new Error("Location address must be provided as a non-empty string.");
+      }
+      // If eventData.location is present, eventData.location.address is now known to be a string.
+
       const dbEventData = {
-        title: eventData.title,
-        description: eventData.description,
-        location: eventData.location?.address,
-        venue_name: eventData.location?.venue_name,
-        start_date: eventData.startDate,
-        end_date: eventData.endDate,
-        category: eventData.category,
-        tags: eventData.tags,
-        image_url: eventData.imageUrl,
+        title: eventData.title, // string, checked
+        description: eventData.description ?? null, // Allow null if description is optional
+        location: eventData.location.address, // string, checked
+        venue_name: eventData.location.venue_name ?? null, // Allow null if venue_name is optional
+        start_date: eventData.startDate, // string, checked
+        end_date: eventData.endDate,     // string, checked
+        category: eventData.category ?? [], // Default to empty array
+        tags: eventData.tags ?? [],       // Default to empty array
+        image_url: eventData.imageUrl ?? null, // Allow null if imageUrl is optional
         created_by: user.id,
-        coordinates: eventData.location?.coordinates ? 
+        coordinates: eventData.location?.coordinates ? // location is checked, coordinates might be optional on Partial<Location>
           `(${eventData.location.coordinates[0]}, ${eventData.location.coordinates[1]})` : null,
-        accessibility: eventData.accessibility as any, // Cast to Json type
-        pricing: eventData.pricing as any, // Cast to Json type
+        // Assuming accessibility and pricing are JSON fields in DB that can accept {} or be null
+        accessibility: eventData.accessibility ? (eventData.accessibility as any) : {},
+        pricing: eventData.pricing ? (eventData.pricing as any) : {},
         verification_status: 'pending' as const
       };
 

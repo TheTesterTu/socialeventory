@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+// import { useState } from "react"; // Removed unused useState
+// import { motion } from "framer-motion"; // Removed unused motion
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 

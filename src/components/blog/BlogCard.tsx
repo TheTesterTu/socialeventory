@@ -11,7 +11,7 @@ interface BlogCardProps {
   featured?: boolean;
 }
 
-export const BlogCard = ({ post, featured = false }: BlogCardProps) => {
+export const BlogCard = ({ post, featured: _featured = false }: BlogCardProps) => {
   const publishedDate = new Date(post.publishedAt);
   const timeAgo = formatDistanceToNow(publishedDate, { addSuffix: true });
 

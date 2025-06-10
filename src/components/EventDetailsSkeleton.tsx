@@ -1,5 +1,5 @@
 
-import { motion } from "framer-motion";
+// import { motion } from "framer-motion"; // Removed unused motion
 
 export const EventDetailsSkeleton = () => {
   return (

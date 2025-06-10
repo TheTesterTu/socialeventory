@@ -15,11 +15,11 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitAny": false,
-    "noFallthroughCasesInSwitch": false,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    // "noImplicitAny": false, // Removed, as strict:true implies noImplicitAny:true
+    "noFallthroughCasesInSwitch": false, // Keeping this as false for now, can be addressed later
 
     "baseUrl": ".",
     "paths": {
