@@ -145,9 +145,15 @@ export const EventCard = ({
                     handleLike();
                   }}
                   className="ml-2 shrink-0"
+                  aria-label={isLiked ? `Unlike event: ${eventData.title}` : `Like event: ${eventData.title}`}
                 >
-                  <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-                  <span className="ml-1 text-sm">{likesCount}</span>
+                  <motion.div
+                    whileTap={{ scale: 0.85, transition: { duration: 0.05 } }}
+                    className="flex items-center" // Ensures icon and count scale together
+                  >
+                    <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                    <span className="ml-1 text-sm">{likesCount}</span>
+                  </motion.div>
                 </Button>
               </div>
 

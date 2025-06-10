@@ -1,128 +1,88 @@
 
-import { useState } from 'react';
+import { useQuery } from "@tanstack/react-query";
 import { Event } from '@/lib/types';
 import { supabase } from '@/integrations/supabase/client';
 import { mapDatabaseEventToEvent } from '@/lib/utils/mappers';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast'; // Kept for potential specific notifications
 
-export const useNearbyEvents = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface UseNearbyEventsParams {
+  latitude: number | null;
+  longitude: number | null;
+  radiusKm?: number;
+  enabled?: boolean; // To control when the query runs
+}
+
+export const useNearbyEvents = ({
+  latitude,
+  longitude,
+  radiusKm = 5, // Default radius to 5km
+  enabled = true, // Default to true, but usually controlled by lat/lng presence
+}: UseNearbyEventsParams) => {
   const { toast } = useToast();
 
-  const fetchNearbyEvents = async (lat: number, lng: number, radius: number = 5, selectedDate?: Date) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      console.log('Fetching nearby events with params:', { lat, lng, radius, selectedDate });
-      
-      const radiusMeters = radius * 1000; // Convert km to meters
-      
-      // First, let's try to get all events to debug
-      const { data: allEvents, error: allEventsError } = await supabase
-        .from('events')
-        .select('*');
-      
-      console.log('All events in database:', allEvents);
-      
-      // Then try the RPC function
-      const { data: eventsData, error } = await supabase
-        .rpc('find_nearby_events', {
-          lat: lat,
-          lon: lng,
-          radius_meters: radiusMeters,
-          category_filter: null,
-          max_price: null,
-          accessibility_filter: null
+  return useQuery<Event[], Error>({
+    queryKey: ['events', 'nearby', latitude, longitude, radiusKm],
+    queryFn: async () => {
+      if (!latitude || !longitude) {
+        // This case should ideally be prevented by the `enabled` option.
+        // If it still runs, returning an empty array or throwing an error are options.
+        // Throwing an error will put react-query into an error state.
+        // Returning [] will result in a success state with empty data.
+        // Let's return empty array as `enabled` should gate this.
+        return [];
+      }
+
+      const radiusMeters = radiusKm * 1000;
+      console.log(`Fetching nearby events for lat: ${latitude}, lon: ${longitude}, radius: ${radiusKm}km`);
+
+      const { data: rpcData, error: rpcError } = await supabase.rpc('find_nearby_events', {
+        lat: latitude,
+        lon: longitude,
+        radius_meters: radiusMeters,
+        // category_filter: null, // These can be added as params to the hook if needed later
+        // max_price: null,
+        // accessibility_filter: null
+      });
+
+      if (rpcError) {
+        console.error('RPC error in useNearbyEvents:', rpcError);
+        toast({ // Example of a specific toast, though react-query handles general error state
+          title: "Network Error",
+          description: `Failed to fetch nearby events: ${rpcError.message}`,
+          variant: "destructive",
+        });
+        throw rpcError; // Propagate error for react-query to handle
+      }
+
+      if (!rpcData) {
+        console.log('No events data returned from RPC.');
+        return []; // Return empty array if RPC returns null/undefined data
+      }
+
+      console.log('Raw events data from RPC:', rpcData.length);
+
+      const formattedEvents: Event[] = (rpcData as any[] || [])
+        .map(event => mapDatabaseEventToEvent(event)) // mapDatabaseEventToEvent should handle potential nulls from DB
+        .filter(event => {
+          // Filter out events with invalid or placeholder coordinates
+          if (!event.location || !event.location.coordinates) return false;
+          const [coordLat, coordLng] = event.location.coordinates;
+          // Check for NaN, null, undefined, and (0,0) which might be a placeholder
+          const isValid = typeof coordLat === 'number' && !isNaN(coordLat) &&
+                          typeof coordLng === 'number' && !isNaN(coordLng) &&
+                          !(coordLat === 0 && coordLng === 0);
+          if (!isValid) {
+            console.warn(`Filtered out event "${event.title}" due to invalid coordinates: [${coordLat}, ${coordLng}]`);
+          }
+          return isValid;
         });
 
-      if (error) {
-        console.error('RPC error:', error);
-        throw error;
-      }
-
-      console.log('Raw events data from RPC:', eventsData);
-
-      // If RPC returns no results, fall back to all events and filter manually
-      let finalEventsData;
-      if (!eventsData || eventsData.length === 0) {
-        console.log('No events from RPC, falling back to manual filtering');
-        finalEventsData = allEvents?.filter(event => {
-          if (!event.coordinates) return false;
-          // Basic distance check (simplified)
-          let eventLat: number;
-          let eventLng: number;
-          
-          if (typeof event.coordinates === 'string') {
-            // Parse string format "(x,y)"
-            const match = event.coordinates.match(/\(([^,]+),([^)]+)\)/);
-            if (match) {
-              eventLat = parseFloat(match[1]);
-              eventLng = parseFloat(match[2]);
-            } else {
-              return false;
-            }
-          } else if (typeof event.coordinates === 'object' && event.coordinates !== null) {
-            // Handle object format {x: number, y: number}
-            const coords = event.coordinates as any;
-            if ('x' in coords && 'y' in coords) {
-              eventLat = coords.x;
-              eventLng = coords.y;
-            } else if (Array.isArray(coords) && coords.length >= 2) {
-              eventLat = coords[0];
-              eventLng = coords[1];
-            } else {
-              return false;
-            }
-          } else {
-            return false;
-          }
-          
-          // Simple distance check (within reasonable bounds)
-          const latDiff = Math.abs(lat - eventLat);
-          const lngDiff = Math.abs(lng - eventLng);
-          return latDiff < 1 && lngDiff < 1; // Rough 100km radius
-        }) || [];
-      } else {
-        finalEventsData = eventsData;
-      }
-
-      console.log('Final events data to process:', finalEventsData);
-
-      // Map the events using the proper mapper
-      const formattedEvents: Event[] = (finalEventsData as any[] || []).map(event => {
-        console.log('Processing event:', event);
-        return mapDatabaseEventToEvent(event);
-      }).filter(event => {
-        // Filter out events with invalid coordinates
-        const [lat, lng] = event.location.coordinates;
-        const isValid = !isNaN(lat) && !isNaN(lng) && !(lat === 0 && lng === 0);
-        console.log(`Event "${event.title}" coordinates [${lat}, ${lng}] valid: ${isValid}`);
-        return isValid;
-      });
-
-      console.log('Final formatted events:', formattedEvents);
-      setEvents(formattedEvents);
-    } catch (error) {
-      console.error('Error fetching events:', error);
-      const errorMessage = 'Failed to fetch nearby events. Please try again later.';
-      setError(errorMessage);
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return {
-    events,
-    isLoading,
-    error,
-    fetchNearbyEvents,
-  };
+      console.log('Formatted nearby events:', formattedEvents.length);
+      return formattedEvents;
+    },
+    enabled: enabled && !!latitude && !!longitude, // Query only runs if explicitly enabled AND lat/lng are present
+    // staleTime: 1000 * 60 * 5, // Example: 5 minutes stale time
+    // cacheTime: 1000 * 60 * 10, // Example: 10 minutes cache time
+    // Consider adding retry options or onError for global toast notifications if needed
+  });
 };

@@ -4,137 +4,61 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Event } from "@/lib/types";
 import { EventCard } from "@/components/EventCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { Sparkles, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Sparkles } from "lucide-react"; // Loader2 removed
+// supabase import removed
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { mapDatabaseEventToEvent, mapMockEventToEvent } from "@/lib/utils/mappers";
+// mapDatabaseEventToEvent and mapMockEventToEvent removed
+import { usePersonalizedEvents } from "@/hooks/useEvents";
+import { EventCardSkeleton } from "@/components/EventCardSkeleton";
+// Alert components can be imported if a more detailed error message is desired
+// import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+// import { AlertCircle } from "lucide-react";
+
 
 export const PersonalizedEvents = () => {
-  const { user } = useAuth();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth(); // user object can still be used for conditional UI elements if needed
 
-  // Fetch personalized events based on user preferences and past interactions
-  useEffect(() => {
-    const fetchPersonalizedEvents = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      
-      setLoading(true);
-      try {
-        // In a production app, we would fetch recommendations from an algorithm
-        // For now, we'll get a few random events as "personalized" recommendations
-        const { data: userPreferences } = await supabase
-          .from('profiles')
-          .select('preferences')
-          .eq('id', user.id)
-          .single();
-        
-        // Get preferred categories if available
-        const preferredCategories: string[] = [];
-        if (userPreferences?.preferences && 
-            typeof userPreferences.preferences === 'object' && 
-            userPreferences.preferences !== null && 
-            Array.isArray((userPreferences.preferences as any).categories)) {
-          preferredCategories.push(...((userPreferences.preferences as any).categories as string[]));
-        }
-        
-        // Get events that match user preferences or recent interests
-        const { data: eventData, error } = await supabase
-          .from('events')
-          .select('*')
-          .limit(4)
-          .order('created_at', { ascending: false });
-          
-        if (error) throw error;
-        
-        if (eventData && eventData.length > 0) {
-          // Map database events to our Event interface
-          const mappedEvents = eventData.map(event => mapDatabaseEventToEvent(event));
-          setEvents(mappedEvents);
-        } else {
-          // Fallback to mock data if there's an error
-          const mockEvents = [
-            {
-              id: "rec-1",
-              title: "Tech Conference 2025",
-              description: "Annual technology conference featuring the latest innovations",
-              location: "San Francisco, CA",
-              image_url: "https://source.unsplash.com/random/800x600/?tech",
-              start_date: new Date(Date.now() + 86400000 * 2).toISOString(),
-              category: ["Technology", "Conference"]
-            },
-            {
-              id: "rec-2",
-              title: "Local Art Exhibition",
-              description: "Featuring works from local emerging artists",
-              location: "Portland, OR",
-              image_url: "https://source.unsplash.com/random/800x600/?art",
-              start_date: new Date(Date.now() + 86400000 * 4).toISOString(),
-              category: ["Art", "Exhibition"]
-            },
-          ];
-          
-          // Map mock events to our Event interface
-          const mappedMockEvents = mockEvents.map(event => mapMockEventToEvent(event));
-          setEvents(mappedMockEvents);
-        }
-      } catch (error) {
-        console.error("Error fetching personalized events:", error);
-        // Fallback to mock data if there's an error
-        const mockEvents = [
-          {
-            id: "rec-1",
-            title: "Tech Conference 2025",
-            description: "Annual technology conference featuring the latest innovations",
-            location: "San Francisco, CA",
-            image_url: "https://source.unsplash.com/random/800x600/?tech",
-            start_date: new Date(Date.now() + 86400000 * 2).toISOString(),
-            category: ["Technology", "Conference"]
-          },
-          {
-            id: "rec-2",
-            title: "Local Art Exhibition",
-            description: "Featuring works from local emerging artists",
-            location: "Portland, OR",
-            image_url: "https://source.unsplash.com/random/800x600/?art",
-            start_date: new Date(Date.now() + 86400000 * 4).toISOString(),
-            category: ["Art", "Exhibition"]
-          },
-        ].map(event => mapMockEventToEvent(event));
-        
-        setEvents(mockEvents);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    data: hookPersonalizedEvents,
+    isLoading,
+    error,
+    // refetch // Available if a manual refresh button is desired
+  } = usePersonalizedEvents(2); // Fetch 2 events
 
-    fetchPersonalizedEvents();
-  }, [user]);
+  const personalizedEvents = hookPersonalizedEvents || [];
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <Card className="shadow-md border-primary/10">
-        <CardHeader className="pb-3">
+      <Card className="shadow-md border-primary/10 overflow-hidden">
+        <CardHeader className="pb-3 bg-gradient-to-r from-background to-primary/5">
           <CardTitle className="flex items-center text-xl">
             <Sparkles className="h-5 w-5 mr-2 text-primary" />
             For You
           </CardTitle>
-          <CardDescription>Loading personalized recommendations...</CardDescription>
+          <CardDescription>Events we think you'll love</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex justify-center py-10">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <EventCardSkeleton />
+            <EventCardSkeleton />
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  if (!user || events.length === 0) {
+  if (error) {
+    console.error("Error loading personalized events:", error);
+    // Optionally, display a subtle error message or return null to hide the section
+    // For now, returning null as per subtask suggestion
+    return null;
+  }
+
+  // The hook provides fallback events even if user is not logged in or has no prefs.
+  // So, we only return null if, after loading and no error, the events array is empty.
+  // This might happen if the fallback also fails or returns nothing.
+  if (personalizedEvents.length === 0) {
     return null;
   }
 

@@ -30,12 +30,8 @@ const Index = () => {
     >
       <WelcomeModal />
       
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="relative"
-      >
+      {/* Removed outermost motion.div, AppLayout now handles page transitions */}
+      <div className="relative">
         <HomeHero />
         
         <div className="px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 md:space-y-12 pb-16">
@@ -136,7 +132,7 @@ const Index = () => {
             </Popover>
           </div>
         )}
-      </motion.div>
+      </div> {/* Closing the div that replaced motion.div */}
     </AppLayout>
   );
 };

@@ -6,7 +6,8 @@ import { Event } from '@/lib/types';
 import { getAPIConfig } from '@/services/api-config';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from './ui/button';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Loader2 } from 'lucide-react'; // Added Loader2
+import { Skeleton } from '@/components/ui/skeleton'; // Added Skeleton
 import { useNavigate } from 'react-router-dom';
 
 interface EventMapProps {
@@ -15,6 +16,7 @@ interface EventMapProps {
   isInteractive?: boolean;
   className?: string;
   userLocation?: [number, number]; // [lng, lat] format for Mapbox
+  isLoadingEvents?: boolean; // Added prop for parent loading state
 }
 
 const EventMap = ({ 
@@ -22,7 +24,8 @@ const EventMap = ({
   showFilters = false, 
   isInteractive = true,
   className = '',
-  userLocation
+  userLocation,
+  isLoadingEvents = false // Default to false
 }: EventMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -303,8 +306,19 @@ const EventMap = ({
         </div>
       )}
       
+      {/* Loading overlay */}
+      {mapboxToken && (!mapLoaded || isLoadingEvents) && (
+        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex flex-col items-center justify-center z-20 rounded-xl">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
+          <p className="text-muted-foreground text-sm">
+            {isLoadingEvents ? "Loading events..." : "Initializing map..."}
+          </p>
+        </div>
+      )}
+
       <div ref={mapContainer} className="w-full h-full rounded-xl overflow-hidden border border-border/40 shadow-lg" />
-      <div className="absolute inset-0 pointer-events-none rounded-xl border border-border/10" />
+      {/* Subtle border overlay to ensure it's above map tiles but below UI elements like popups or loading overlay */}
+      <div className="absolute inset-0 pointer-events-none rounded-xl border border-border/10 z-0" />
     </div>
   );
 };

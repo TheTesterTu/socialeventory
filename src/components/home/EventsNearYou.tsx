@@ -1,24 +1,38 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Event } from "@/lib/types";
-import { MapPin, Loader2 } from "lucide-react";
+// Event type might not be needed directly if relying on hook's data type
+// import { Event } from "@/lib/types";
+import { MapPin, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { mapDatabaseEventToEvent } from "@/lib/utils/mappers";
+import { useNearbyEvents } from "@/hooks/useNearbyEvents";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export const EventsNearYou = () => {
-  const [nearbyEvents, setNearbyEvents] = useState<Event[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingLocationButton, setIsLoadingLocationButton] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const {
+    data: nearbyEvents,
+    isLoading: isLoadingEvents,
+    error: eventsError,
+    // refetch: refetchNearbyEvents // Can be used if a manual refresh button is added
+  } = useNearbyEvents({
+    latitude: userLocation?.lat,
+    longitude: userLocation?.lng,
+    radiusKm: 50, // Match original 50km
+    enabled: !!userLocation, // Only run query if userLocation is set
+  });
+
   useEffect(() => {
-    // Try to get user location automatically
-    if (navigator.geolocation) {
+    // Try to get user location automatically on mount if not already set
+    if (!userLocation && navigator.geolocation) {
+      setIsLoadingLocationButton(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const coords = {
@@ -26,69 +40,28 @@ export const EventsNearYou = () => {
             lng: position.coords.longitude,
           };
           setUserLocation(coords);
-          fetchNearbyEvents(coords.lat, coords.lng);
+          setIsLoadingLocationButton(false);
+          toast({
+            title: "Location automatically detected",
+            description: "Showing events near you.",
+          });
         },
         () => {
-          // If geolocation fails, show some default events
-          fetchDefaultEvents();
+          setIsLoadingLocationButton(false);
+          toast({
+            title: "Location access denied or unavailable",
+            description: "Please manually enable location or use the 'Get Location' button.",
+            variant: "default",
+          });
+          // User location remains null, hook won't run until manually triggered
         }
       );
-    } else {
-      fetchDefaultEvents();
     }
-  }, []);
-
-  const fetchNearbyEvents = async (lat: number, lng: number) => {
-    try {
-      setIsLoading(true);
-      
-      const { data: eventsData, error } = await supabase
-        .rpc('find_nearby_events', {
-          lat: lat,
-          lon: lng,
-          radius_meters: 50000, // 50km radius
-          category_filter: null,
-          max_price: null,
-          accessibility_filter: null
-        });
-
-      if (error) throw error;
-
-      const formattedEvents: Event[] = (eventsData as any[] || []).slice(0, 3).map(mapDatabaseEventToEvent);
-
-      setNearbyEvents(formattedEvents);
-    } catch (error) {
-      console.error('Error fetching nearby events:', error);
-      fetchDefaultEvents();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchDefaultEvents = async () => {
-    try {
-      setIsLoading(true);
-      
-      const { data: eventsData, error } = await supabase
-        .from('events')
-        .select('*')
-        .limit(3);
-
-      if (error) throw error;
-
-      const formattedEvents: Event[] = (eventsData || []).map(mapDatabaseEventToEvent);
-
-      setNearbyEvents(formattedEvents);
-    } catch (error) {
-      console.error('Error fetching default events:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, []); // Run once on mount if userLocation is not already there
 
   const handleGetLocation = () => {
     if (navigator.geolocation) {
-      setIsLoading(true);
+      setIsLoadingLocationButton(true);
       toast({
         title: "Getting your location...",
         description: "This may take a few seconds.",
@@ -100,17 +73,15 @@ export const EventsNearYou = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
-          setUserLocation(coords);
-          
+          setUserLocation(coords); // This will trigger the useNearbyEvents hook via enabled or queryKey change
+          setIsLoadingLocationButton(false);
           toast({
-            title: "Location found!",
+            title: "Location updated!",
             description: "Now showing events near you.",
           });
-          
-          fetchNearbyEvents(coords.lat, coords.lng);
         },
         (error) => {
-          setIsLoading(false);
+          setIsLoadingLocationButton(false);
           toast({
             title: "Error getting location",
             description: error.message,
@@ -125,6 +96,28 @@ export const EventsNearYou = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const renderMapImage = () => {
+    if (nearbyEvents && nearbyEvents.length > 0 && nearbyEvents[0].location.coordinates[0] !== 0) {
+      return (
+        <img
+          src={`https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/pin-s+8B5CF6(${nearbyEvents[0].location.coordinates[1]},${nearbyEvents[0].location.coordinates[0]})/auto/800x200@2x?access_token=pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbHFrazlmam8wMXlnMnFxcWV6OXZ2MnFqIn0.n7ZZPfC3JG0Vl-xSQyzkww`}
+          alt="Map with events near you"
+          className="w-full h-48 object-cover"
+        />
+      );
+    }
+    return (
+      <div className="w-full h-48 bg-gradient-to-r from-primary/20 to-accent/20 flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <MapPin className="h-8 w-8 mx-auto mb-2" />
+          <p className="text-sm">
+            {isLoadingEvents ? "Finding events near you..." : (userLocation ? "No events found for your location." : "Provide location to see nearby events.")}
+          </p>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -143,10 +136,10 @@ export const EventsNearYou = () => {
           variant="outline" 
           size="sm" 
           onClick={handleGetLocation}
-          disabled={isLoading}
+          disabled={isLoadingLocationButton}
           className="flex items-center gap-1"
         >
-          {isLoading ? (
+          {isLoadingLocationButton ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <MapPin className="h-4 w-4" />
@@ -154,49 +147,66 @@ export const EventsNearYou = () => {
           <span>{userLocation ? "Update Location" : "Get Location"}</span>
         </Button>
       </div>
-      
-      <div className="glass-panel relative rounded-xl overflow-hidden">
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 z-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        />
-        
-        {nearbyEvents.length > 0 && nearbyEvents[0].location.coordinates[0] !== 0 ? (
-          <img 
-            src={`https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/pin-s+8B5CF6(${nearbyEvents[0].location.coordinates[1]},${nearbyEvents[0].location.coordinates[0]})/auto/800x200@2x?access_token=pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbHFrazlmam8wMXlnMnFxcWV6OXZ2MnFqIn0.n7ZZPfC3JG0Vl-xSQyzkww`}
-            alt="Map with events near you"
-            className="w-full h-48 object-cover"
-          />
-        ) : (
-          <div className="w-full h-48 bg-gradient-to-r from-primary/20 to-accent/20 flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <MapPin className="h-8 w-8 mx-auto mb-2" />
-              <p className="text-sm">
-                {isLoading ? "Finding events near you..." : "No events found nearby"}
-              </p>
-            </div>
+
+      {isLoadingEvents && !eventsError && (
+        <div className="glass-panel relative rounded-xl overflow-hidden">
+          <Skeleton className="w-full h-48" /> {/* Map Image Skeleton */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 z-10" />
+          <div className="absolute bottom-0 left-0 right-0 p-4 z-20 bg-gradient-to-t from-background/90 via-background/70 to-transparent pt-12">
+            <Skeleton className="h-4 w-1/3 mb-3 rounded" /> {/* Event count text skeleton */}
+            <Skeleton className="h-10 w-full rounded-md" /> {/* Button skeleton */}
           </div>
-        )}
-        
-        <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-          <div className="mb-2">
-            {nearbyEvents.length > 0 && (
-              <p className="text-white text-sm font-medium">
-                {nearbyEvents.length} event{nearbyEvents.length !== 1 ? 's' : ''} found
-                {userLocation && ' in your area'}
-              </p>
-            )}
-          </div>
-          <Button 
-            onClick={() => navigate("/nearby")}
-            className="w-full bg-primary hover:bg-primary/90"
-          >
-            Explore Nearby Events
-          </Button>
         </div>
-      </div>
+      )}
+
+      {eventsError && (
+        <Alert variant="destructive" className="mt-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            Could not load nearby events. {eventsError.message}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {!isLoadingEvents && !eventsError && (
+        <div className="glass-panel relative rounded-xl overflow-hidden">
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          />
+          {renderMapImage()}
+          <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
+            <div className="mb-2">
+              {(!userLocation && !isLoadingLocationButton) && (
+                 <p className="text-white text-sm font-medium">
+                   Click "Get Location" to see events near you.
+                 </p>
+              )}
+              {(userLocation && nearbyEvents) && (
+                <p className="text-white text-sm font-medium">
+                  {nearbyEvents.length} event{nearbyEvents.length !== 1 ? 's' : ''} found
+                  {userLocation && ' in your area (approx 50km radius)'}
+                </p>
+              )}
+               {(userLocation && !nearbyEvents && !isLoadingEvents) && (
+                 <p className="text-white text-sm font-medium">
+                   No events found within 50km of your location.
+                 </p>
+              )}
+            </div>
+            <Button
+              onClick={() => navigate("/nearby")}
+              className="w-full bg-primary hover:bg-primary/90"
+              disabled={!userLocation || !nearbyEvents || nearbyEvents.length === 0}
+            >
+              Explore Nearby Events
+            </Button>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

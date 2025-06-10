@@ -8,6 +8,7 @@ import { OfflineBanner } from "@/components/ui/offline-banner";
 import { PropsWithChildren, useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { motion } from "framer-motion";
 
 interface AppLayoutProps extends PropsWithChildren {
   hideTopBar?: boolean;
@@ -53,9 +54,15 @@ export const AppLayout = ({
         {!hideTopBar && <TopBar />}
         
         <main className={`flex-1 w-full ${!hideTopBar ? 'pt-16' : ''} ${isMobile ? 'pb-20' : ''}`}>
-          <div className="min-h-full">
+          <motion.div
+            className="min-h-full" // Ensure this div takes up height
+            initial={{ opacity: 0, y: 10 }} // Slight slide up + fade
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }} // Slight slide down + fade
+            transition={{ duration: 0.25 }} // Adjust duration
+          >
             {children}
-          </div>
+          </motion.div>
         </main>
         
         {!hideFooter && !isMobile && <Footer />}

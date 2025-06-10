@@ -11,6 +11,8 @@ import { NotFoundRedirect } from "./components/NotFoundRedirect";
 import { ProductionLayout } from "./components/layout/ProductionLayout";
 import { OfflineBanner } from "./components/ui/offline-banner";
 import { useAnalytics } from "./hooks/useAnalytics";
+import { useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 
 // Main Pages
 import Landing from "./pages/Landing";
@@ -60,11 +62,13 @@ const queryClient = new QueryClient({
 
 const AppContent = () => {
   useAnalytics();
+  const location = useLocation(); // Get location
 
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Landing />} />
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        {/* Public Routes */}
+        <Route path="/" element={<Landing />} />
       <Route path="/events" element={<Index />} />
       <Route path="/event/:id" element={<EventDetails />} />
       <Route path="/auth" element={<Auth />} />
