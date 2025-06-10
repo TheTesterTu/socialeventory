@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Event } from "@/lib/types";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 import { EventChatButton } from "./EventChatButton";
 import { EventChatModal } from "./EventChatModal";
 import { useEventChat } from "@/hooks/useEventChat";
@@ -110,10 +112,12 @@ export const EventCard = ({
           onClick={handleCardClick}
         >
           <div className="relative h-48 overflow-hidden">
-            <img
-              src={eventData.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
+            <LazyLoadImage
               alt={eventData.title}
+              src={eventData.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
+              effect="blur"
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              wrapperClassName="w-full h-full"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
             

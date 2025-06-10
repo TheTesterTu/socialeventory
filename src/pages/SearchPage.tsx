@@ -5,12 +5,15 @@ import { SearchBar } from "@/components/SearchBar";
 import { SearchFilters } from "@/components/SearchFilters";
 import { ActiveFilters } from "@/components/ActiveFilters";
 import { SearchResults } from "@/components/SearchResults";
-import { mockEvents } from "@/lib/mock-data";
+// import { mockEvents } from "@/lib/mock-data"; // Removed mockEvents
 import { Event } from "@/lib/types";
 import { EventFilters } from "@/lib/types/filters";
 import { useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { format } from "date-fns";
+import { useSearchEvents } from "@/hooks/useSearchEvents";
+import { LoadingSpinner } from "@/components/loading/LoadingSpinner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // Assuming Alert components are structured this way
 
 const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,6 +34,22 @@ const SearchPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const location = useLocation();
 
+  // Prepare params for useSearchEvents
+  const searchParams: Parameters<typeof useSearchEvents>[0] = {
+    query: searchQuery,
+    categories: selectedCategories,
+  };
+
+  if (selectedDate) {
+    searchParams.dateRange = [
+      format(selectedDate, "yyyy-MM-dd'T'00:00:00'Z'"),
+      format(selectedDate, "yyyy-MM-dd'T'23:59:59'Z'"),
+    ];
+  }
+
+  const { data: eventsFromHook, isLoading, error } = useSearchEvents(searchParams);
+  // const { data: eventsFromHook, isLoading, error, refetch } = useSearchEvents(searchParams); // refetch might be needed later
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const queryParam = params.get('q');
@@ -46,41 +65,33 @@ const SearchPage = () => {
   }, [location.search]);
 
   useEffect(() => {
-    const filtered = mockEvents.filter((event) => {
-      const matchesSearch = 
-        searchQuery === "" ||
-        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.location.address.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesCategories = 
-        selectedCategories.length === 0 ||
-        event.category.some(cat => selectedCategories.includes(cat));
-      
-      const matchesDate = !selectedDate || 
-        format(new Date(event.startDate), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
-      
+    if (!eventsFromHook) {
+      setFilteredEvents([]);
+      return;
+    }
+
+    // Apply client-side filters (accessibility, pricing)
+    const clientFiltered = eventsFromHook.filter(event => {
       const matchesAccessibility =
         !filters.accessibility?.wheelchairAccessible || event.accessibility.wheelchairAccessible;
-  
+
       const matchesFamilyFriendly =
         !filters.accessibility?.familyFriendly || event.accessibility.familyFriendly;
-  
+
       const matchesPricing =
         (!filters.pricing?.isFree || event.pricing.isFree) &&
-        (!filters.pricing?.maxPrice || 
+        (!filters.pricing?.maxPrice ||
           (event.pricing.priceRange && event.pricing.priceRange[1] <= filters.pricing.maxPrice));
-  
-      return matchesSearch && 
-             matchesCategories && 
-             matchesAccessibility && 
-             matchesFamilyFriendly && 
-             matchesPricing &&
-             matchesDate;
+
+      // Date matching is now handled by the hook via dateRange.
+      // Search query matching is now handled by the hook.
+      // Category matching is now handled by the hook.
+
+      return matchesAccessibility && matchesFamilyFriendly && matchesPricing;
     });
-    
-    setFilteredEvents(filtered);
-  }, [searchQuery, selectedCategories, filters, selectedDate]);
+
+    setFilteredEvents(clientFiltered);
+  }, [eventsFromHook, filters]); // searchQuery, selectedCategories, selectedDate removed as primary filtering is server-side
 
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev => 
@@ -131,10 +142,13 @@ const SearchPage = () => {
           />
         </div>
 
+        {/* SearchResults will now handle its own loading and error states */}
         <SearchResults 
           events={filteredEvents} 
           searchQuery={searchQuery}
           viewMode={viewMode}
+          isLoading={isLoading}
+          error={error}
         />
       </motion.div>
     </AppLayout>
