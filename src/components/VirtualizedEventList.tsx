@@ -1,3 +1,4 @@
+
 import { FixedSizeList as List } from 'react-window';
 import { Event } from '@/lib/types';
 import { EventCard } from './EventCard';
@@ -30,7 +31,9 @@ export const VirtualizedEventList = ({
   const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
     const event = events[index];
     
-    const handleEventClick = () => {
+    const handleEventClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
       setSelectedEvent(event);
       setIsDialogOpen(true);
     };
@@ -45,9 +48,10 @@ export const VirtualizedEventList = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: index * 0.05 }}
         className="p-3"
-        onClick={handleEventClick}
       >
-        <EventCard event={event} index={index} />
+        <div onClick={handleEventClick} className="cursor-pointer">
+          <EventCard event={event} index={index} />
+        </div>
       </motion.div>
     );
   };

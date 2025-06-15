@@ -75,7 +75,7 @@ export const EventCard = ({ event, index = 0, variant = 'default', ...props }: E
       }}
       className="h-full"
     >
-      <Link to={`/events/${eventData.id}`} className="block h-full">
+      <Link to={`/event/${eventData.id}`} className="block h-full">
         <Card className={`overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg bg-card/80 backdrop-blur-sm h-full ${isFeatured ? 'ring-2 ring-primary/20' : ''}`}>
           <div className="relative">
             <OptimizedImage
