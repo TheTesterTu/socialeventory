@@ -43,6 +43,14 @@ export const TopBarNotifications = () => {
     }
   };
 
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
+  };
+
+  const handleMarkAsRead = (notificationId: string) => {
+    markAsRead(notificationId);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -73,7 +81,7 @@ export const TopBarNotifications = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={markAllAsRead}
+              onClick={handleMarkAllAsRead}
               className="text-xs text-primary hover:text-primary/80 hover:bg-primary/10 rounded-lg px-2 py-1"
             >
               Mark all read
@@ -94,11 +102,11 @@ export const TopBarNotifications = () => {
                 <DropdownMenuItem
                   key={notification.id}
                   className={`flex items-start gap-3 p-3 rounded-lg mb-2 cursor-pointer transition-all duration-200 ${
-                    !notification.read 
+                    !notification.is_read 
                       ? getNotificationColor(notification.type)
                       : 'bg-white border border-gray-100 hover:bg-gray-50'
                   }`}
-                  onClick={() => markAsRead(notification.id)}
+                  onClick={() => handleMarkAsRead(notification.id)}
                 >
                   <div className="flex-shrink-0 mt-0.5">
                     {getNotificationIcon(notification.type)}
@@ -117,7 +125,7 @@ export const TopBarNotifications = () => {
                   </div>
                   
                   <div className="flex-shrink-0 flex items-center gap-1">
-                    {!notification.read && (
+                    {!notification.is_read && (
                       <div className="h-2 w-2 bg-primary rounded-full"></div>
                     )}
                     <Button
@@ -126,7 +134,7 @@ export const TopBarNotifications = () => {
                       className="h-6 w-6 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full"
                       onClick={(e) => {
                         e.stopPropagation();
-                        markAsRead(notification.id);
+                        handleMarkAsRead(notification.id);
                       }}
                     >
                       <X className="h-3 w-3" />
