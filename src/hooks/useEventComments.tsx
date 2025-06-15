@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { trackEvent } from '@/services/analytics';
 
 export interface Comment {
   id: string;
@@ -78,6 +78,7 @@ export const useEventComments = (eventId: string) => {
       queryClient.invalidateQueries({ queryKey: ['comments', eventId] });
       setCommentText('');
       toast.success('Comment posted!');
+      trackEvent('comment_posted', { event_id: eventId });
     },
     onError: (error) => {
       console.error('Error posting comment:', error);
@@ -100,6 +101,7 @@ export const useEventComments = (eventId: string) => {
     onSuccess: (commentId) => {
       queryClient.invalidateQueries({ queryKey: ['comments', eventId] });
       toast.success('Comment deleted');
+      trackEvent('comment_deleted', { event_id: eventId, comment_id: commentId });
     },
     onError: (error) => {
       console.error('Error deleting comment:', error);

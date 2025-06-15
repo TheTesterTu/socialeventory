@@ -7,6 +7,7 @@ import { useEventInteraction } from "@/hooks/useEvents";
 import { ProtectedEventAction } from "./ProtectedEventAction";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/services/analytics";
 
 interface EventSocialActionsProps {
   eventId: string;
@@ -69,6 +70,7 @@ export const EventSocialActions = ({
       setIsLiked(result === 'liked');
       setCurrentLikes(prev => result === 'liked' ? prev + 1 : prev - 1);
       toast(result === 'liked' ? "Added to favorites!" : "Removed from favorites");
+      trackEvent(result === 'liked' ? 'event_liked' : 'event_unliked', { event_id: eventId });
     } catch (error) {
       toast.error("Failed to update like status");
     }
@@ -80,6 +82,7 @@ export const EventSocialActions = ({
       setIsAttending(result === 'joined');
       setCurrentAttendees(prev => result === 'joined' ? prev + 1 : prev - 1);
       toast(result === 'joined' ? "You're attending!" : "No longer attending");
+      trackEvent(result === 'joined' ? 'event_attended' : 'event_unattended', { event_id: eventId });
     } catch (error) {
       toast.error("Failed to update attendance");
     }
@@ -91,9 +94,11 @@ export const EventSocialActions = ({
         title: 'Check out this event!',
         url: window.location.href,
       });
+      trackEvent('event_shared', { event_id: eventId, method: 'native' });
     } else {
       navigator.clipboard.writeText(window.location.href);
       toast("Link copied to clipboard!");
+      trackEvent('event_shared', { event_id: eventId, method: 'clipboard' });
     }
   };
 

@@ -56,12 +56,12 @@ export const ProductionAudit = () => {
     },
     {
       title: "💬 Community Features",
-      progress: 85,
+      progress: 90,
       items: [
         { name: "Event Comments", status: 'complete', description: "Real-time commenting system", priority: 'high' },
         { name: "Event Chat", status: 'complete', description: "Live chat with modal integration", priority: 'high' },
         { name: "User Notifications", status: 'complete', description: "Real-time notification system", priority: 'medium' },
-        { name: "Social Sharing", status: 'missing', description: "Share events to social media", priority: 'medium' },
+        { name: "Social Sharing", status: 'complete', description: "Web Share API integrated for native sharing.", priority: 'medium' },
         { name: "Following System", status: 'missing', description: "Follow users/organizers", priority: 'low' },
       ]
     },
@@ -79,11 +79,11 @@ export const ProductionAudit = () => {
     },
     {
       title: "🚀 Production Readiness",
-      progress: 60,
+      progress: 65,
       items: [
         { name: "Environment Config", status: 'complete', description: "Supabase environment setup", priority: 'high' },
         { name: "Error Monitoring", status: 'missing', description: "Need Sentry or similar", priority: 'high' },
-        { name: "Analytics", status: 'partial', description: "Basic analytics service", priority: 'medium' },
+        { name: "Analytics", status: 'partial', description: "Basic page views and key user interactions are tracked", priority: 'medium' },
         { name: "Content Moderation", status: 'missing', description: "Report/flag system", priority: 'medium' },
         { name: "Terms & Privacy", status: 'partial', description: "Pages exist, need legal review", priority: 'high' },
         { name: "GDPR Compliance", status: 'missing', description: "Data protection measures", priority: 'high' },
