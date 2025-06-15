@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -62,7 +61,7 @@ export const TopBarNav = () => {
                     "rounded-lg transition-all duration-200 font-medium text-sm px-3 py-2 h-9",
                     active 
                       ? 'bg-primary text-white hover:bg-primary/90 shadow-md' 
-                      : 'text-foreground hover:bg-primary/10 hover:text-primary'
+                      : 'text-primary hover:bg-primary/10 hover:text-primary' // assicura ghost sempre leggibile
                   )}
                 >
                   {item.label}
