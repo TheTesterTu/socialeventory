@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
@@ -37,6 +36,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import SystemTest from "./pages/SystemTest";
 
 // Create a client with production-ready settings
 const queryClient = new QueryClient({
@@ -111,6 +111,10 @@ const AppContent = () => {
       <Route 
         path="/production-audit" 
         element={<ProtectedRoute adminOnly={true}><ProductionAuditPage /></ProtectedRoute>} 
+      />
+      <Route 
+        path="/system-test" 
+        element={<ProtectedRoute adminOnly={true}><SystemTest /></ProtectedRoute>} 
       />
 
       {/* 404 Handling */}

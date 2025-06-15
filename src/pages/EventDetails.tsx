@@ -1,58 +1,22 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { LazyEventDetails } from "@/components/LazyEventDetails";
-import { supabase } from '@/integrations/supabase/client';
-import { Event } from '@/lib/types';
-import { mapDatabaseEventToEvent } from '@/lib/utils/mappers';
 import { EventDetailsSkeleton } from '@/components/EventDetailsSkeleton';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
 import { EventChatWidget } from "@/components/chat/EventChatWidget";
+import { useEvent } from '@/hooks/useEvent';
 
 const EventDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMinimized, setChatMinimized] = useState(false);
-  const [event, setEvent] = useState<Event | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchEvent = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const { data, error } = await supabase
-          .from('events')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) {
-          throw error;
-        }
-
-        if (data) {
-          const mappedEvent = mapDatabaseEventToEvent(data);
-          setEvent(mappedEvent);
-        } else {
-          setError('Event not found');
-        }
-      } catch (err: any) {
-        setError(err.message || 'Failed to load event');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchEvent();
-  }, [id]);
+  const { data: event, isLoading, error } = useEvent(id!);
 
   if (isLoading) {
     return (
@@ -65,9 +29,9 @@ const EventDetails = () => {
   if (error || !event) {
     return (
       <AppLayout pageTitle="Error">
-        <div className="flex flex-col items-center justify-center h-full text-center">
-          <h2 className="text-2xl font-semibold mb-4">Error</h2>
-          <p className="text-muted-foreground">{error || 'Event not found'}</p>
+        <div className="flex flex-col items-center justify-center h-full text-center py-20">
+          <h2 className="text-2xl font-semibold mb-4">Error Loading Event</h2>
+          <p className="text-muted-foreground">{error?.message || 'The event could not be found.'}</p>
         </div>
       </AppLayout>
     );
