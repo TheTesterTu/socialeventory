@@ -82,7 +82,7 @@ const EventDetails = () => {
         title={event.title}
         description={event.description}
         type="event"
-        imageUrl={event.imageUrl}
+        image={event.imageUrl}
       />
       
       <StructuredData 

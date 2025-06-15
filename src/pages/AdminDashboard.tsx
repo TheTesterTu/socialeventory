@@ -1,4 +1,3 @@
-
 import { AppLayout } from "@/components/layout/AppLayout";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +17,7 @@ import {
   Shield
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AdminOverview } from "@/components/admin/AdminOverview";
 
 // Mock admin data
 const adminStats = {
@@ -73,6 +73,9 @@ const AdminDashboard = () => {
       pageTitle="Admin Dashboard"
       pageDescription="Manage your platform and monitor activity"
     >
+      {/* -- NOVITÀ: OVERVIEW ADMIN -- */}
+      <AdminOverview />
+      
       <div className="space-y-8">
         {/* Stats Grid */}
         <motion.div
