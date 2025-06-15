@@ -78,7 +78,7 @@ export const HomeHero = () => {
             </div>
           </motion.div>
 
-          {/* Action buttons - FIXED per essere ben visibili */}
+          {/* Action buttons - RIMOSSO glass e usato colori solidi */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -88,7 +88,7 @@ export const HomeHero = () => {
             <Link to="/create-event" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-white px-8 py-3 h-auto font-medium rounded-xl w-full shadow-xl border border-primary/20 transition-all duration-300 hover:scale-105"
+                className="bg-primary hover:bg-primary/90 text-white px-8 py-3 h-auto font-medium rounded-xl w-full shadow-xl transition-all duration-300 hover:scale-105 border-0"
               >
                 <CalendarPlus className="mr-2 h-5 w-5" />
                 Create Event
@@ -96,9 +96,9 @@ export const HomeHero = () => {
             </Link>
             <Link to="/search" className="w-full sm:w-auto">
               <Button 
-                variant="secondary"
+                variant="outline"
                 size="lg"
-                className="bg-white/20 hover:bg-white/30 text-white border-white/30 hover:border-white/50 backdrop-blur-xl px-8 py-3 h-auto font-medium rounded-xl w-full shadow-lg transition-all duration-300 hover:scale-105"
+                className="bg-white hover:bg-white/90 text-black border-white hover:border-white/90 px-8 py-3 h-auto font-medium rounded-xl w-full shadow-lg transition-all duration-300 hover:scale-105"
               >
                 <Search className="mr-2 h-5 w-5" />
                 Explore All
@@ -125,7 +125,7 @@ export const HomeHero = () => {
               <span className="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
               <span className="text-sm font-medium text-white">New daily</span>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </div>
