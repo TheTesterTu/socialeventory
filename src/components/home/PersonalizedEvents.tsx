@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Event } from "@/lib/types";
@@ -104,7 +103,7 @@ export const PersonalizedEvents = () => {
             start_date: new Date(Date.now() + 86400000 * 4).toISOString(),
             category: ["Art", "Exhibition"]
           },
-        ].map(event => mapMockEventToEvent(event));
+        ];
         
         setEvents(mockEvents);
       } finally {
@@ -156,7 +155,7 @@ export const PersonalizedEvents = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
             >
-              <EventCard {...event} />
+              <EventCard event={event} />
             </motion.div>
           ))}
         </div>

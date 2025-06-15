@@ -47,7 +47,7 @@ export const OrganizerTabs = ({ organizer, events }: OrganizerTabsProps) => {
           {events.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {events.map(event => (
-                <EventCard key={event.id} {...event} />
+                <EventCard key={event.id} event={event} />
               ))}
             </div>
           ) : (
