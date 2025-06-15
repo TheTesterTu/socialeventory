@@ -8,25 +8,29 @@ import { OfflineBanner } from "@/components/ui/offline-banner";
 import { PropsWithChildren, useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { LoadingSpinner } from "@/components/loading/LoadingSpinner";
 
-interface AppLayoutProps extends PropsWithChildren {
+interface OptimizedAppLayoutProps extends PropsWithChildren {
   hideTopBar?: boolean;
   hideFooter?: boolean;
   showTopBar?: boolean;
   pageTitle?: string;
   pageDescription?: string;
+  isLoading?: boolean;
 }
 
-export const AppLayout = ({ 
+export const OptimizedAppLayout = ({ 
   children, 
   hideTopBar: initialHideTopBar = false,
   hideFooter = false,
   showTopBar,
   pageTitle = "SocialEventory",
-  pageDescription = "Discover and share events with your community"
-}: AppLayoutProps) => {
+  pageDescription = "Discover and share events with your community",
+  isLoading = false
+}: OptimizedAppLayoutProps) => {
   const isMobile = useIsMobile();
   const [hideTopBar, setHideTopBar] = useState(initialHideTopBar);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
   
   useEffect(() => {
     if (showTopBar !== undefined) {
@@ -36,9 +40,23 @@ export const AppLayout = ({
     }
   }, [showTopBar, initialHideTopBar]);
 
+  useEffect(() => {
+    // Simulate page load completion
+    const timer = setTimeout(() => setIsPageLoaded(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading || !isPageLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <ErrorBoundary>
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col bg-background antialiased">
         <OfflineBanner />
         
         {pageTitle && (
