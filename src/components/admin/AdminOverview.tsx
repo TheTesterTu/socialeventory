@@ -1,4 +1,3 @@
-
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Shield, Database } from "lucide-react";
@@ -61,7 +60,10 @@ export const AdminOverview = () => {
               <Database className="h-4 w-4" /> Stato Sistema
             </h4>
             <ul className="text-xs space-y-1">
-              <li><span className="font-semibold">Supabase:</span> <Badge variant="success">✓ Online</Badge></li>
+              <li>
+                <span className="font-semibold">Supabase:</span>{" "}
+                <Badge variant="default">✓ Online</Badge>
+              </li>
               <li><span className="font-semibold">Utenti:</span> Solo admin può vedere questa sezione</li>
               <li className="text-muted-foreground">Per logs avanzati integrare edge functions.</li>
             </ul>
