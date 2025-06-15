@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Event } from "@/lib/types";
@@ -105,7 +106,8 @@ export const PersonalizedEvents = () => {
           },
         ];
         
-        setEvents(mockEvents);
+        const mappedMockEvents = mockEvents.map(event => mapMockEventToEvent(event));
+        setEvents(mappedMockEvents);
       } finally {
         setLoading(false);
       }
