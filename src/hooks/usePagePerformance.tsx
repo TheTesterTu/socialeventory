@@ -56,8 +56,8 @@ export const usePagePerformance = ({
     }
 
     // Track Core Web Vitals if enabled
-    if (trackCoreWebVitals && 'web-vital' in window) {
-      import('web-vitals').then(({ onCLS, onFID, onFCP, onLCP, onTTFB }) => {
+    if (trackCoreWebVitals) {
+      import('web-vitals').then(({ onCLS, onINP, onFCP, onLCP, onTTFB }) => {
         onCLS((metric) => {
           analytics.track('Core Web Vital - CLS', {
             page: pageName,
@@ -66,8 +66,8 @@ export const usePagePerformance = ({
           });
         });
 
-        onFID((metric) => {
-          analytics.track('Core Web Vital - FID', {
+        onINP((metric) => {
+          analytics.track('Core Web Vital - INP', {
             page: pageName,
             value: metric.value,
             rating: metric.rating
