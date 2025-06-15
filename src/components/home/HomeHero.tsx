@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { CalendarPlus, Search, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -98,7 +97,7 @@ export const HomeHero = () => {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-white/50 bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl px-8 py-3 h-auto font-medium rounded-xl w-full shadow-lg hover:border-white/70"
+                className="border-white/50 bg-white/10 hover:bg-white/20 text-primary backdrop-blur-xl px-8 py-3 h-auto font-medium rounded-xl w-full shadow-lg hover:border-white/70"
               >
                 <Search className="mr-2 h-5 w-5" />
                 Explore All
