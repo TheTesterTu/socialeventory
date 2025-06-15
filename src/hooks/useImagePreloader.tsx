@@ -1,98 +1,66 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 interface UseImagePreloaderOptions {
   priority?: 'high' | 'medium' | 'low';
-  placeholder?: string;
   fallback?: string;
+  placeholder?: string;
   enableWebP?: boolean;
 }
 
-export const useImagePreloader = (src: string, options: UseImagePreloaderOptions = {}) => {
-  const {
-    priority = 'medium',
-    placeholder = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87',
-    fallback = placeholder,
-    enableWebP = true
-  } = options;
-
-  const [imageSrc, setImageSrc] = useState<string>(placeholder);
+export const useImagePreloader = (
+  src: string, 
+  options: UseImagePreloaderOptions = {}
+) => {
+  const { priority = 'medium', fallback, placeholder, enableWebP = true } = options;
+  const [imageSrc, setImageSrc] = useState(placeholder || src);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const preloadImage = useCallback((url: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      
-      img.onload = () => resolve(url);
-      img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
-      
-      // Set loading attribute based on priority
-      if (priority === 'high') {
-        img.loading = 'eager';
-      } else {
-        img.loading = 'lazy';
-      }
-      
-      img.src = url;
-    });
-  }, [priority]);
-
-  const getOptimizedImageUrl = useCallback((originalUrl: string): string => {
-    if (!enableWebP || !originalUrl.includes('unsplash.com')) {
-      return originalUrl;
-    }
-
-    // Add WebP format and optimization parameters for Unsplash images
-    const url = new URL(originalUrl);
-    url.searchParams.set('fm', 'webp');
-    url.searchParams.set('q', '80');
-    url.searchParams.set('fit', 'crop');
-    
-    return url.toString();
-  }, [enableWebP]);
+  const [isOptimized, setIsOptimized] = useState(false);
 
   useEffect(() => {
-    if (!src) {
-      setImageSrc(fallback);
+    const img = new Image();
+    
+    const handleLoad = () => {
+      setImageSrc(src);
       setIsLoading(false);
-      return;
+      setError(null);
+    };
+
+    const handleError = () => {
+      if (fallback) {
+        setImageSrc(fallback);
+        setError('Primary image failed, using fallback');
+      } else {
+        setError('Image failed to load');
+      }
+      setIsLoading(false);
+    };
+
+    // Check WebP support and optimize
+    if (enableWebP && src.includes('.jpg') || src.includes('.png')) {
+      const canvas = document.createElement('canvas');
+      const webpSupported = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+      
+      if (webpSupported) {
+        const optimizedSrc = src.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+        img.src = optimizedSrc;
+        setIsOptimized(true);
+      } else {
+        img.src = src;
+      }
+    } else {
+      img.src = src;
     }
 
-    setIsLoading(true);
-    setError(null);
+    img.onload = handleLoad;
+    img.onerror = handleError;
 
-    const optimizedSrc = getOptimizedImageUrl(src);
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [src, fallback, placeholder, enableWebP]);
 
-    preloadImage(optimizedSrc)
-      .then(() => {
-        setImageSrc(optimizedSrc);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        // Fallback to original image if WebP fails
-        if (optimizedSrc !== src) {
-          return preloadImage(src);
-        }
-        throw new Error('Both optimized and original image failed');
-      })
-      .then(() => {
-        if (imageSrc !== src) {
-          setImageSrc(src);
-        }
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setImageSrc(fallback);
-        setIsLoading(false);
-      });
-  }, [src, fallback, preloadImage, getOptimizedImageUrl]);
-
-  return {
-    imageSrc,
-    isLoading,
-    error,
-    isOptimized: imageSrc.includes('fm=webp')
-  };
+  return { imageSrc, isLoading, error, isOptimized };
 };

@@ -1,4 +1,4 @@
-import { AppLayout } from "@/components/layout/AppLayout";
+import { OptimizedAppLayout } from "@/components/layout/OptimizedAppLayout";
 import { HomeHero } from "@/components/home/HomeHero";
 import { QuickCategories } from "@/components/home/QuickCategories";
 import { FeaturedEvents } from "@/components/home/FeaturedEvents";
@@ -28,7 +28,7 @@ const Index = () => {
   useRealtimeEvents();
   
   return (
-    <AppLayout 
+    <OptimizedAppLayout 
       pageTitle="Discover Events" 
       pageDescription="Find and join exciting events in your community"
     >
@@ -151,7 +151,7 @@ const Index = () => {
           </div>
         )}
       </motion.div>
-    </AppLayout>
+    </OptimizedAppLayout>
   );
 };
 
