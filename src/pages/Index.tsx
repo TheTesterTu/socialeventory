@@ -1,4 +1,3 @@
-
 import { AppLayout } from "@/components/layout/AppLayout";
 import { HomeHero } from "@/components/home/HomeHero";
 import { QuickCategories } from "@/components/home/QuickCategories";
@@ -17,11 +16,16 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { Separator } from "@/components/ui/separator";
+import { SmartRecommendations } from "@/components/home/SmartRecommendations";
+import { useRealtimeEvents } from "@/hooks/useRealtimeEvents";
 
 const Index = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { data: blogPosts = [] } = useBlogPosts();
+  
+  // Enable real-time events
+  useRealtimeEvents();
   
   return (
     <AppLayout 
@@ -49,6 +53,16 @@ const Index = () => {
 
           {user && (
             <>
+              <Separator className="my-8 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+              >
+                <SmartRecommendations />
+              </motion.div>
+
               <Separator className="my-8 opacity-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
               
               <motion.div 

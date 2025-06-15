@@ -1,182 +1,141 @@
-
-import { useParams, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Event, AccessibilityInfo, Pricing } from "@/lib/types";
-import { toast } from "sonner";
-import { EventDetailsSkeleton } from "@/components/EventDetailsSkeleton";
-import { LazyEventDetails } from "@/components/LazyEventDetails";
-import { getEventById } from "@/lib/mock-data";
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { AppLayout } from "@/components/layout/AppLayout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { StructuredData } from "@/components/seo/StructuredData";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { useErrorHandler } from "@/hooks/useErrorHandler";
-import { usePagePerformance } from "@/hooks/usePagePerformance";
+import { LazyEventDetails } from "@/components/LazyEventDetails";
+import { supabase } from '@/integrations/supabase/client';
+import { Event } from '@/lib/types';
+import { mapDatabaseEventToEvent } from '@/lib/utils/mappers';
+import { EventDetailsSkeleton } from '@/components/EventDetailsSkeleton';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { MessageCircle } from "lucide-react";
+import { EventChatWidget } from "@/components/chat/EventChatWidget";
 
 const EventDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMinimized, setChatMinimized] = useState(false);
   const [event, setEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { handleError } = useErrorHandler();
-  
-  // Track page performance
-  const { trackCustomMetric } = usePagePerformance({
-    pageName: 'Event Details',
-    trackCoreWebVitals: true
-  });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
-      const fetchStart = performance.now();
-      
-      try {
-        // Validate UUID format
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (!id || !uuidRegex.test(id)) {
-          throw new Error("Invalid event ID format");
-        }
+      setIsLoading(true);
+      setError(null);
 
-        // Try to get from the database first
+      try {
         const { data, error } = await supabase
           .from('events')
-          .select(`
-            *,
-            profiles:created_by (
-              username,
-              avatar_url
-            )
-          `)
+          .select('*')
           .eq('id', id)
-          .maybeSingle();
+          .single();
 
-        if (error) throw error;
-
-        // If the event is not found in the database, try to get it from mock data
-        if (!data) {
-          const mockEvent = getEventById(id);
-          
-          if (!mockEvent) {
-            toast.error("Event not found", {
-              description: "The event you're looking for doesn't exist or has been removed."
-            });
-            navigate('/');
-            return;
-          }
-          
-          setEvent(mockEvent);
-          setIsLoading(false);
-          return;
+        if (error) {
+          throw error;
         }
 
-        const coordinates = data.coordinates as { x: number; y: number };
-        
-        // Type assertion with validation for accessibility
-        const rawAccessibility = data.accessibility as Record<string, unknown>;
-        const accessibility: AccessibilityInfo = {
-          languages: Array.isArray(rawAccessibility?.languages) ? rawAccessibility.languages : ['en'],
-          wheelchairAccessible: Boolean(rawAccessibility?.wheelchairAccessible),
-          familyFriendly: Boolean(rawAccessibility?.familyFriendly)
-        };
-
-        const rawPricing = data.pricing as Record<string, unknown>;
-        const pricing: Pricing = {
-          isFree: Boolean(rawPricing?.isFree),
-          priceRange: Array.isArray(rawPricing?.priceRange) ? rawPricing.priceRange as [number, number] : undefined,
-          currency: typeof rawPricing?.currency === 'string' ? rawPricing.currency : undefined
-        };
-
-        const verification_status = data.verification_status as 'pending' | 'verified' | 'featured';
-
-        const formattedEvent: Event = {
-          id: data.id,
-          title: data.title,
-          description: data.description || '',
-          location: {
-            coordinates: coordinates ? [coordinates.x, coordinates.y] : [0, 0],
-            address: data.location,
-            venue_name: data.venue_name || ''
-          },
-          startDate: data.start_date,
-          endDate: data.end_date,
-          category: data.category || [],
-          tags: data.tags || [],
-          accessibility,
-          pricing,
-          creator: {
-            id: data.created_by || '',
-            type: 'user'
-          },
-          verification: {
-            status: verification_status || 'pending'
-          },
-          imageUrl: data.image_url || '',
-          likes: data.likes || 0,
-          attendees: data.attendees || 0
-        };
-        
-        setEvent(formattedEvent);
-        
-        // Track event load time
-        const fetchTime = performance.now() - fetchStart;
-        trackCustomMetric('Event Fetch Time', fetchTime);
-        
-      } catch (error) {
-        handleError(error as Error, 'Event Details Fetch');
-        navigate('/');
+        if (data) {
+          const mappedEvent = mapDatabaseEventToEvent(data);
+          setEvent(mappedEvent);
+        } else {
+          setError('Event not found');
+        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to load event');
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (id) {
-      fetchEvent();
-    }
-  }, [id, navigate, handleError, trackCustomMetric]);
+    fetchEvent();
+  }, [id]);
 
   if (isLoading) {
-    return <EventDetailsSkeleton />;
+    return (
+      <AppLayout pageTitle="Loading Event">
+        <EventDetailsSkeleton />
+      </AppLayout>
+    );
   }
 
-  if (!event) {
+  if (error || !event) {
     return (
-      <div className="min-h-screen p-6 flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold mb-4">Event not found</h1>
-        <Button onClick={() => navigate(-1)} variant="outline" size="lg" className="gap-2">
-          <ArrowLeft className="w-4 h-4" />
-          Go Back
-        </Button>
-      </div>
+      <AppLayout pageTitle="Error">
+        <div className="flex flex-col items-center justify-center h-full text-center">
+          <h2 className="text-2xl font-semibold mb-4">Error</h2>
+          <p className="text-muted-foreground">{error || 'Event not found'}</p>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <ErrorBoundary>
+    <AppLayout 
+      pageTitle={event.title}
+      pageDescription={event.description}
+    >
       <SEOHead 
-        title={`${event.title} | SocialEventory`}
+        title={event.title}
         description={event.description}
-        image={event.imageUrl}
-        type="article"
+        type="event"
+        imageUrl={event.imageUrl}
       />
       
-      <StructuredData type="Event" data={event} />
+      <StructuredData 
+        type="Event" 
+        data={{
+          name: event.title,
+          description: event.description,
+          startDate: event.startDate,
+          endDate: event.endDate,
+          location: {
+            name: event.location.venue_name || event.location.address,
+            address: event.location.address
+          },
+          image: event.imageUrl,
+          url: window.location.href
+        }} 
+      />
       
-      <div className="min-h-screen p-6 max-w-screen-2xl mx-auto">
-        <Button 
-          onClick={() => navigate(-1)} 
-          variant="outline" 
-          size="lg" 
-          className="mb-4 gap-2 hover:scale-105 transition-transform"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Events
-        </Button>
-        
+      <div className="min-h-screen bg-background">
         <LazyEventDetails event={event} />
+        
+        {/* Chat Widget */}
+        <AnimatePresence>
+          {(chatOpen || chatMinimized) && (
+            <EventChatWidget
+              event={event}
+              isMinimized={chatMinimized}
+              onMinimize={() => setChatMinimized(!chatMinimized)}
+              onClose={() => {
+                setChatOpen(false);
+                setChatMinimized(false);
+              }}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Floating Chat Button */}
+        {!chatOpen && !chatMinimized && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="fixed bottom-20 right-4 z-50"
+          >
+            <Button
+              onClick={() => setChatOpen(true)}
+              className="rounded-full h-14 w-14 shadow-lg bg-primary hover:bg-primary/90"
+            >
+              <MessageCircle className="h-6 w-6" />
+            </Button>
+          </motion.div>
+        )}
       </div>
-    </ErrorBoundary>
+    </AppLayout>
   );
 };
 
