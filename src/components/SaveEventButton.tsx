@@ -7,8 +7,8 @@ import { cn } from '@/lib/utils';
 
 interface SaveEventButtonProps {
   eventId: string;
-  variant?: 'default' | 'icon' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
   showText?: boolean;
   className?: string;
 }
