@@ -23,3 +23,5 @@ export const analytics = {
     }
   }
 };
+
+export const trackEvent = analytics.track;
