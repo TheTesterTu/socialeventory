@@ -1,4 +1,3 @@
-
 import { FixedSizeList as List } from 'react-window';
 import { Event } from '@/lib/types';
 import { EventCard } from './EventCard';
@@ -21,7 +20,7 @@ export const VirtualizedEventList = ({
   const [mounted, setMounted] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const ITEM_HEIGHT = 400; // Adjust based on EventCard height
+  const ITEM_HEIGHT = 400;
 
   useEffect(() => {
     setMounted(true);
@@ -48,7 +47,7 @@ export const VirtualizedEventList = ({
         className="p-3"
         onClick={handleEventClick}
       >
-        <EventCard {...event} />
+        <EventCard event={event} index={index} />
       </motion.div>
     );
   };
@@ -94,7 +93,7 @@ export const VirtualizedEventList = ({
           className={className}
         >
           <List
-            height={Math.min(800, events.length * (ITEM_HEIGHT / 1.5))} // More adaptive height
+            height={Math.min(800, events.length * (ITEM_HEIGHT / 1.5))}
             itemCount={events.length}
             itemSize={ITEM_HEIGHT}
             width="100%"

@@ -14,8 +14,9 @@ export const performance = {
       try {
         window.performance.measure(name, startMark, endMark);
         const measure = window.performance.getEntriesByName(name, 'measure')[0];
-        console.log(`Performance: ${name} took ${measure.duration.toFixed(2)}ms`);
-        return measure.duration;
+        const duration = measure?.duration || 0;
+        console.log(`Performance: ${name} took ${duration.toFixed(2)}ms`);
+        return duration;
       } catch (error) {
         console.warn('Performance measurement failed:', error);
       }

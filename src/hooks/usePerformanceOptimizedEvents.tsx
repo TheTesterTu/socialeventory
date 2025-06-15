@@ -26,8 +26,8 @@ export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEv
     sortBy = 'created_at',
     sortOrder = 'desc',
     enableInfiniteQuery = false,
-    staleTime = 5 * 60 * 1000, // 5 minutes
-    cacheTime = 10 * 60 * 1000 // 10 minutes
+    staleTime = 5 * 60 * 1000,
+    cacheTime = 10 * 60 * 1000
   } = options;
 
   const queryKey = useMemo(() => [
@@ -36,7 +36,6 @@ export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEv
     { pageSize, category, featured, sortBy, sortOrder }
   ], [pageSize, category, featured, sortBy, sortOrder]);
 
-  // Check cache first
   const cacheKey = JSON.stringify(queryKey);
   const cachedData = cache.get(cacheKey);
 
@@ -48,7 +47,6 @@ export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEv
         .from('events')
         .select('*', { count: 'exact' });
 
-      // Apply filters
       if (category && category.length > 0) {
         query = query.overlaps('category', category);
       }
@@ -57,10 +55,8 @@ export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEv
         query = query.eq('is_featured', featured);
       }
 
-      // Apply sorting
       query = query.order(sortBy, { ascending: sortOrder === 'asc' });
 
-      // Apply pagination
       const from = pageParam * pageSize;
       const to = from + pageSize - 1;
       query = query.range(from, to);
@@ -71,8 +67,7 @@ export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEv
 
       const events = data?.map(mapDatabaseEventToEvent) || [];
       
-      // Cache the results
-      cache.set(cacheKey, { events, count }, 5); // 5 minutes TTL
+      cache.set(cacheKey, { events, count }, 5);
 
       performance.mark('events-fetch-end');
       performance.measure('events-fetch-duration', 'events-fetch-start', 'events-fetch-end');
@@ -90,7 +85,6 @@ export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEv
     }
   };
 
-  // Use infinite query for pagination or regular query for single page
   const infiniteQuery = useInfiniteQuery({
     queryKey,
     queryFn: fetchEvents,
@@ -107,7 +101,13 @@ export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEv
     staleTime,
     gcTime: cacheTime,
     enabled: !enableInfiniteQuery,
-    placeholderData: cachedData ? { events: cachedData.events, count: cachedData.count } : undefined,
+    // Fix placeholderData format
+    placeholderData: cachedData ? { 
+      events: cachedData.events, 
+      count: cachedData.count,
+      nextPage: undefined,
+      hasNextPage: false
+    } : undefined,
   });
 
   if (enableInfiniteQuery) {
