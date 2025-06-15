@@ -62,12 +62,12 @@ export const SearchBar = ({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.2 }}
     >
-      <div className={`relative flex items-center rounded-full bg-background/90 backdrop-blur-sm border-2 border-border/50 transition-all ${isFocused ? 'ring-2 ring-primary/30 border-primary/50' : ''}`}>
-        <Search className="absolute left-4 h-5 w-5 text-muted-foreground pointer-events-none" />
+      <div className={`relative flex items-center rounded-full bg-white border-2 transition-all ${isFocused ? 'ring-2 ring-primary/30 border-primary' : 'border-gray-200'}`}>
+        <Search className="absolute left-4 h-5 w-5 text-gray-500 pointer-events-none" />
         <Input
           ref={inputRef}
           placeholder={placeholder}
-          className="pl-12 pr-20 sm:pr-24 rounded-full border-none bg-transparent focus-visible:ring-0 h-12 text-base"
+          className="pl-12 pr-20 sm:pr-24 rounded-full border-none bg-transparent focus-visible:ring-0 h-12 text-base text-gray-900 placeholder:text-gray-500"
           onChange={handleChange}
           value={value}
           onFocus={() => setIsFocused(true)}
@@ -78,7 +78,7 @@ export const SearchBar = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full hover:bg-primary/10"
+              className="h-8 w-8 rounded-full hover:bg-gray-100 text-gray-500 border-transparent"
               onClick={handleClear}
             >
               <X className="h-4 w-4" />
@@ -90,7 +90,7 @@ export const SearchBar = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full hover:bg-primary/10"
+                className="h-8 w-8 rounded-full hover:bg-gray-100 text-gray-500 border-transparent"
                 onClick={handleVoiceSearch}
               >
                 <Mic className="h-4 w-4" />
@@ -99,7 +99,7 @@ export const SearchBar = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full hover:bg-primary/10"
+                className="h-8 w-8 rounded-full hover:bg-gray-100 text-gray-500 border-transparent"
                 onClick={handleImageSearch}
               >
                 <Camera className="h-4 w-4" />
@@ -114,11 +114,11 @@ export const SearchBar = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
-          className="absolute mt-2 w-full z-10 bg-card rounded-lg shadow-lg border border-border/50 p-3"
+          className="absolute mt-2 w-full z-10 bg-white rounded-lg shadow-lg border-2 border-gray-200 p-3"
         >
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center justify-between text-sm text-gray-600">
             <span>Try searching for events, places, or categories</span>
-            <Button variant="ghost" size="sm" className="h-8 gap-2 text-sm flex items-center">
+            <Button variant="ghost" size="sm" className="h-8 gap-2 text-sm flex items-center border-transparent hover:bg-gray-100">
               <Filter className="h-4 w-4" />
               <span className="hidden sm:inline">Filters</span>
             </Button>

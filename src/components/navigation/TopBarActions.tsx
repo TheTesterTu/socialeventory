@@ -17,7 +17,7 @@ export const TopBarActions = () => {
         <Button 
           variant="ghost" 
           size="icon"
-          className="rounded-xl hover:bg-accent hover:text-accent-foreground text-foreground transition-colors"
+          className="rounded-xl hover:bg-gray-100 text-gray-700 transition-colors border-2 border-transparent hover:border-gray-200"
           asChild
         >
           <Link to="/search">

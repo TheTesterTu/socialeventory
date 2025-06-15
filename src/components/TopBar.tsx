@@ -31,10 +31,10 @@ export const TopBar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
         scrolled 
-          ? "glass-navbar shadow-lg" 
-          : "bg-transparent"
+          ? "bg-white/95 backdrop-blur-md shadow-lg border-gray-200" 
+          : "bg-white/90 backdrop-blur-sm border-gray-100"
       }`}
     >
       <div className="container flex h-16 items-center mx-auto px-3 sm:px-4 lg:px-6">
