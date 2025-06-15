@@ -2,52 +2,22 @@
 import { Event } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Users, Clock } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { OptimizedImage } from "./OptimizedImage";
 import { SaveEventButton } from "./SaveEventButton";
 import { EventVerificationBadge } from "./EventVerificationBadge";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface EventCardProps {
-  event?: Event;
+  event: Event;
   variant?: 'default' | 'compact' | 'featured';
   index?: number;
-  // Backward compatibility props
-  id?: string;
-  title?: string;
-  description?: string;
-  startDate?: string;
-  endDate?: string;
-  location?: any;
-  category?: string[];
-  tags?: string[];
-  imageUrl?: string;
-  likes?: number;
-  attendees?: number;
-  verification?: any;
-  pricing?: any;
 }
 
-export const EventCard = ({ event, index = 0, variant = 'default', ...props }: EventCardProps) => {
-  // Support both new event prop and old spread props for backward compatibility
-  const eventData = event || {
-    id: props.id || '',
-    title: props.title || '',
-    description: props.description || '',
-    startDate: props.startDate || '',
-    endDate: props.endDate || '',
-    location: props.location || { address: '', coordinates: [0, 0], venue_name: '' },
-    category: props.category || [],
-    tags: props.tags || [],
-    imageUrl: props.imageUrl || '',
-    likes: props.likes || 0,
-    attendees: props.attendees || 0,
-    verification: props.verification || { status: 'pending' },
-    pricing: props.pricing || { isFree: true }
-  } as Event;
-
+export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardProps) => {
   const isCompact = variant === 'compact';
   const isFeatured = variant === 'featured';
 
@@ -58,97 +28,126 @@ export const EventCard = ({ event, index = 0, variant = 'default', ...props }: E
       y: 0,
       transition: { 
         duration: 0.4, 
-        delay: index * 0.1,
+        delay: index * 0.05,
         ease: "easeOut"
       }
     }
   };
+
+  if (!event) {
+    return (
+      <motion.div variants={cardVariants} initial="hidden" animate="visible" className="h-full">
+         <Card className="h-full w-full bg-muted/30 animate-pulse" />
+      </motion.div>
+    );
+  }
+  
+  const { id, title, description, startDate, location, category, imageUrl, attendees, verification, pricing } = event;
 
   return (
     <motion.div
       variants={cardVariants}
       initial="hidden"
       animate="visible"
-      whileHover={{ 
-        y: -8, 
-        transition: { duration: 0.2, ease: "easeOut" }
-      }}
-      className="h-full"
+      whileHover={{ y: -5, transition: { duration: 0.2, ease: "easeOut" } }}
+      className="h-full group"
     >
-      <Link to={`/event/${eventData.id}`} className="block h-full">
-        <Card className={`overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg bg-card/80 backdrop-blur-sm h-full ${isFeatured ? 'ring-2 ring-primary/20' : ''}`}>
+      <Link to={`/event/${id}`} className="block h-full">
+        <Card className={cn(
+          "overflow-hidden transition-all duration-300 bg-card/80 backdrop-blur-sm h-full flex flex-col border border-border/20 group-hover:border-primary/40 group-hover:shadow-lg",
+          isFeatured && "ring-2 ring-primary/20 shadow-lg"
+        )}>
           <div className="relative">
             <OptimizedImage
-              src={eventData.imageUrl}
-              alt={eventData.title}
-              className={`w-full object-cover ${isCompact ? 'h-32' : 'h-48'}`}
+              src={imageUrl}
+              alt={title}
+              className={cn("w-full object-cover transition-transform duration-300 group-hover:scale-105", isCompact ? 'h-32' : 'h-48')}
               aspectRatio="video"
-              priority={index < 3 ? 'high' : 'medium'}
+              priority={index < 4 ? 'high' : 'medium'}
             />
             
-            <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-              {eventData.category.slice(0, 2).map((cat) => (
-                <Badge key={cat} variant="secondary" className="text-xs bg-background/80 backdrop-blur-sm">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            
+            <div className="absolute top-2 left-2 flex flex-wrap gap-1.5">
+              {category.slice(0, 1).map((cat) => (
+                <Badge key={cat} variant="secondary" className="text-xs bg-black/40 text-white backdrop-blur-md border border-white/20">
                   {cat}
                 </Badge>
               ))}
             </div>
             
-            <div className="absolute top-2 right-2 flex gap-2">
-              <EventVerificationBadge status={eventData.verification.status} />
-              <SaveEventButton eventId={eventData.id} size="icon" />
+            <div className="absolute top-2 right-2 flex items-center gap-2">
+              <EventVerificationBadge status={verification.status} />
+              <SaveEventButton eventId={id} size="icon" />
             </div>
+
+            {isFeatured && (
+               <Badge variant="default" className="absolute bottom-2 left-2 text-xs bg-primary/90 text-primary-foreground backdrop-blur-sm border border-primary-foreground/20">
+                 <Sparkles className="h-3 w-3 mr-1" />
+                 Featured
+               </Badge>
+            )}
           </div>
 
-          <CardContent className="p-4 space-y-3">
-            <div className="space-y-2">
-              <h3 className={`font-semibold line-clamp-2 text-foreground ${isCompact ? 'text-sm' : 'text-base'}`}>
-                {eventData.title}
+          <CardContent className="p-4 flex flex-col flex-grow">
+            <div className="flex-grow space-y-2">
+              <h3 className={cn(
+                "font-semibold text-foreground tracking-tight line-clamp-2",
+                isCompact ? 'text-base' : 'text-lg'
+              )}>
+                {title}
               </h3>
               
-              {!isCompact && (
+              {!isCompact && description && (
                 <p className="text-sm text-muted-foreground line-clamp-2">
-                  {eventData.description}
+                  {description}
                 </p>
               )}
             </div>
 
-            <div className="space-y-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                <span>{format(new Date(eventData.startDate), "MMM d, yyyy")}</span>
+            <div className="pt-3 mt-auto space-y-2.5 text-sm text-muted-foreground border-t border-border/20">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                <span>{format(new Date(startDate), "E, MMM d, yyyy")}</span>
               </div>
               
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                <span>{format(new Date(eventData.startDate), "h:mm a")}</span>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-primary" />
+                <span>{format(new Date(startDate), "p")}</span>
               </div>
               
-              <div className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" />
                 <span className="line-clamp-1">
-                  {eventData.location.venue_name || eventData.location.address}
+                  {location.venue_name || location.address}
                 </span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                <span>{eventData.attendees} attending</span>
               </div>
             </div>
 
-            {!isCompact && eventData.pricing && (
-              <div className="pt-2 border-t border-border/50">
-                <span className={`text-sm font-medium ${eventData.pricing.isFree ? 'text-green-600' : 'text-foreground'}`}>
-                  {eventData.pricing.isFree 
-                    ? 'Free Event' 
-                    : eventData.pricing.priceRange 
-                      ? `${eventData.pricing.currency || '€'}${eventData.pricing.priceRange[0]} - ${eventData.pricing.currency || '€'}${eventData.pricing.priceRange[1]}`
-                      : 'Paid Event'
-                  }
-                </span>
+            <div className="pt-3 mt-3 flex justify-between items-center border-t border-border/20">
+              <div className="flex items-center gap-2 text-sm">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium text-foreground">{attendees}</span>
+                <span className="text-muted-foreground">attending</span>
               </div>
-            )}
+              
+              {pricing && (
+                <div>
+                  <span className={cn(
+                    "text-sm font-bold",
+                    pricing.isFree ? 'text-green-500' : 'text-foreground'
+                  )}>
+                    {pricing.isFree 
+                      ? 'FREE' 
+                      : pricing.priceRange 
+                        ? `${pricing.currency || '$'}${pricing.priceRange[0]}`
+                        : 'Paid'
+                    }
+                  </span>
+                  {pricing.priceRange && !pricing.isFree && <span className="text-xs text-muted-foreground"> onwards</span>}
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </Link>
