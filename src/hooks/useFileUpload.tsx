@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/use-toast";
 
 interface UseFileUploadOptions {
   bucket: string;
@@ -22,6 +22,7 @@ export const useFileUpload = ({
   const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const { toast } = useToast();
 
   const validateFile = (file: File): string | null => {
     if (!allowedTypes.includes(file.type)) {
@@ -37,13 +38,21 @@ export const useFileUpload = ({
 
   const uploadFile = async (file: File): Promise<string | null> => {
     if (!user) {
-      toast.error("You must be logged in to upload files");
+      toast({
+        title: "Authentication required",
+        description: "You must be logged in to upload files",
+        variant: "destructive"
+      });
       return null;
     }
 
     const validationError = validateFile(file);
     if (validationError) {
-      toast.error(validationError);
+      toast({
+        title: "Upload error",
+        description: validationError,
+        variant: "destructive"
+      });
       return null;
     }
 
@@ -56,7 +65,7 @@ export const useFileUpload = ({
       const fileName = `${user.id}-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `${folder}/${fileName}`;
 
-      // Upload file
+      // Upload file to the specified bucket
       const { data, error } = await supabase.storage
         .from(bucket)
         .upload(filePath, file, {
@@ -75,12 +84,19 @@ export const useFileUpload = ({
 
       setProgress(100);
       onProgress?.(100);
-      toast.success("File uploaded successfully!");
+      toast({
+        title: "Success!",
+        description: "File uploaded successfully",
+      });
       
       return publicUrl;
     } catch (error: any) {
       console.error("Upload error:", error);
-      toast.error(error.message || "Failed to upload file");
+      toast({
+        title: "Upload failed",
+        description: error.message || "Failed to upload file",
+        variant: "destructive"
+      });
       return null;
     } finally {
       setUploading(false);
@@ -96,11 +112,18 @@ export const useFileUpload = ({
 
       if (error) throw error;
       
-      toast.success("File deleted successfully!");
+      toast({
+        title: "Success!",
+        description: "File deleted successfully",
+      });
       return true;
     } catch (error: any) {
       console.error("Delete error:", error);
-      toast.error(error.message || "Failed to delete file");
+      toast({
+        title: "Delete failed",
+        description: error.message || "Failed to delete file",
+        variant: "destructive"
+      });
       return false;
     }
   };

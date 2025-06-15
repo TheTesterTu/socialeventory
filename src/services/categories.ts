@@ -14,92 +14,95 @@ export interface Category {
   updated_at: string;
 }
 
-// Temporary mock categories until Supabase types are regenerated
-const mockCategories: Category[] = [
-  {
-    id: "1",
-    name: "Music",
-    slug: "music",
-    icon: "🎵",
-    color: "#8b5cf6",
-    description: "Concerts, festivals, and musical performances",
-    is_active: true,
-    sort_order: 1,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "2", 
-    name: "Technology",
-    slug: "technology",
-    icon: "💻",
-    color: "#6366f1",
-    description: "Tech conferences, workshops, and meetups",
-    is_active: true,
-    sort_order: 2,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    name: "Food & Drink", 
-    slug: "food-drink",
-    icon: "🍽️",
-    color: "#f59e0b",
-    description: "Culinary events, tastings, and food festivals",
-    is_active: true,
-    sort_order: 3,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "4",
-    name: "Art & Culture",
-    slug: "art-culture", 
-    icon: "🎨",
-    color: "#ec4899",
-    description: "Art exhibitions, cultural events, and creative workshops",
-    is_active: true,
-    sort_order: 4,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "5",
-    name: "Sports",
-    slug: "sports",
-    icon: "⚽",
-    color: "#10b981", 
-    description: "Sporting events, tournaments, and fitness activities",
-    is_active: true,
-    sort_order: 5,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "6",
-    name: "Business",
-    slug: "business",
-    icon: "💼",
-    color: "#8b5cf6",
-    description: "Networking events, conferences, and professional development", 
-    is_active: true,
-    sort_order: 6,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
-];
-
 export const categoriesService = {
   async getAllCategories(): Promise<Category[]> {
-    // Return mock data for now - will be replaced with real Supabase queries
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockCategories), 100);
-    });
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order');
+
+      if (error) throw error;
+      
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      return [];
+    }
   },
 
   async getCategoryNames(): Promise<string[]> {
     const categories = await this.getAllCategories();
     return categories.map(cat => cat.name);
+  },
+
+  async getCategoryBySlug(slug: string): Promise<Category | null> {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('slug', slug)
+        .eq('is_active', true)
+        .single();
+
+      if (error) throw error;
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching category by slug:', error);
+      return null;
+    }
+  },
+
+  async createCategory(category: Omit<Category, 'id' | 'created_at' | 'updated_at'>): Promise<Category | null> {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .insert(category)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      return data;
+    } catch (error) {
+      console.error('Error creating category:', error);
+      return null;
+    }
+  },
+
+  async updateCategory(id: string, updates: Partial<Category>): Promise<Category | null> {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      return data;
+    } catch (error) {
+      console.error('Error updating category:', error);
+      return null;
+    }
+  },
+
+  async deleteCategory(id: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .update({ is_active: false })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      return true;
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      return false;
+    }
   }
 };
