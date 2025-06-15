@@ -17,8 +17,7 @@ export const TopBarActions = () => {
         <Button 
           variant="ghost" 
           size="icon"
-          // Miglioriamo la visibilità: usiamo text-primary invece di text-white per i bottoni ghost su topbar
-          className="rounded-xl hover:bg-primary/10 hover:text-primary text-primary transition-colors"
+          className="rounded-xl hover:bg-accent hover:text-accent-foreground text-foreground transition-colors"
           asChild
         >
           <Link to="/search">

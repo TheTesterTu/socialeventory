@@ -140,60 +140,63 @@ const CreateEvent = () => {
 
   return (
     <AppLayout>
-      <motion.div 
-        className="max-w-3xl mx-auto pt-10 pb-20 px-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <div className="mb-6">
-          <BackButton />
-        </div>
+      <div className="relative">
+        <BackButton />
         
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold mb-2">Create New Event</h1>
-          <p className="text-muted-foreground">
-            Share your event with the community by filling out the details below.
-          </p>
-        </div>
-        
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <EventBasicInfo 
-              form={form}
-              handleLocationSelect={handleLocationSelect}
-            />
-            
-            <EventDateTime form={form} />
-            
-            <EventCategoriesSelect 
-              form={form}
-              categoryOptions={categoryOptions}
-            />
-            
-            <EventSettings form={form} />
-            
-            <div className="pt-4 flex justify-end gap-4">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => navigate("/events")}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={createEventMutation.isPending}
-                className="relative"
-              >
-                {createEventMutation.isPending && (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                )}
-                {createEventMutation.isPending ? "Creating..." : "Create Event"}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </motion.div>
+        <motion.div 
+          className="max-w-3xl mx-auto pt-24 pb-20 px-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="mb-10">
+            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Create New Event
+            </h1>
+            <p className="text-muted-foreground">
+              Share your event with the community by filling out the details below.
+            </p>
+          </div>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <EventBasicInfo 
+                form={form}
+                handleLocationSelect={handleLocationSelect}
+              />
+              
+              <EventDateTime form={form} />
+              
+              <EventCategoriesSelect 
+                form={form}
+                categoryOptions={categoryOptions}
+              />
+              
+              <EventSettings form={form} />
+              
+              <div className="pt-4 flex justify-end gap-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => navigate("/events")}
+                  className="border-border hover:bg-accent"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createEventMutation.isPending}
+                  className="bg-primary hover:bg-primary/90 text-white relative"
+                >
+                  {createEventMutation.isPending && (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  )}
+                  {createEventMutation.isPending ? "Creating..." : "Create Event"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </motion.div>
+      </div>
     </AppLayout>
   );
 };

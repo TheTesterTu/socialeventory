@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -55,13 +56,13 @@ export const TopBarNav = () => {
             <NavigationMenuItem key={item.path}>
               <Link to={item.path}>
                 <Button 
-                  variant={active ? "secondary" : "ghost"}
+                  variant={active ? "default" : "ghost"}
                   size="sm"
                   className={cn(
                     "rounded-lg transition-all duration-200 font-medium text-sm px-3 py-2 h-9",
                     active 
                       ? 'bg-primary text-white hover:bg-primary/90 shadow-md' 
-                      : 'text-primary hover:bg-primary/10 hover:text-primary' // assicura ghost sempre leggibile
+                      : 'text-foreground hover:bg-accent hover:text-accent-foreground'
                   )}
                 >
                   {item.label}
@@ -75,7 +76,7 @@ export const TopBarNav = () => {
           <NavigationMenuItem>
             <Link to="/create-event">
               <Button 
-                variant={location.pathname === "/create-event" ? "secondary" : "default"}
+                variant={location.pathname === "/create-event" ? "default" : "default"}
                 className="rounded-lg gap-2 ml-2 bg-primary hover:bg-primary/90 text-white font-medium shadow-lg text-sm px-4 py-2 h-9"
                 size="sm"
               >

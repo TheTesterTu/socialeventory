@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { CalendarPlus, Search, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -77,7 +78,7 @@ export const HomeHero = () => {
             </div>
           </motion.div>
 
-          {/* Action buttons */}
+          {/* Action buttons - FIXED per essere ben visibili */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -87,7 +88,7 @@ export const HomeHero = () => {
             <Link to="/create-event" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-white px-8 py-3 h-auto font-medium rounded-xl w-full shadow-xl shadow-primary/25 border border-primary/20"
+                className="bg-primary hover:bg-primary/90 text-white px-8 py-3 h-auto font-medium rounded-xl w-full shadow-xl border border-primary/20 transition-all duration-300 hover:scale-105"
               >
                 <CalendarPlus className="mr-2 h-5 w-5" />
                 Create Event
@@ -95,9 +96,9 @@ export const HomeHero = () => {
             </Link>
             <Link to="/search" className="w-full sm:w-auto">
               <Button 
-                variant="outline" 
+                variant="secondary"
                 size="lg"
-                className="border-white/50 bg-white/10 hover:bg-white/20 text-primary backdrop-blur-xl px-8 py-3 h-auto font-medium rounded-xl w-full shadow-lg hover:border-white/70"
+                className="bg-white/20 hover:bg-white/30 text-white border-white/30 hover:border-white/50 backdrop-blur-xl px-8 py-3 h-auto font-medium rounded-xl w-full shadow-lg transition-all duration-300 hover:scale-105"
               >
                 <Search className="mr-2 h-5 w-5" />
                 Explore All
