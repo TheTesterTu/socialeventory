@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminOverview } from "@/components/admin/AdminOverview";
+import { AdminActivityLog } from "@/components/admin/AdminActivityLog";
 
 // Mock admin data
 const adminStats = {
@@ -75,7 +76,10 @@ const AdminDashboard = () => {
     >
       {/* -- NOVITÀ: OVERVIEW ADMIN -- */}
       <AdminOverview />
-      
+
+      {/* -- NOVITÀ: LOG ATTIVITÀ ADMIN -- */}
+      <AdminActivityLog />
+
       <div className="space-y-8">
         {/* Stats Grid */}
         <motion.div
