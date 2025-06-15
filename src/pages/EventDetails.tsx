@@ -7,12 +7,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Event, AccessibilityInfo, Pricing } from "@/lib/types";
 import { toast } from "sonner";
 import { EventDetailsSkeleton } from "@/components/EventDetailsSkeleton";
-import { EventDetailsContainer } from "@/components/EventDetailsContainer";
+import { LazyEventDetails } from "@/components/LazyEventDetails";
 import { getEventById } from "@/lib/mock-data";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
+import { usePagePerformance } from "@/hooks/usePagePerformance";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -20,9 +21,17 @@ const EventDetails = () => {
   const [event, setEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { handleError } = useErrorHandler();
+  
+  // Track page performance
+  const { trackCustomMetric } = usePagePerformance({
+    pageName: 'Event Details',
+    trackCoreWebVitals: true
+  });
 
   useEffect(() => {
     const fetchEvent = async () => {
+      const fetchStart = performance.now();
+      
       try {
         // Validate UUID format
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -107,7 +116,13 @@ const EventDetails = () => {
           likes: data.likes || 0,
           attendees: data.attendees || 0
         };
+        
         setEvent(formattedEvent);
+        
+        // Track event load time
+        const fetchTime = performance.now() - fetchStart;
+        trackCustomMetric('Event Fetch Time', fetchTime);
+        
       } catch (error) {
         handleError(error as Error, 'Event Details Fetch');
         navigate('/');
@@ -119,7 +134,7 @@ const EventDetails = () => {
     if (id) {
       fetchEvent();
     }
-  }, [id, navigate, handleError]);
+  }, [id, navigate, handleError, trackCustomMetric]);
 
   if (isLoading) {
     return <EventDetailsSkeleton />;
@@ -159,7 +174,7 @@ const EventDetails = () => {
           Back to Events
         </Button>
         
-        <EventDetailsContainer event={event} />
+        <LazyEventDetails event={event} />
       </div>
     </ErrorBoundary>
   );
