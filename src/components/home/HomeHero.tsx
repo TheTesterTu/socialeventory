@@ -125,7 +125,7 @@ export const HomeHero = () => {
               <span className="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
               <span className="text-sm font-medium text-white">New daily</span>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </div>
