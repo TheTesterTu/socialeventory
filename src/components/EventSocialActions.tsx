@@ -1,102 +1,42 @@
 
-import { useState, useEffect } from "react";
 import { Heart, MessageCircle, Share2, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useEventInteraction } from "@/hooks/useEvents";
 import { ProtectedEventAction } from "./ProtectedEventAction";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/services/analytics";
+import { useEventInteractions } from "@/hooks/useEventInteractions";
 
 interface EventSocialActionsProps {
   eventId: string;
-  likes: number;
   comments: number;
-  attendees: number;
   compact?: boolean;
 }
 
 export const EventSocialActions = ({
   eventId,
-  likes: initialLikes,
   comments,
-  attendees: initialAttendees,
   compact = false
 }: EventSocialActionsProps) => {
-  const { user } = useAuth();
-  const { likeEvent, attendEvent } = useEventInteraction();
-  const [isLiked, setIsLiked] = useState(false);
-  const [isAttending, setIsAttending] = useState(false);
-  const [currentLikes, setCurrentLikes] = useState(initialLikes);
-  const [currentAttendees, setCurrentAttendees] = useState(initialAttendees);
-
-  // Check if user has liked/is attending this event
-  useEffect(() => {
-    if (!user) return;
-
-    const checkUserInteractions = async () => {
-      try {
-        // Check if user liked the event
-        const { data: likeData } = await supabase
-          .from('event_likes')
-          .select('id')
-          .eq('event_id', eventId)
-          .eq('user_id', user.id)
-          .single();
-
-        setIsLiked(!!likeData);
-
-        // Check if user is attending the event
-        const { data: attendeeData } = await supabase
-          .from('event_attendees')
-          .select('id')
-          .eq('event_id', eventId)
-          .eq('user_id', user.id)
-          .single();
-
-        setIsAttending(!!attendeeData);
-      } catch (error) {
-        // Ignore errors (user hasn't liked/attended)
-      }
-    };
-
-    checkUserInteractions();
-  }, [user, eventId]);
-
-  const handleLike = async () => {
-    try {
-      const result = await likeEvent.mutateAsync(eventId);
-      setIsLiked(result === 'liked');
-      setCurrentLikes(prev => result === 'liked' ? prev + 1 : prev - 1);
-      toast(result === 'liked' ? "Added to favorites!" : "Removed from favorites");
-      trackEvent(result === 'liked' ? 'event_liked' : 'event_unliked', { event_id: eventId });
-    } catch (error) {
-      toast.error("Failed to update like status");
-    }
-  };
-
-  const handleAttend = async () => {
-    try {
-      const result = await attendEvent.mutateAsync(eventId);
-      setIsAttending(result === 'joined');
-      setCurrentAttendees(prev => result === 'joined' ? prev + 1 : prev - 1);
-      toast(result === 'joined' ? "You're attending!" : "No longer attending");
-      trackEvent(result === 'joined' ? 'event_attended' : 'event_unattended', { event_id: eventId });
-    } catch (error) {
-      toast.error("Failed to update attendance");
-    }
-  };
-
+  const {
+    isLiked,
+    likesCount,
+    isAttending,
+    attendeesCount,
+    handleLike,
+    handleAttendance,
+    likeMutation,
+    attendMutation
+  } = useEventInteractions(eventId);
+  
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
         title: 'Check out this event!',
-        url: window.location.href,
+        url: `${window.location.origin}/event/${eventId}`,
       });
       trackEvent('event_shared', { event_id: eventId, method: 'native' });
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(`${window.location.origin}/event/${eventId}`);
       toast("Link copied to clipboard!");
       trackEvent('event_shared', { event_id: eventId, method: 'clipboard' });
     }
@@ -112,11 +52,11 @@ export const EventSocialActions = ({
           variant="ghost"
           size={buttonSize}
           onClick={handleLike}
-          className={`gap-1 ${isLiked ? 'text-red-500 hover:text-red-600' : 'hover:text-red-500'}`}
-          disabled={likeEvent.isPending}
+          className={`gap-1 ${isLiked ? 'text-interaction-like hover:text-interaction-like/90' : 'hover:text-interaction-like'}`}
+          disabled={likeMutation.isPending}
         >
           <Heart className={`${iconSize} ${isLiked ? 'fill-current' : ''}`} />
-          {!compact && <span>{currentLikes}</span>}
+          {!compact && <span>{likesCount}</span>}
         </Button>
       </ProtectedEventAction>
 
@@ -124,12 +64,12 @@ export const EventSocialActions = ({
         <Button
           variant="ghost"
           size={buttonSize}
-          onClick={handleAttend}
-          className={`gap-1 ${isAttending ? 'text-green-500 hover:text-green-600' : 'hover:text-green-500'}`}
-          disabled={attendEvent.isPending}
+          onClick={handleAttendance}
+          className={`gap-1 ${isAttending ? 'text-interaction-attend hover:text-interaction-attend/90' : 'hover:text-interaction-attend'}`}
+          disabled={attendMutation.isPending}
         >
           <Calendar className={`${iconSize} ${isAttending ? 'fill-current' : ''}`} />
-          {!compact && <span>{currentAttendees}</span>}
+          {!compact && <span>{attendeesCount}</span>}
         </Button>
       </ProtectedEventAction>
 

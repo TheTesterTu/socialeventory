@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
@@ -26,6 +25,9 @@
     --input: 35 35 55;
     --ring: 139 92 246;
     --radius: 0.75rem;
+
+    --interaction-like: 0 84.2% 60.2%;
+    --interaction-attend: 142.1 70.6% 45.3%;
   }
 
   .light {
@@ -48,6 +50,9 @@
     --border: 229 231 235;
     --input: 243 244 246;
     --ring: 139 92 246;
+
+    --interaction-like: 0 84.2% 60.2%;
+    --interaction-attend: 142.1 70.6% 45.3%;
   }
 
   * {

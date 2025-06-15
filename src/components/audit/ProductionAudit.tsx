@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -21,11 +22,13 @@ export const ProductionAudit = () => {
   const auditSections: AuditSection[] = [
     {
       title: "🎨 UI/UX & Design",
-      progress: 85,
+      progress: 90,
       items: [
         { name: "Responsive Design", status: 'complete', description: "Mobile-first design implemented", priority: 'high' },
         { name: "Loading States", status: 'complete', description: "PageLoader and skeleton components", priority: 'high' },
         { name: "Error States", status: 'complete', description: "Error boundaries and fallbacks", priority: 'high' },
+        { name: "Color Consistency", status: 'partial', description: "Theme colors defined, some hardcoded values remain", priority: 'medium' },
+        { name: "Component Architecture", status: 'partial', description: "Refactored social actions, more opportunities exist", priority: 'medium' },
         { name: "Accessibility", status: 'partial', description: "Basic ARIA labels, needs keyboard navigation", priority: 'medium' },
         { name: "Dark/Light Theme", status: 'complete', description: "Theme provider implemented", priority: 'medium' },
         { name: "Animation & Transitions", status: 'complete', description: "Framer Motion integrated", priority: 'low' },

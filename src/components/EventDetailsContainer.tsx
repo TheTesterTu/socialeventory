@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { EventChatModal } from "./EventChatModal";
+import { useEventComments } from "@/hooks/useEventComments";
 
 interface EventDetailsContainerProps {
   event: Event;
@@ -19,6 +20,7 @@ interface EventDetailsContainerProps {
 export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => {
   const navigate = useNavigate();
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  const { comments } = useEventComments(event.id);
 
   const handleGetTickets = () => {
     window.open(`https://example.com/tickets/${event.id}`, '_blank');
@@ -82,9 +84,7 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
                 <div className="flex flex-col sm:flex-row gap-2">
                   <EventSocialActions 
                     eventId={event.id} 
-                    likes={event.likes} 
-                    comments={0}
-                    attendees={event.attendees}
+                    comments={comments.length}
                   />
                   <div className="flex gap-2">
                     <Button 

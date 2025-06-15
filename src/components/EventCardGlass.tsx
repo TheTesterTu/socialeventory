@@ -1,4 +1,3 @@
-
 import { Event } from "@/lib/types";
 import { format } from "date-fns";
 import { MapPin, Calendar } from "lucide-react";
@@ -77,8 +76,6 @@ export const EventCardGlass = ({
           <div className="pt-3 border-t border-border/50">
             <EventSocialActions
               eventId={event.id}
-              likes={event.likes}
-              attendees={event.attendees}
               comments={0}
               compact={true}
             />

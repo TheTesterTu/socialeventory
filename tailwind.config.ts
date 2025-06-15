@@ -79,6 +79,8 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        'interaction-like': 'hsl(var(--interaction-like))',
+        'interaction-attend': 'hsl(var(--interaction-attend))',
       },
       borderRadius: {
         lg: "var(--radius)",
