@@ -39,7 +39,7 @@ export const SEOHead = ({
       <meta name="revisit-after" content="7 days" />
       
       {/* Canonical URL */}
-      <link rel="canonical" href={canonical || fullUrl} />
+      {canonical && <link rel="canonical" href={canonical} />}
       
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
@@ -58,19 +58,6 @@ export const SEOHead = ({
       <meta property="twitter:description" content={description} />
       <meta property="twitter:image" content={fullImageUrl} />
       <meta property="twitter:image:alt" content={title} />
-      
-      {/* Additional Meta Tags for better SEO */}
-      <meta name="theme-color" content="#8B5CF6" />
-      <meta name="apple-mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      <meta name="apple-mobile-web-app-title" content="SocialEventory" />
-      
-      {/* Preload critical resources */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link rel="dns-prefetch" href="https://afdkepzhghdoeyjncnah.supabase.co" />
-      
-      {/* Structured Data will be handled by StructuredData component */}
     </Helmet>
   );
 };

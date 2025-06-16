@@ -8,7 +8,6 @@ import { ThemeProvider } from "next-themes";
 import { HelmetProvider } from "react-helmet-async";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { NotFoundRedirect } from "./components/NotFoundRedirect";
-import { ProductionLayout } from "./components/layout/ProductionLayout";
 import { OfflineBanner } from "./components/ui/offline-banner";
 import { useAnalytics } from "./hooks/useAnalytics";
 
@@ -134,29 +133,27 @@ const AppContent = () => {
 
 export default function App() {
   return (
-    <ProductionLayout>
-      <HelmetProvider>
-        <ThemeProvider attribute="class" defaultTheme="dark">
-          <TooltipProvider>
-            <QueryClientProvider client={queryClient}>
-              <Router>
-                <AuthProvider>
-                  <OfflineBanner />
-                  <AppContent />
-                  <Toaster 
-                    position="top-right" 
-                    closeButton 
-                    duration={4000}
-                    richColors
-                    expand={false}
-                    visibleToasts={3}
-                  />
-                </AuthProvider>
-              </Router>
-            </QueryClientProvider>
-          </TooltipProvider>
-        </ThemeProvider>
-      </HelmetProvider>
-    </ProductionLayout>
+    <HelmetProvider>
+      <ThemeProvider attribute="class" defaultTheme="dark">
+        <TooltipProvider>
+          <QueryClientProvider client={queryClient}>
+            <Router>
+              <AuthProvider>
+                <OfflineBanner />
+                <AppContent />
+                <Toaster 
+                  position="top-right" 
+                  closeButton 
+                  duration={4000}
+                  richColors
+                  expand={false}
+                  visibleToasts={3}
+                />
+              </AuthProvider>
+            </Router>
+          </QueryClientProvider>
+        </TooltipProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
