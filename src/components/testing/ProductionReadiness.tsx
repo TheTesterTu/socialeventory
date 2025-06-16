@@ -40,26 +40,34 @@ export const ProductionReadiness = () => {
         critical: true
       });
 
-      // Check all required tables
-      const tables = ['events', 'profiles', 'comments', 'event_likes', 'event_attendees', 'notifications'];
-      for (const table of tables) {
+      // Check essential tables
+      const tableChecks = [
+        { name: 'events', critical: true },
+        { name: 'profiles', critical: true },
+        { name: 'comments', critical: false },
+        { name: 'event_likes', critical: false },
+        { name: 'event_attendees', critical: false },
+        { name: 'notifications', critical: false }
+      ];
+
+      for (const tableCheck of tableChecks) {
         try {
-          const { error } = await supabase.from(table).select('count').limit(1);
+          const { error } = await supabase.from(tableCheck.name as any).select('count').limit(1);
           results.push({
-            name: `Table: ${table}`,
+            name: `Table: ${tableCheck.name}`,
             category: 'database',
             status: error ? 'error' : 'success',
-            message: error ? `Table ${table} not accessible` : `Table ${table} working`,
+            message: error ? `Table ${tableCheck.name} not accessible` : `Table ${tableCheck.name} working`,
             details: error?.message,
-            critical: table === 'events' || table === 'profiles'
+            critical: tableCheck.critical
           });
         } catch (err) {
           results.push({
-            name: `Table: ${table}`,
+            name: `Table: ${tableCheck.name}`,
             category: 'database',
             status: 'error',
-            message: `Failed to check table ${table}`,
-            critical: true
+            message: `Failed to check table ${tableCheck.name}`,
+            critical: tableCheck.critical
           });
         }
       }
