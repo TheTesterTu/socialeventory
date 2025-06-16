@@ -1,17 +1,62 @@
 
-import { AppLayout } from "@/components/layout/AppLayout";
+import { OptimizedAppLayout } from "@/components/layout/OptimizedAppLayout";
 import { ProductionAudit } from "@/components/audit/ProductionAudit";
+import { ProductionReadiness } from "@/components/testing/ProductionReadiness";
+import { SystemCheck } from "@/components/testing/SystemCheck";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ProductionAuditPage = () => {
   return (
-    <AppLayout 
-      pageTitle="Production Audit | SocialEventory"
-      pageDescription="Application readiness assessment for production deployment"
+    <OptimizedAppLayout 
+      pageTitle="Production Audit" 
+      pageDescription="Complete production readiness assessment"
     >
-      <div className="container mx-auto py-8 px-4">
-        <ProductionAudit />
+      <div className="container mx-auto px-4 py-8 space-y-8">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Production Audit Dashboard
+          </h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Comprehensive assessment of application readiness for production deployment
+          </p>
+        </div>
+
+        <Tabs defaultValue="readiness" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="readiness">Production Readiness</TabsTrigger>
+            <TabsTrigger value="audit">Feature Audit</TabsTrigger>
+            <TabsTrigger value="system">System Check</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="readiness" className="space-y-6">
+            <Card className="border-primary/20">
+              <CardHeader>
+                <CardTitle>🎯 Live Production Readiness Assessment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ProductionReadiness />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="audit" className="space-y-6">
+            <ProductionAudit />
+          </TabsContent>
+
+          <TabsContent value="system" className="space-y-6">
+            <Card className="border-primary/20">
+              <CardHeader>
+                <CardTitle>⚙️ System Health Check</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SystemCheck />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-    </AppLayout>
+    </OptimizedAppLayout>
   );
 };
 

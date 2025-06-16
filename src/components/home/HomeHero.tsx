@@ -37,14 +37,14 @@ export const HomeHero = () => {
           transition={{ duration: 0.6 }}
           className="max-w-4xl mx-auto text-center space-y-8"
         >
-          {/* Badge - Rimosso glass problematico */}
+          {/* Badge con migliore contrasto */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium border border-primary/50 bg-primary/20 backdrop-blur-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium border-2 border-primary bg-primary/30 backdrop-blur-sm shadow-lg"
           >
-            <Sparkles className="h-4 w-4 text-primary" />
+            <Sparkles className="h-4 w-4 text-white" />
             <span>Discover epic events worldwide</span>
           </motion.div>
 
@@ -66,19 +66,19 @@ export const HomeHero = () => {
             </p>
           </motion.div>
 
-          {/* Search bar - Migliorato contrasto */}
+          {/* Search bar con migliore contrasto */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="w-full px-4"
           >
-            <div className="p-3 rounded-2xl border border-white/20 bg-white/95 backdrop-blur-sm max-w-3xl mx-auto">
+            <div className="p-3 rounded-2xl border-2 border-white/30 bg-white/98 backdrop-blur-sm max-w-3xl mx-auto shadow-2xl">
               <SearchBar onSearch={handleSearch} />
             </div>
           </motion.div>
 
-          {/* Action buttons - Fix contrasto definitivo */}
+          {/* Action buttons con contrasto perfetto */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -88,7 +88,7 @@ export const HomeHero = () => {
             <Link to="/create-event" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/80 text-white px-8 py-3 h-auto font-semibold rounded-xl w-full shadow-xl transition-all duration-300 hover:scale-105 border-2 border-primary"
+                className="bg-primary hover:bg-primary/90 text-white px-8 py-3 h-auto font-semibold rounded-xl w-full shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-primary hover:border-primary/80"
               >
                 <CalendarPlus className="mr-2 h-5 w-5" />
                 Create Event
@@ -98,7 +98,7 @@ export const HomeHero = () => {
               <Button 
                 variant="outline"
                 size="lg"
-                className="bg-white hover:bg-gray-50 text-gray-900 border-2 border-white hover:border-gray-200 px-8 py-3 h-auto font-semibold rounded-xl w-full shadow-xl transition-all duration-300 hover:scale-105"
+                className="bg-white/95 hover:bg-white text-gray-900 hover:text-black border-2 border-white hover:border-gray-200 px-8 py-3 h-auto font-semibold rounded-xl w-full shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 <Search className="mr-2 h-5 w-5" />
                 Explore All
@@ -106,22 +106,22 @@ export const HomeHero = () => {
             </Link>
           </motion.div>
 
-          {/* Stats - Contrasto migliorato */}
+          {/* Stats con migliore leggibilità */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.6 }}
             className="flex items-center justify-center flex-wrap gap-4 lg:gap-6 pt-6 px-4"
           >
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-400/50 bg-emerald-500/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-emerald-400/70 bg-emerald-500/30 backdrop-blur-sm shadow-lg">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
               <span className="text-sm font-medium text-white">Live now</span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-primary/50 bg-primary/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary/70 bg-primary/30 backdrop-blur-sm shadow-lg">
               <span className="inline-block h-2 w-2 rounded-full bg-primary"></span>
               <span className="text-sm font-medium text-white">1000+ this week</span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-amber-400/50 bg-amber-500/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-amber-400/70 bg-amber-500/30 backdrop-blur-sm shadow-lg">
               <span className="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
               <span className="text-sm font-medium text-white">New daily</span>
             </div>
