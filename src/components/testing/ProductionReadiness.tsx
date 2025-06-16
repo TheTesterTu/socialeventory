@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -180,6 +179,35 @@ export const ProductionReadiness = () => {
       status: hasValidConfig ? 'success' : 'error',
       message: hasValidConfig ? 'Supabase configuration valid' : 'Invalid configuration',
       critical: true
+    });
+
+    // Production Environment Check
+    results.push({
+      name: 'Production Mode',
+      category: 'performance',
+      status: import.meta.env.PROD ? 'success' : 'warning',
+      message: import.meta.env.PROD ? 'Running in production mode' : 'Running in development mode',
+      critical: false
+    });
+
+    // Error Handling Check
+    const hasErrorBoundaries = document.querySelector('[data-error-boundary]') !== null;
+    results.push({
+      name: 'Error Boundaries',
+      category: 'security',
+      status: hasErrorBoundaries ? 'success' : 'warning',
+      message: hasErrorBoundaries ? 'Error boundaries active' : 'Error boundaries recommended',
+      critical: false
+    });
+
+    // Bundle Size Check (approximation)
+    const scriptsSize = Array.from(document.querySelectorAll('script[src]')).length;
+    results.push({
+      name: 'Bundle Optimization',
+      category: 'performance',
+      status: scriptsSize < 10 ? 'success' : scriptsSize < 20 ? 'warning' : 'error',
+      message: `${scriptsSize} script files loaded`,
+      critical: false
     });
 
     setTests(results);

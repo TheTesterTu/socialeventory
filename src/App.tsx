@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
@@ -46,10 +47,12 @@ const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 60, // 1 hour
       retry: (failureCount, error: any) => {
         if (error?.status === 404) return false;
-        return failureCount < 3;
+        if (error?.status >= 400 && error?.status < 500) return false;
+        return failureCount < 2;
       },
       networkMode: "online",
       refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
     },
     mutations: {
       retry: 1,
@@ -145,6 +148,8 @@ export default function App() {
                     closeButton 
                     duration={4000}
                     richColors
+                    expand={false}
+                    visibleToasts={3}
                   />
                 </AuthProvider>
               </Router>
