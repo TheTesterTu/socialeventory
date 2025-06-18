@@ -3,6 +3,8 @@ import { OptimizedAppLayout } from "@/components/layout/OptimizedAppLayout";
 import { ProductionAudit } from "@/components/audit/ProductionAudit";
 import { ProductionReadiness } from "@/components/testing/ProductionReadiness";
 import { SystemCheck } from "@/components/testing/SystemCheck";
+import { SecurityAudit } from "@/components/security/SecurityAudit";
+import { ProductionChecklist } from "@/components/production/ProductionChecklist";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -22,12 +24,36 @@ const ProductionAuditPage = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="readiness" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="readiness">Production Readiness</TabsTrigger>
+        <Tabs defaultValue="checklist" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="checklist">Checklist</TabsTrigger>
+            <TabsTrigger value="security">Security</TabsTrigger>
+            <TabsTrigger value="readiness">Readiness</TabsTrigger>
             <TabsTrigger value="audit">Feature Audit</TabsTrigger>
             <TabsTrigger value="system">System Check</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="checklist" className="space-y-6">
+            <Card className="border-primary/20">
+              <CardHeader>
+                <CardTitle>📋 Production Readiness Checklist</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ProductionChecklist />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-6">
+            <Card className="border-primary/20">
+              <CardHeader>
+                <CardTitle>🔒 Security Audit</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SecurityAudit />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="readiness" className="space-y-6">
             <Card className="border-primary/20">
