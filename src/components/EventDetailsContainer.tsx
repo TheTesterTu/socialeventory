@@ -22,6 +22,23 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const { comments } = useEventComments(event.id);
 
+  // Safely validate event data
+  if (!event || !event.id) {
+    console.error('Invalid event data:', event);
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <h2 className="text-xl font-semibold mb-2">Event data unavailable</h2>
+        <p className="text-muted-foreground">There was an issue loading this event.</p>
+        <Button 
+          onClick={() => navigate('/')}
+          className="mt-4"
+        >
+          Back to Home
+        </Button>
+      </div>
+    );
+  }
+
   const handleGetTickets = () => {
     window.open(`https://example.com/tickets/${event.id}`, '_blank');
     toast("Opening ticket page");
@@ -30,6 +47,20 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
   const handleShowOnMap = () => {
     navigate(`/nearby?eventId=${event.id}`);
     toast("Showing event location on map");
+  };
+
+  // Safely extract event properties with fallbacks
+  const safeEvent = {
+    ...event,
+    title: event.title || 'Untitled Event',
+    description: event.description || 'No description available',
+    imageUrl: event.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87',
+    tags: Array.isArray(event.tags) ? event.tags : [],
+    location: {
+      ...event.location,
+      address: event.location?.address || 'Location not specified',
+      venue_name: event.location?.venue_name || ''
+    }
   };
 
   return (
@@ -41,9 +72,13 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
       >
         <div className="relative h-[400px] rounded-xl overflow-hidden">
           <img
-            src={event.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
-            alt={event.title}
+            src={safeEvent.imageUrl}
+            alt={safeEvent.title}
             className="absolute inset-0 w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87';
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
         </div>
@@ -51,40 +86,42 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <EventHeader 
-              title={event.title}
-              startDate={event.startDate}
-              endDate={event.endDate}
-              location={event.location}
-              category={event.category}
+              title={safeEvent.title}
+              startDate={safeEvent.startDate}
+              endDate={safeEvent.endDate}
+              location={safeEvent.location}
+              category={safeEvent.category}
             />
 
             <div className="prose prose-invert max-w-none">
-              <p>{event.description}</p>
+              <p>{safeEvent.description}</p>
             </div>
 
-            <div className="flex flex-wrap gap-4">
-              {event.tags.map((tag) => (
-                <span key={tag} className="text-sm text-muted-foreground flex items-center gap-1 hover:text-primary transition-colors">
-                  <Tag className="h-3 w-3" />
-                  {tag}
-                </span>
-              ))}
-            </div>
+            {safeEvent.tags.length > 0 && (
+              <div className="flex flex-wrap gap-4">
+                {safeEvent.tags.map((tag, index) => (
+                  <span key={`${tag}-${index}`} className="text-sm text-muted-foreground flex items-center gap-1 hover:text-primary transition-colors">
+                    <Tag className="h-3 w-3" />
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="border-t border-border pt-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <EventMetadata 
-                  startDate={event.startDate}
-                  endDate={event.endDate}
-                  location={event.location}
-                  tags={event.tags}
-                  attendees={event.attendees}
-                  pricing={event.pricing}
+                  startDate={safeEvent.startDate}
+                  endDate={safeEvent.endDate}
+                  location={safeEvent.location}
+                  tags={safeEvent.tags}
+                  attendees={safeEvent.attendees || 0}
+                  pricing={safeEvent.pricing}
                 />
                 <div className="flex flex-col sm:flex-row gap-2">
                   <EventSocialActions 
-                    eventId={event.id} 
-                    comments={comments.length}
+                    eventId={safeEvent.id} 
+                    comments={comments?.length || 0}
                   />
                   <div className="flex gap-2">
                     <Button 
@@ -118,13 +155,13 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
 
           {/* Community Chat Sidebar */}
           <div className="lg:col-span-1">
-            <EventCommunity eventId={event.id} />
+            <EventCommunity eventId={safeEvent.id} />
           </div>
         </div>
       </motion.div>
 
       <EventChatModal
-        event={event}
+        event={safeEvent}
         isOpen={isChatModalOpen}
         onOpenChange={setIsChatModalOpen}
       />

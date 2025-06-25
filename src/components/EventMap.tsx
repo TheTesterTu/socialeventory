@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -113,25 +114,32 @@ const EventMap = ({
     // Create custom user location marker element
     const userEl = document.createElement('div');
     userEl.className = 'user-location-marker';
-    userEl.style.width = '16px';
-    userEl.style.height = '16px';
-    userEl.style.backgroundColor = '#2563eb';
-    userEl.style.borderRadius = '50%';
-    userEl.style.border = '3px solid white';
-    userEl.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.4)';
-    userEl.style.cursor = 'pointer';
+    userEl.style.cssText = `
+      width: 20px;
+      height: 20px;
+      background-color: #2563eb;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+      cursor: pointer;
+      position: relative;
+      z-index: 10;
+    `;
 
     // Add pulse animation
     const pulseEl = document.createElement('div');
-    pulseEl.style.position = 'absolute';
-    pulseEl.style.top = '-3px';
-    pulseEl.style.left = '-3px';
-    pulseEl.style.width = '22px';
-    pulseEl.style.height = '22px';
-    pulseEl.style.borderRadius = '50%';
-    pulseEl.style.backgroundColor = '#2563eb';
-    pulseEl.style.opacity = '0.3';
-    pulseEl.style.animation = 'pulse 2s infinite';
+    pulseEl.style.cssText = `
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background-color: #2563eb;
+      opacity: 0.3;
+      animation: pulse 2s infinite;
+      pointer-events: none;
+    `;
     userEl.appendChild(pulseEl);
 
     // Add user location marker
@@ -139,7 +147,12 @@ const EventMap = ({
       .setLngLat(userLocation)
       .addTo(map.current)
       .setPopup(
-        new mapboxgl.Popup({ offset: 25, className: 'user-popup' })
+        new mapboxgl.Popup({ 
+          offset: 25, 
+          className: 'user-popup',
+          closeButton: true,
+          closeOnClick: false
+        })
           .setHTML('<div class="p-2 font-medium text-blue-600">Your location</div>')
       );
   }, [mapLoaded, userLocation]);
@@ -179,67 +192,84 @@ const EventMap = ({
         return;
       }
       
-      // Create improved marker element
+      // Create improved marker element with fixed positioning
       const el = document.createElement('div');
       el.className = 'event-marker';
-      el.style.width = '24px';
-      el.style.height = '24px';
-      el.style.borderRadius = '50%';
-      el.style.cursor = 'pointer';
-      el.style.border = '3px solid white';
-      el.style.backgroundColor = '#16a085';
-      el.style.boxShadow = '0 4px 12px rgba(22, 160, 133, 0.4)';
-      el.style.transition = 'all 0.3s ease';
-      el.style.position = 'relative';
+      el.style.cssText = `
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid white;
+        background-color: #16a085;
+        box-shadow: 0 4px 12px rgba(22, 160, 133, 0.4);
+        transition: all 0.2s ease;
+        position: relative;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      `;
 
       // Add inner dot for better visibility
       const innerDot = document.createElement('div');
-      innerDot.style.position = 'absolute';
-      innerDot.style.top = '50%';
-      innerDot.style.left = '50%';
-      innerDot.style.transform = 'translate(-50%, -50%)';
-      innerDot.style.width = '8px';
-      innerDot.style.height = '8px';
-      innerDot.style.backgroundColor = 'white';
-      innerDot.style.borderRadius = '50%';
+      innerDot.style.cssText = `
+        width: 8px;
+        height: 8px;
+        background-color: white;
+        border-radius: 50%;
+        pointer-events: none;
+      `;
       el.appendChild(innerDot);
 
-      // Hover effects
+      // Fixed hover effects - no transform to prevent movement
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.3)';
         el.style.boxShadow = '0 6px 20px rgba(22, 160, 133, 0.6)';
         el.style.zIndex = '1000';
+        el.style.borderWidth = '4px';
       });
+      
       el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)';
         el.style.boxShadow = '0 4px 12px rgba(22, 160, 133, 0.4)';
-        el.style.zIndex = '1';
+        el.style.zIndex = '5';
+        el.style.borderWidth = '3px';
       });
+
+      // Create safe popup content with proper data validation
+      const createPopupContent = (eventData: Event) => {
+        // Safely extract and validate event data
+        const title = eventData.title || 'Untitled Event';
+        const address = eventData.location?.address || 'Location not specified';
+        const venueName = eventData.location?.venue_name || '';
+        const eventId = eventData.id || '';
+        
+        return `
+          <div class="p-4 space-y-3 min-w-[240px] bg-white rounded-lg shadow-lg">
+            <div class="space-y-2">
+              <h3 class="font-bold text-lg text-gray-900 line-clamp-2">${title}</h3>
+              <p class="text-sm text-gray-600">${address}</p>
+              ${venueName ? `<p class="text-sm font-medium text-primary">${venueName}</p>` : ''}
+            </div>
+            <div class="pt-2 border-t border-gray-100">
+              <button 
+                onclick="window.location.href='/event/${eventId}'" 
+                class="w-full bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                View Details
+              </button>
+            </div>
+          </div>
+        `;
+      };
 
       // Add popup with event details
       const popup = new mapboxgl.Popup({ 
-        offset: 25,
+        offset: 30,
         className: 'event-popup',
-        closeButton: false,
+        closeButton: true,
         closeOnClick: false
       })
-      .setHTML(`
-        <div class="p-4 space-y-3 min-w-[240px] bg-white rounded-lg shadow-lg">
-          <div class="space-y-2">
-            <h3 class="font-bold text-lg text-gray-900 line-clamp-2">${event.title}</h3>
-            <p class="text-sm text-gray-600">${event.location.address}</p>
-            ${event.location.venue_name ? `<p class="text-sm font-medium text-primary">${event.location.venue_name}</p>` : ''}
-          </div>
-          <div class="pt-2 border-t border-gray-100">
-            <button 
-              onclick="window.location.href='/event/${event.id}'" 
-              class="w-full bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              View Details
-            </button>
-          </div>
-        </div>
-      `);
+      .setHTML(createPopupContent(event));
 
       try {
         // Create and add marker with correct coordinates order (lng, lat for Mapbox!)
@@ -355,6 +385,19 @@ const EventMap = ({
             transform: scale(2);
             opacity: 0;
           }
+        }
+        
+        .event-marker:hover {
+          z-index: 1000 !important;
+        }
+        
+        .mapboxgl-popup {
+          z-index: 1001 !important;
+        }
+        
+        .mapboxgl-popup-content {
+          padding: 0 !important;
+          border-radius: 8px !important;
         }
       `}</style>
     </div>

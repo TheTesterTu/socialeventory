@@ -1,5 +1,34 @@
+
 import { Event } from "@/lib/types";
 import { Json } from "@/integrations/supabase/types";
+
+/**
+ * Safely extracts string value from unknown data
+ */
+const safeString = (value: unknown, fallback = ''): string => {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return String(value);
+  return fallback;
+};
+
+/**
+ * Safely extracts number value from unknown data
+ */
+const safeNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === 'number' && !isNaN(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    return !isNaN(parsed) ? parsed : fallback;
+  }
+  return fallback;
+};
+
+/**
+ * Safely extracts array from unknown data
+ */
+const safeArray = (value: unknown, fallback: any[] = []): any[] => {
+  return Array.isArray(value) ? value : fallback;
+};
 
 /**
  * Maps database event format to the application Event interface
@@ -7,6 +36,10 @@ import { Json } from "@/integrations/supabase/types";
 export function mapDatabaseEventToEvent(dbEvent: any): Event {
   console.log('Mapping database event:', dbEvent);
   
+  if (!dbEvent || typeof dbEvent !== 'object') {
+    throw new Error('Invalid database event data');
+  }
+
   // Handle accessibility JSON data with proper type checking
   const accessibilityData = dbEvent.accessibility as Json;
   let languages: string[] = ['en'];
@@ -32,7 +65,10 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
   if (typeof pricingData === 'object' && pricingData !== null) {
     isFree = Boolean((pricingData as any).isFree);
     if (Array.isArray((pricingData as any).priceRange) && (pricingData as any).priceRange.length >= 2) {
-      priceRange = [(pricingData as any).priceRange[0], (pricingData as any).priceRange[1]];
+      priceRange = [
+        safeNumber((pricingData as any).priceRange[0]),
+        safeNumber((pricingData as any).priceRange[1])
+      ];
     }
     if (typeof (pricingData as any).currency === 'string') {
       currency = (pricingData as any).currency as string;
@@ -45,53 +81,59 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
   if (dbEvent.coordinates) {
     console.log('Processing coordinates:', dbEvent.coordinates, typeof dbEvent.coordinates);
     
-    // Handle PostgreSQL point format: "(x,y)" or {x: number, y: number}
-    if (typeof dbEvent.coordinates === 'string') {
-      // Parse string format "(x,y)"
-      const match = dbEvent.coordinates.match(/\(([^,]+),([^)]+)\)/);
-      if (match) {
-        const lat = parseFloat(match[1]);
-        const lng = parseFloat(match[2]);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          coordinates = [lat, lng];
+    try {
+      // Handle PostgreSQL point format: "(x,y)" or {x: number, y: number}
+      if (typeof dbEvent.coordinates === 'string') {
+        // Parse string format "(x,y)"
+        const match = dbEvent.coordinates.match(/\(([^,]+),([^)]+)\)/);
+        if (match) {
+          const lat = safeNumber(match[1]);
+          const lng = safeNumber(match[2]);
+          if (lat !== 0 || lng !== 0) {
+            coordinates = [lat, lng];
+          }
+        }
+      } else if (typeof dbEvent.coordinates === 'object' && dbEvent.coordinates !== null) {
+        // Handle object format {x: number, y: number}
+        if ('x' in dbEvent.coordinates && 'y' in dbEvent.coordinates) {
+          const lat = safeNumber(dbEvent.coordinates.x);
+          const lng = safeNumber(dbEvent.coordinates.y);
+          if (lat !== 0 || lng !== 0) {
+            coordinates = [lat, lng];
+          }
+        }
+        // Handle array format [lat, lng]
+        else if (Array.isArray(dbEvent.coordinates) && dbEvent.coordinates.length >= 2) {
+          const lat = safeNumber(dbEvent.coordinates[0]);
+          const lng = safeNumber(dbEvent.coordinates[1]);
+          if (lat !== 0 || lng !== 0) {
+            coordinates = [lat, lng];
+          }
         }
       }
-    } else if (typeof dbEvent.coordinates === 'object' && dbEvent.coordinates !== null) {
-      // Handle object format {x: number, y: number}
-      if ('x' in dbEvent.coordinates && 'y' in dbEvent.coordinates) {
-        const lat = parseFloat(dbEvent.coordinates.x);
-        const lng = parseFloat(dbEvent.coordinates.y);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          coordinates = [lat, lng];
-        }
-      }
-      // Handle array format [lat, lng]
-      else if (Array.isArray(dbEvent.coordinates) && dbEvent.coordinates.length >= 2) {
-        const lat = parseFloat(dbEvent.coordinates[0]);
-        const lng = parseFloat(dbEvent.coordinates[1]);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          coordinates = [lat, lng];
-        }
-      }
+    } catch (error) {
+      console.warn('Error parsing coordinates:', error);
+      coordinates = [0, 0];
     }
   }
   
   console.log('Final coordinates:', coordinates);
 
+  // Safely map all properties with proper validation
   const mappedEvent: Event = {
-    id: dbEvent.id,
-    title: dbEvent.title,
-    description: dbEvent.description || '',
-    startDate: dbEvent.start_date,
-    endDate: dbEvent.end_date || dbEvent.start_date,
+    id: safeString(dbEvent.id),
+    title: safeString(dbEvent.title, 'Untitled Event'),
+    description: safeString(dbEvent.description),
+    startDate: safeString(dbEvent.start_date),
+    endDate: safeString(dbEvent.end_date || dbEvent.start_date),
     location: {
       coordinates,
-      address: dbEvent.location || '',
-      venue_name: dbEvent.venue_name || ''
+      address: safeString(dbEvent.location),
+      venue_name: safeString(dbEvent.venue_name)
     },
-    category: dbEvent.category || [],
-    tags: dbEvent.tags || [],
-    culturalContext: dbEvent.cultural_context || '',
+    category: safeArray(dbEvent.category),
+    tags: safeArray(dbEvent.tags),
+    culturalContext: safeString(dbEvent.cultural_context),
     accessibility: {
       languages,
       wheelchairAccessible,
@@ -103,16 +145,23 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
       currency
     },
     creator: {
-      id: dbEvent.created_by || '',
-      type: 'user'
+      id: safeString(dbEvent.created_by),
+      type: 'user' as const
     },
     verification: {
-      status: (dbEvent.verification_status || 'pending') as 'pending' | 'verified' | 'featured'
+      status: (dbEvent.verification_status === 'verified' || dbEvent.verification_status === 'featured') 
+        ? dbEvent.verification_status as 'verified' | 'featured'
+        : 'pending' as const
     },
-    imageUrl: dbEvent.image_url || '',
-    likes: dbEvent.likes || 0,
-    attendees: dbEvent.attendees || 0
+    imageUrl: safeString(dbEvent.image_url),
+    likes: safeNumber(dbEvent.likes),
+    attendees: safeNumber(dbEvent.attendees)
   };
+  
+  // Validate required fields
+  if (!mappedEvent.id) {
+    throw new Error('Event must have a valid ID');
+  }
   
   console.log('Mapped event:', mappedEvent);
   return mappedEvent;
@@ -122,19 +171,23 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
  * Maps mock event data to the application Event interface
  */
 export function mapMockEventToEvent(mockEvent: any): Event {
+  if (!mockEvent || typeof mockEvent !== 'object') {
+    throw new Error('Invalid mock event data');
+  }
+
   return {
-    id: mockEvent.id,
-    title: mockEvent.title,
-    description: mockEvent.description || '',
-    startDate: mockEvent.start_date,
-    endDate: mockEvent.end_date || mockEvent.start_date,
+    id: safeString(mockEvent.id),
+    title: safeString(mockEvent.title, 'Untitled Event'),
+    description: safeString(mockEvent.description),
+    startDate: safeString(mockEvent.start_date),
+    endDate: safeString(mockEvent.end_date || mockEvent.start_date),
     location: {
-      coordinates: [0, 0],
-      address: mockEvent.location || '',
-      venue_name: mockEvent.venue_name || ''
+      coordinates: [0, 0] as [number, number],
+      address: safeString(mockEvent.location),
+      venue_name: safeString(mockEvent.venue_name)
     },
-    category: mockEvent.category || [],
-    tags: mockEvent.tags || [],
+    category: safeArray(mockEvent.category),
+    tags: safeArray(mockEvent.tags),
     accessibility: {
       languages: ['en'],
       wheelchairAccessible: false,
@@ -142,18 +195,18 @@ export function mapMockEventToEvent(mockEvent: any): Event {
     },
     pricing: {
       isFree: true,
-      priceRange: [0, 0],
+      priceRange: [0, 0] as [number, number],
       currency: 'USD'
     },
     creator: {
-      id: mockEvent.created_by || '',
-      type: 'user'
+      id: safeString(mockEvent.created_by),
+      type: 'user' as const
     },
     verification: {
-      status: (mockEvent.verification_status || 'pending') as 'pending' | 'verified' | 'featured'
+      status: 'pending' as const
     },
-    imageUrl: mockEvent.image_url || '',
-    likes: mockEvent.likes || 0,
-    attendees: mockEvent.attendees || 0
+    imageUrl: safeString(mockEvent.image_url),
+    likes: safeNumber(mockEvent.likes),
+    attendees: safeNumber(mockEvent.attendees)
   };
 }
