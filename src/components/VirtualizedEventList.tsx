@@ -21,7 +21,8 @@ export const VirtualizedEventList = ({
   const [mounted, setMounted] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const ITEM_HEIGHT = 400;
+  const ITEM_HEIGHT = 420; // Increased to prevent overlap
+  const ITEM_PADDING = 16; // Consistent padding
 
   useEffect(() => {
     setMounted(true);
@@ -42,15 +43,16 @@ export const VirtualizedEventList = ({
       <motion.div
         style={{
           ...style,
-          height: ITEM_HEIGHT,
+          height: ITEM_HEIGHT - ITEM_PADDING,
+          padding: `${ITEM_PADDING / 2}px`,
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: index * 0.05 }}
-        className="p-3"
+        className="w-full"
       >
-        <div onClick={handleEventClick} className="cursor-pointer">
-          <EventCard event={event} index={index} />
+        <div onClick={handleEventClick} className="cursor-pointer h-full">
+          <EventCard event={event} index={index} variant="compact" />
         </div>
       </motion.div>
     );
@@ -94,10 +96,10 @@ export const VirtualizedEventList = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className={className}
+          className={`w-full ${className}`}
         >
           <List
-            height={Math.min(800, events.length * (ITEM_HEIGHT / 1.5))}
+            height={Math.min(800, events.length * ITEM_HEIGHT)}
             itemCount={events.length}
             itemSize={ITEM_HEIGHT}
             width="100%"

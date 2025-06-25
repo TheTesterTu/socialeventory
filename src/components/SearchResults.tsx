@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Filter } from "lucide-react";
 import { VirtualizedEventList } from "./VirtualizedEventList";
 import EventMap from "./EventMap";
+import { EventCard } from "./EventCard";
 
 interface SearchResultsProps {
   events: Event[];
@@ -47,10 +48,29 @@ export const SearchResults = ({ events, searchQuery, viewMode }: SearchResultsPr
       )}
 
       {viewMode === 'list' ? (
-        <VirtualizedEventList events={events} className="mx-auto" />
+        <div className="space-y-6">
+          {/* Desktop Grid View */}
+          <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {events.map((event, index) => (
+              <motion.div
+                key={event.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+              >
+                <EventCard event={event} index={index} variant="compact" />
+              </motion.div>
+            ))}
+          </div>
+          
+          {/* Mobile Virtualized List */}
+          <div className="md:hidden">
+            <VirtualizedEventList events={events} className="mx-auto" />
+          </div>
+        </div>
       ) : (
         <div className="rounded-xl overflow-hidden h-[600px]">
-          <EventMap events={events} />
+          <EventMap events={events} showFilters={true} />
         </div>
       )}
     </motion.div>

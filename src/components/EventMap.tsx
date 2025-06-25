@@ -61,7 +61,7 @@ const EventMap = ({
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/dark-v11',
+        style: 'mapbox://styles/mapbox/light-v11',
         zoom: userLocation ? 12 : 6,
         center: defaultCenter,
         interactive: isInteractive,
@@ -111,24 +111,38 @@ const EventMap = ({
       userMarker.current.remove();
     }
 
+    // Create custom user location marker element
+    const userEl = document.createElement('div');
+    userEl.className = 'user-location-marker';
+    userEl.style.width = '16px';
+    userEl.style.height = '16px';
+    userEl.style.backgroundColor = '#2563eb';
+    userEl.style.borderRadius = '50%';
+    userEl.style.border = '3px solid white';
+    userEl.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.4)';
+    userEl.style.cursor = 'pointer';
+
+    // Add pulse animation
+    const pulseEl = document.createElement('div');
+    pulseEl.style.position = 'absolute';
+    pulseEl.style.top = '-3px';
+    pulseEl.style.left = '-3px';
+    pulseEl.style.width = '22px';
+    pulseEl.style.height = '22px';
+    pulseEl.style.borderRadius = '50%';
+    pulseEl.style.backgroundColor = '#2563eb';
+    pulseEl.style.opacity = '0.3';
+    pulseEl.style.animation = 'pulse 2s infinite';
+    userEl.appendChild(pulseEl);
+
     // Add user location marker
-    userMarker.current = new mapboxgl.Marker({
-      color: '#3b82f6',
-      scale: 1.0
-    })
+    userMarker.current = new mapboxgl.Marker(userEl)
       .setLngLat(userLocation)
       .addTo(map.current)
       .setPopup(
-        new mapboxgl.Popup({ offset: 25 })
-          .setHTML('<div class="p-2"><p class="font-medium">Your location</p></div>')
+        new mapboxgl.Popup({ offset: 25, className: 'user-popup' })
+          .setHTML('<div class="p-2 font-medium text-blue-600">Your location</div>')
       );
-
-    // Center map on user location
-    map.current.flyTo({
-      center: userLocation,
-      zoom: 12,
-      essential: true
-    });
   }, [mapLoaded, userLocation]);
 
   // Add event markers when events or map changes
@@ -166,40 +180,62 @@ const EventMap = ({
         return;
       }
       
-      // Create marker element with vibrant styling
+      // Create improved marker element
       const el = document.createElement('div');
       el.className = 'event-marker';
-      el.style.backgroundColor = '#8B5CF6';
-      el.style.width = '20px';
-      el.style.height = '20px';
+      el.style.width = '24px';
+      el.style.height = '24px';
       el.style.borderRadius = '50%';
       el.style.cursor = 'pointer';
       el.style.border = '3px solid white';
-      el.style.boxShadow = '0 2px 10px rgba(139, 92, 246, 0.5)';
-      el.style.transition = 'all 0.2s ease';
+      el.style.backgroundColor = '#16a085';
+      el.style.boxShadow = '0 4px 12px rgba(22, 160, 133, 0.4)';
+      el.style.transition = 'all 0.3s ease';
+      el.style.position = 'relative';
+
+      // Add inner dot for better visibility
+      const innerDot = document.createElement('div');
+      innerDot.style.position = 'absolute';
+      innerDot.style.top = '50%';
+      innerDot.style.left = '50%';
+      innerDot.style.transform = 'translate(-50%, -50%)';
+      innerDot.style.width = '8px';
+      innerDot.style.height = '8px';
+      innerDot.style.backgroundColor = 'white';
+      innerDot.style.borderRadius = '50%';
+      el.appendChild(innerDot);
 
       // Hover effects
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.2)';
-        el.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.8)';
+        el.style.transform = 'scale(1.3)';
+        el.style.boxShadow = '0 6px 20px rgba(22, 160, 133, 0.6)';
+        el.style.zIndex = '1000';
       });
       el.addEventListener('mouseleave', () => {
         el.style.transform = 'scale(1)';
-        el.style.boxShadow = '0 2px 10px rgba(139, 92, 246, 0.5)';
+        el.style.boxShadow = '0 4px 12px rgba(22, 160, 133, 0.4)';
+        el.style.zIndex = '1';
       });
 
       // Add popup with event details
       const popup = new mapboxgl.Popup({ 
         offset: 25,
-        className: 'custom-popup'
+        className: 'event-popup',
+        closeButton: false,
+        closeOnClick: false
       })
       .setHTML(`
-        <div class="p-3 space-y-2 min-w-[200px]">
-          <h3 class="font-bold text-lg text-white">${event.title}</h3>
-          <p class="text-sm text-gray-300">${event.location.address}</p>
-          ${event.location.venue_name ? `<p class="text-sm font-medium text-blue-300">${event.location.venue_name}</p>` : ''}
-          <div class="pt-2">
-            <button onclick="window.location.href='/event/${event.id}'" class="bg-primary hover:bg-primary/90 text-white px-3 py-1 rounded text-sm font-medium">
+        <div class="p-4 space-y-3 min-w-[240px] bg-white rounded-lg shadow-lg">
+          <div class="space-y-2">
+            <h3 class="font-bold text-lg text-gray-900 line-clamp-2">${event.title}</h3>
+            <p class="text-sm text-gray-600">${event.location.address}</p>
+            ${event.location.venue_name ? `<p class="text-sm font-medium text-primary">${event.location.venue_name}</p>` : ''}
+          </div>
+          <div class="pt-2 border-t border-gray-100">
+            <button 
+              onclick="window.location.href='/event/${event.id}'" 
+              class="w-full bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
               View Details
             </button>
           </div>
@@ -286,7 +322,7 @@ const EventMap = ({
         <div className="absolute top-4 left-4 z-10 flex gap-2">
           <Button 
             variant="secondary" 
-            className="shadow-md flex items-center gap-2"
+            className="shadow-lg bg-white/90 backdrop-blur-sm hover:bg-white flex items-center gap-2"
             onClick={handleSearchNearby}
           >
             <Search className="h-4 w-4" />
@@ -295,7 +331,7 @@ const EventMap = ({
           
           <Button 
             variant="outline" 
-            className="bg-background/80 backdrop-blur shadow-md"
+            className="bg-white/90 backdrop-blur-sm shadow-lg hover:bg-white"
             onClick={() => navigate('/search')}
           >
             <Filter className="h-4 w-4" />
@@ -303,8 +339,25 @@ const EventMap = ({
         </div>
       )}
       
-      <div ref={mapContainer} className="w-full h-full rounded-xl overflow-hidden border border-border/40 shadow-lg" />
-      <div className="absolute inset-0 pointer-events-none rounded-xl border border-border/10" />
+      <div ref={mapContainer} className="w-full h-full rounded-xl overflow-hidden border border-border/20 shadow-lg" />
+      
+      {/* Add custom CSS for animations */}
+      <style jsx>{`
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+            opacity: 0.3;
+          }
+          50% {
+            transform: scale(1.5);
+            opacity: 0.1;
+          }
+          100% {
+            transform: scale(2);
+            opacity: 0;
+          }
+        }
+      `}</style>
     </div>
   );
 };
