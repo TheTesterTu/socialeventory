@@ -46,6 +46,10 @@ export const FeaturedCreators = () => {
   const [creators] = useState(mockCreators);
   const navigate = useNavigate();
 
+  const getCreatorInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -77,12 +81,14 @@ export const FeaturedCreators = () => {
             className="glass-panel p-3 md:p-4 rounded-xl flex flex-col items-center text-center cursor-pointer"
             onClick={() => navigate(`/organizers/${creator.id}`)}
           >
-            <div className="relative">
-              <Avatar className="h-14 w-14 md:h-16 md:w-16 mb-2 md:mb-3">
+            <div className="relative mb-2 md:mb-3">
+              <Avatar className="h-14 w-14 md:h-16 md:w-16">
                 <AvatarImage src={creator.avatar} alt={creator.name} />
-                <AvatarFallback>{creator.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback className="text-sm md:text-base">
+                  {getCreatorInitials(creator.name)}
+                </AvatarFallback>
               </Avatar>
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-[8px] md:text-xs px-1.5 py-0.5 rounded-full">
+              <span className="absolute -top-1 -right-1 bg-primary text-white text-[8px] md:text-xs px-1.5 py-0.5 rounded-full font-medium">
                 {creator.type}
               </span>
             </div>

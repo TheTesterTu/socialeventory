@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -98,6 +99,10 @@ const Organizers = () => {
     analytics.track('organizers_filter', { category: newCategory });
   };
 
+  const getOrganizerInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
   if (isLoading) {
     return (
       <AppLayout
@@ -188,7 +193,7 @@ const Organizers = () => {
                       <Avatar className="h-20 w-20 ring-4 ring-primary/20">
                         <AvatarImage src={organizer.avatar} alt={organizer.name} />
                         <AvatarFallback className="text-lg font-semibold">
-                          {organizer.name.split(' ').map(n => n[0]).join('')}
+                          {getOrganizerInitials(organizer.name)}
                         </AvatarFallback>
                       </Avatar>
                       {organizer.verified && (

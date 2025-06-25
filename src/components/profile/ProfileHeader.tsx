@@ -39,6 +39,18 @@ export const ProfileHeader = ({ user, isLoading = false }: ProfileHeaderProps) =
     );
   }
   
+  const getUserInitials = () => {
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    return user?.email?.charAt(0).toUpperCase() || "U";
+  };
+  
   return (
     <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden mb-6 shadow-md">
       <div className="h-48 bg-gradient-to-r from-primary/20 to-accent/20" />
@@ -46,9 +58,12 @@ export const ProfileHeader = ({ user, isLoading = false }: ProfileHeaderProps) =
         <div className="flex flex-col md:flex-row gap-6 md:items-end">
           <div className="-mt-12">
             <Avatar className="h-24 w-24 border-4 border-background shadow-md">
-              <AvatarImage src={user?.user_metadata?.avatar || "https://i.pravatar.cc/150?img=12"} />
-              <AvatarFallback>
-                {user?.user_metadata?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
+              <AvatarImage 
+                src={user?.user_metadata?.avatar_url || user?.user_metadata?.avatar || "https://i.pravatar.cc/150?img=12"} 
+                alt={user?.user_metadata?.name || "Profile"} 
+              />
+              <AvatarFallback className="text-lg">
+                {getUserInitials()}
               </AvatarFallback>
             </Avatar>
           </div>
