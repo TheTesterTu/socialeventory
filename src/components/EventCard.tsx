@@ -54,7 +54,8 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
     >
       <Link to={`/event/${id}`} className="block h-full">
         <Card className={cn(
-          "overflow-hidden transition-all duration-300 bg-card/80 backdrop-blur-sm h-full flex flex-col border border-border/20 group-hover:border-primary/40 group-hover:shadow-lg",
+          "overflow-hidden transition-all duration-300 backdrop-blur-sm h-full flex flex-col border group-hover:shadow-lg",
+          "glass-card hover:border-primary/40",
           isFeatured && "ring-2 ring-primary/20 shadow-lg"
         )}>
           <div className="relative">
@@ -70,7 +71,7 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
             
             <div className="absolute top-2 left-2 flex flex-wrap gap-1.5">
               {category.slice(0, 1).map((cat) => (
-                <Badge key={cat} variant="secondary" className="text-xs bg-black/40 text-white backdrop-blur-md border border-white/20">
+                <Badge key={cat} variant="secondary" className="text-xs bg-primary/20 text-white backdrop-blur-md border border-primary/30">
                   {cat}
                 </Badge>
               ))}
@@ -82,15 +83,15 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
             </div>
 
             {isFeatured && (
-               <Badge variant="default" className="absolute bottom-2 left-2 text-xs bg-primary/90 text-primary-foreground backdrop-blur-sm border border-primary-foreground/20">
+               <Badge variant="default" className="absolute bottom-2 left-2 text-xs bg-primary/90 text-primary-foreground backdrop-blur-sm border border-primary/30">
                  <Sparkles className="h-3 w-3 mr-1" />
                  Featured
                </Badge>
             )}
           </div>
 
-          <CardContent className="p-4 flex flex-col flex-grow">
-            <div className="flex-grow space-y-2">
+          <CardContent className="card-padding flex flex-col flex-grow">
+            <div className="flex-grow mobile-spacing">
               <h3 className={cn(
                 "font-semibold text-foreground tracking-tight line-clamp-2",
                 isCompact ? 'text-base' : 'text-lg'
@@ -105,7 +106,7 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
               )}
             </div>
 
-            <div className="pt-3 mt-auto space-y-2.5 text-sm text-muted-foreground border-t border-border/20">
+            <div className="pt-3 mt-auto space-y-2.5 text-sm text-muted-foreground border-t border-primary/20">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-primary" />
                 <span>{format(new Date(startDate), "E, MMM d, yyyy")}</span>
@@ -124,7 +125,7 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
               </div>
             </div>
 
-            <div className="pt-3 mt-3 flex justify-between items-center border-t border-border/20">
+            <div className="pt-3 mt-3 flex justify-between items-center border-t border-primary/20">
               <div className="flex items-center gap-2 text-sm">
                 <Users className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium text-foreground">{attendees}</span>

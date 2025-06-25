@@ -1,3 +1,4 @@
+
 import { OptimizedAppLayout } from "@/components/layout/OptimizedAppLayout";
 import { HomeHero } from "@/components/home/HomeHero";
 import { QuickCategories } from "@/components/home/QuickCategories";
@@ -42,7 +43,7 @@ const Index = () => {
       >
         <HomeHero />
         
-        <div className="px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 md:space-y-12 pb-16">
+        <div className="container-padding max-w-7xl mx-auto mobile-spacing desktop-spacing section-spacing">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -91,12 +92,12 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8"
+            className="card-grid grid-cols-1 xl:grid-cols-3"
           >
             <div className="xl:col-span-2">
               <FeaturedEvents />
             </div>
-            <div className="space-y-6">
+            <div className="mobile-spacing desktop-spacing">
               <UpcomingEvents />
               <EventsNearYou />
             </div>
@@ -117,13 +118,13 @@ const Index = () => {
           <div className="fixed bottom-24 right-4 z-20">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-full h-12 w-12 bg-background/80 backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10 hover:bg-primary/10">
+                <Button variant="outline" size="icon" className="mobile-button rounded-full bg-background/80 backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10 hover:bg-primary/10">
                   <HelpCircle className="h-6 w-6 text-primary" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent align="end" className="w-80 p-4 border-primary/20 mr-4">
-                <div className="space-y-3">
-                  <h3 className="font-medium text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <PopoverContent align="end" className="w-80 card-padding border-primary/20 mr-4">
+                <div className="mobile-spacing">
+                  <h3 className="font-medium text-lg text-gradient">
                     Welcome to SocialEventory!
                   </h3>
                   <p className="text-sm text-muted-foreground">

@@ -30,14 +30,14 @@ export const HomeHero = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-black/70 to-black/80" />
       </div>
       
-      <div className="relative z-10 container mx-auto px-4 py-12">
+      <div className="relative z-10 container mx-auto container-padding section-spacing">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="max-w-4xl mx-auto text-center space-y-8"
+          className="max-w-4xl mx-auto text-center mobile-spacing desktop-spacing"
         >
-          {/* Badge con migliore contrasto */}
+          {/* Badge with improved contrast */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -53,11 +53,11 @@ export const HomeHero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-4"
+            className="mobile-spacing"
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white drop-shadow-xl">
               Find Your{" "}
-              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              <span className="text-gradient">
                 Next Epic Experience
               </span>
             </h1>
@@ -66,19 +66,19 @@ export const HomeHero = () => {
             </p>
           </motion.div>
 
-          {/* Search bar con migliore contrasto */}
+          {/* Search bar with improved contrast */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="w-full px-4"
           >
-            <div className="p-3 rounded-2xl border-2 border-white/30 bg-white/98 backdrop-blur-sm max-w-3xl mx-auto shadow-2xl">
+            <div className="p-3 rounded-2xl border-2 border-primary/30 bg-white/98 backdrop-blur-sm max-w-3xl mx-auto shadow-2xl">
               <SearchBar onSearch={handleSearch} />
             </div>
           </motion.div>
 
-          {/* Action buttons con contrasto perfetto */}
+          {/* Action buttons with consistent styling */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -88,7 +88,7 @@ export const HomeHero = () => {
             <Link to="/create-event" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-white px-8 py-3 h-auto font-semibold rounded-xl w-full shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-primary hover:border-primary/80"
+                className="gradient-primary px-8 py-3 h-auto font-semibold rounded-xl w-full shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-primary hover:border-primary/80"
               >
                 <CalendarPlus className="mr-2 h-5 w-5" />
                 Create Event
@@ -98,7 +98,7 @@ export const HomeHero = () => {
               <Button 
                 variant="outline"
                 size="lg"
-                className="bg-white/95 hover:bg-white text-gray-900 hover:text-black border-2 border-white hover:border-gray-200 px-8 py-3 h-auto font-semibold rounded-xl w-full shadow-2xl transition-all duration-300 hover:scale-105"
+                className="bg-white/95 hover:bg-white text-gray-900 hover:text-black border-2 border-primary/30 hover:border-primary/50 px-8 py-3 h-auto font-semibold rounded-xl w-full shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 <Search className="mr-2 h-5 w-5" />
                 Explore All
@@ -106,7 +106,7 @@ export const HomeHero = () => {
             </Link>
           </motion.div>
 
-          {/* Stats con migliore leggibilità */}
+          {/* Stats with consistent primary colors */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

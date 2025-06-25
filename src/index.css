@@ -78,19 +78,19 @@
   }
 
   .glass-card {
-    @apply backdrop-blur-xl bg-card/40 border border-border/50 shadow-xl;
+    @apply backdrop-blur-xl bg-card/40 border border-primary/20 shadow-xl;
   }
 
   .glass-navbar {
-    @apply backdrop-blur-xl bg-background/90 border-border/50;
+    @apply backdrop-blur-xl bg-background/90 border-primary/20;
   }
 
   .glass-input {
-    @apply backdrop-blur-xl bg-background/60 border border-border/50;
+    @apply backdrop-blur-xl bg-background/60 border border-primary/20;
   }
 
   .glass-panel {
-    @apply backdrop-blur-xl bg-black/20 border border-white/30;
+    @apply backdrop-blur-xl bg-primary/10 border border-primary/30;
   }
 
   .gradient-primary {
@@ -102,7 +102,7 @@
   }
 
   .event-card {
-    @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 backdrop-blur-xl border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 backdrop-blur-xl border border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300;
   }
 
   .hero-gradient {
@@ -129,22 +129,66 @@
     scrollbar-color: rgb(56 178 172 / 0.2) transparent;
   }
 
+  /* CONSISTENT SPACING UTILITIES */
+  .container-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .mobile-spacing {
+    @apply space-y-4 sm:space-y-6;
+  }
+
+  .card-grid {
+    @apply grid gap-4 sm:gap-6 lg:gap-8;
+  }
+
+  .card-padding {
+    @apply p-4 sm:p-6;
+  }
+
+  .section-spacing {
+    @apply py-8 sm:py-12 lg:py-16;
+  }
+
   /* Mobile optimizations */
   @media (max-width: 768px) {
     .container {
-      @apply px-3;
+      @apply px-4;
     }
     
     .glass-card {
-      @apply bg-card/50 border-border/30;
+      @apply bg-card/60 border-primary/20;
     }
     
     .event-card {
-      @apply shadow-md hover:shadow-lg;
+      @apply shadow-md hover:shadow-lg border-primary/15;
     }
     
     .mobile-card-spacing {
       @apply gap-3 p-3;
+    }
+
+    .mobile-button {
+      @apply h-12 px-4 text-base min-w-[44px] min-h-[44px];
+    }
+
+    .mobile-grid {
+      @apply grid-cols-1 sm:grid-cols-2;
+    }
+  }
+
+  /* Desktop optimizations */
+  @media (min-width: 769px) {
+    .desktop-spacing {
+      @apply space-y-8;
+    }
+
+    .desktop-grid {
+      @apply grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+    }
+
+    .desktop-padding {
+      @apply px-6 lg:px-8;
     }
   }
 }
@@ -229,19 +273,4 @@
 /* Success states */
 .success-state {
   @apply border-green-500 bg-green-500/10 text-green-500;
-}
-
-/* Mobile spacing improvements */
-@media (max-width: 768px) {
-  .mobile-spacing {
-    @apply space-y-3;
-  }
-  
-  .mobile-card-grid {
-    @apply gap-3;
-  }
-  
-  .mobile-padding {
-    @apply px-3 py-2;
-  }
 }

@@ -17,9 +17,9 @@ export const FeaturedBlog = ({ posts }: FeaturedBlogProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="space-y-8"
+      className="mobile-spacing desktop-spacing"
     >
-      <div className="text-center space-y-2">
+      <div className="text-center mobile-spacing">
         <h2 className="text-3xl font-display font-bold text-foreground">
           Latest from our{" "}
           <span className="text-gradient">Blog</span>
@@ -29,7 +29,7 @@ export const FeaturedBlog = ({ posts }: FeaturedBlogProps) => {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="card-grid mobile-grid desktop-grid">
         {posts.slice(0, 3).map((post, index) => (
           <motion.div
             key={post.id}

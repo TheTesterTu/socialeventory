@@ -1,3 +1,4 @@
+
 import { Event } from "@/lib/types";
 import { format } from "date-fns";
 import { MapPin, Calendar } from "lucide-react";
@@ -28,7 +29,7 @@ export const EventCardGlass = ({
       whileHover={{ scale: 1.02, y: -5 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        "glass-card overflow-hidden rounded-xl hover:shadow-xl transition-all duration-300 group bg-card/80 backdrop-blur-xl border border-border/50 mb-4 sm:mb-6",
+        "glass-card overflow-hidden rounded-xl hover:shadow-xl transition-all duration-300 group mb-4 sm:mb-6",
         className
       )}
     >
@@ -47,14 +48,14 @@ export const EventCardGlass = ({
         </div>
         
         <div className="absolute bottom-3 left-3">
-          <span className="glass-card text-xs text-white px-3 py-1 rounded-full font-medium bg-black/50 backdrop-blur-xl border border-white/20">
+          <span className="glass-panel text-xs text-white px-3 py-1 rounded-full font-medium backdrop-blur-xl">
             {event.category[0]}
           </span>
         </div>
       </div>
       
-      <div className="p-4 space-y-3 bg-card/90 backdrop-blur-xl">
-        <div className="space-y-2">
+      <div className="card-padding bg-card/90 backdrop-blur-xl">
+        <div className="mobile-spacing">
           <Link to={`/event/${event.id}`} className="block group-hover:text-primary transition-colors">
             <h3 className="font-display font-semibold text-lg line-clamp-2 leading-tight text-foreground">
               {event.title}
@@ -73,7 +74,7 @@ export const EventCardGlass = ({
         </div>
         
         {showSocialActions && (
-          <div className="pt-3 border-t border-border/50">
+          <div className="pt-3 border-t border-primary/20">
             <EventSocialActions
               eventId={event.id}
               comments={0}
