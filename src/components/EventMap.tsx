@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -342,7 +341,7 @@ const EventMap = ({
       <div ref={mapContainer} className="w-full h-full rounded-xl overflow-hidden border border-border/20 shadow-lg" />
       
       {/* Add custom CSS for animations */}
-      <style jsx>{`
+      <style>{`
         @keyframes pulse {
           0% {
             transform: scale(1);
