@@ -3,10 +3,10 @@ import { lazy, Suspense } from 'react';
 import { EventDetailsSkeleton } from './EventDetailsSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
 
-// Lazy load del componente EventDetailsContainer
-const LazyEventDetailsContainer = lazy(() => 
-  import('./EventDetailsContainer').then(module => ({
-    default: module.EventDetailsContainer
+// Lazy load del componente EventDetailsOptimized
+const LazyEventDetailsOptimizedComponent = lazy(() => 
+  import('./EventDetailsOptimized').then(module => ({
+    default: module.EventDetailsOptimized
   }))
 );
 
@@ -18,7 +18,7 @@ export const LazyEventDetails = ({ event }: LazyEventDetailsProps) => {
   return (
     <ErrorBoundary>
       <Suspense fallback={<EventDetailsSkeleton />}>
-        <LazyEventDetailsContainer event={event} />
+        <LazyEventDetailsOptimizedComponent event={event} />
       </Suspense>
     </ErrorBoundary>
   );

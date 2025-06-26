@@ -55,9 +55,17 @@ class PerformanceMonitor {
     this.metrics.marks.clear();
     this.metrics.measures.clear();
     
-    if (typeof performance !== 'undefined' && performance.clearMarks) {
-      performance.clearMarks();
-      performance.clearMeasures();
+    if (typeof performance !== 'undefined') {
+      try {
+        if ('clearMarks' in performance && typeof performance.clearMarks === 'function') {
+          performance.clearMarks();
+        }
+        if ('clearMeasures' in performance && typeof performance.clearMeasures === 'function') {
+          performance.clearMeasures();
+        }
+      } catch (error) {
+        console.warn('Performance clear failed:', error);
+      }
     }
   }
 }

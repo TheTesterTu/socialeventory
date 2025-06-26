@@ -30,11 +30,10 @@ export const usePagePerformance = ({
       isTracked.current = true;
 
       performance.mark(`${pageName}-page-end`);
-      const loadTime = performance.measure(
-        `${pageName}-page-load`,
-        `${pageName}-page-start`,
-        `${pageName}-page-end`
-      );
+      
+      // Get the duration from our performance metrics
+      const metrics = performance.getMetrics();
+      const loadTime = metrics.measures.get(`${pageName}-page-load`) || 0;
 
       // Track page load time
       analytics.track('Page Load Time', {

@@ -18,6 +18,11 @@ interface UsePerformanceOptimizedEventsOptions {
   cacheTime?: number;
 }
 
+interface CachedData {
+  events: Event[];
+  count: number;
+}
+
 export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEventsOptions = {}) => {
   const {
     pageSize = 10,
@@ -37,7 +42,7 @@ export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEv
   ], [pageSize, category, featured, sortBy, sortOrder]);
 
   const cacheKey = JSON.stringify(queryKey);
-  const cachedData = cache.get(cacheKey);
+  const cachedData = cache.get<CachedData>(cacheKey);
 
   const fetchEvents = async ({ pageParam = 0 }) => {
     performance.mark('events-fetch-start');
@@ -67,14 +72,14 @@ export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEv
 
       const events = data?.map(mapDatabaseEventToEvent) || [];
       
-      cache.set(cacheKey, { events, count }, 5);
+      cache.set(cacheKey, { events, count: count || 0 }, 5);
 
       performance.mark('events-fetch-end');
       performance.measure('events-fetch-duration', 'events-fetch-start', 'events-fetch-end');
 
       return {
         events,
-        count,
+        count: count || 0,
         nextPage: events.length === pageSize ? pageParam + 1 : undefined,
         hasNextPage: events.length === pageSize
       };
@@ -101,7 +106,6 @@ export const usePerformanceOptimizedEvents = (options: UsePerformanceOptimizedEv
     staleTime,
     gcTime: cacheTime,
     enabled: !enableInfiniteQuery,
-    // Fix placeholderData format
     placeholderData: cachedData ? { 
       events: cachedData.events, 
       count: cachedData.count,

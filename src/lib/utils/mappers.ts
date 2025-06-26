@@ -31,6 +31,57 @@ const safeArray = (value: unknown, fallback: any[] = []): any[] => {
 };
 
 /**
+ * Maps mock event format to the application Event interface
+ */
+export function mapMockEventToEvent(mockEvent: any): Event {
+  console.log('Mapping mock event:', mockEvent);
+  
+  if (!mockEvent || typeof mockEvent !== 'object') {
+    throw new Error('Invalid mock event data');
+  }
+
+  // Default coordinates for mock events
+  const coordinates: [number, number] = [37.7749, -122.4194]; // San Francisco default
+
+  const mappedEvent: Event = {
+    id: safeString(mockEvent.id),
+    title: safeString(mockEvent.title, 'Untitled Event'),
+    description: safeString(mockEvent.description),
+    startDate: safeString(mockEvent.start_date),
+    endDate: safeString(mockEvent.end_date || mockEvent.start_date),
+    location: {
+      coordinates,
+      address: safeString(mockEvent.location, 'Location not specified'),
+      venue_name: safeString(mockEvent.venue_name)
+    },
+    category: safeArray(mockEvent.category, ['Other']),
+    tags: safeArray(mockEvent.tags),
+    accessibility: {
+      languages: ['en'],
+      wheelchairAccessible: false,
+      familyFriendly: true
+    },
+    pricing: {
+      isFree: true,
+      currency: 'USD'
+    },
+    creator: {
+      id: safeString(mockEvent.created_by || 'mock-creator'),
+      type: 'user' as const
+    },
+    verification: {
+      status: (mockEvent.verification_status as any) || 'verified'
+    },
+    imageUrl: safeString(mockEvent.image_url),
+    likes: safeNumber(mockEvent.likes),
+    attendees: safeNumber(mockEvent.attendees)
+  };
+
+  console.log('Final mapped mock event:', mappedEvent);
+  return mappedEvent;
+}
+
+/**
  * Maps database event format to the application Event interface
  */
 export function mapDatabaseEventToEvent(dbEvent: any): Event {
