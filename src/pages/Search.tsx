@@ -6,8 +6,7 @@ import { useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { format } from "date-fns";
 import { SearchPageLayout } from "@/components/search/SearchPageLayout";
-import { useSearchEvents } from "@/hooks/useSearchEvents";
-import { useEvents } from "@/hooks/useEvents";
+import { useUnifiedEvents } from "@/hooks/useUnifiedEvents";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,32 +26,29 @@ const Search = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const location = useLocation();
 
-  // Get search parameters
-  const searchParams = {
-    query: searchQuery || undefined,
-    categories: selectedCategories.length > 0 ? selectedCategories : undefined,
-    dateRange: selectedDate ? [
-      format(selectedDate, 'yyyy-MM-dd'),
-      format(selectedDate, 'yyyy-MM-dd')
-    ] as [string, string] : undefined,
-  };
-
-  // Use search hook when we have search parameters, otherwise get all events
-  const { data: searchResults, isLoading: searchLoading } = useSearchEvents(searchParams);
-  const { data: allEvents, isLoading: allEventsLoading } = useEvents();
-  
-  const hasSearchCriteria = searchQuery || selectedCategories.length > 0 || selectedDate;
-  const events = hasSearchCriteria ? (searchResults || []) : (allEvents || []);
-  const isLoading = hasSearchCriteria ? searchLoading : allEventsLoading;
+  // Use unified events hook
+  const { data: events = [], isLoading } = useUnifiedEvents({
+    searchQuery: searchQuery || undefined,
+    category: selectedCategories.length > 0 ? selectedCategories : undefined,
+  });
 
   // Apply additional client-side filters
   const filteredEvents = events.filter((event) => {
+    // Date filter
+    if (selectedDate) {
+      const eventDate = format(new Date(event.startDate), 'yyyy-MM-dd');
+      const filterDate = format(selectedDate, 'yyyy-MM-dd');
+      if (eventDate !== filterDate) return false;
+    }
+
+    // Accessibility filters
     const matchesAccessibility =
       !filters.accessibility?.wheelchairAccessible || event.accessibility.wheelchairAccessible;
 
     const matchesFamilyFriendly =
       !filters.accessibility?.familyFriendly || event.accessibility.familyFriendly;
 
+    // Pricing filters
     const matchesPricing =
       (!filters.pricing?.isFree || event.pricing.isFree) &&
       (!filters.pricing?.maxPrice || 

@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +18,14 @@ interface NavItem {
   path: string;
   requiresAuth?: boolean;
 }
+
+const navigation = [
+  { name: "Home", href: "/" },
+  { name: "Events", href: "/events" },
+  { name: "Search", href: "/search" },
+  { name: "Nearby", href: "/nearby" },
+  { name: "Blog", href: "/blog" },
+];
 
 export const TopBarNav = () => {
   const { user } = useAuth();

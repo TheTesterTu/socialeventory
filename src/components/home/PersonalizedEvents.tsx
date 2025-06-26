@@ -1,174 +1,88 @@
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Event } from "@/lib/types";
-import { EventCard } from "@/components/EventCard";
-import { useAuth } from "@/contexts/AuthContext";
-import { Sparkles, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { mapDatabaseEventToEvent, mapMockEventToEvent } from "@/lib/utils/mappers";
+import { EventCard } from "../EventCard";
+import { useUnifiedEvents } from "@/hooks/useUnifiedEvents";
+import { useAuth } from "@/contexts/AuthContext";
+import { Sparkles, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "../ui/button";
 
 export const PersonalizedEvents = () => {
   const { user } = useAuth();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: events = [], isLoading } = useUnifiedEvents({
+    limit: 6,
+    sortBy: 'created_at',
+    sortOrder: 'desc'
+  });
 
-  // Fetch personalized events based on user preferences and past interactions
-  useEffect(() => {
-    const fetchPersonalizedEvents = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      
-      setLoading(true);
-      try {
-        // In a production app, we would fetch recommendations from an algorithm
-        // For now, we'll get a few random events as "personalized" recommendations
-        const { data: userPreferences } = await supabase
-          .from('profiles')
-          .select('preferences')
-          .eq('id', user.id)
-          .single();
-        
-        // Get preferred categories if available
-        const preferredCategories: string[] = [];
-        if (userPreferences?.preferences && 
-            typeof userPreferences.preferences === 'object' && 
-            userPreferences.preferences !== null && 
-            Array.isArray((userPreferences.preferences as any).categories)) {
-          preferredCategories.push(...((userPreferences.preferences as any).categories as string[]));
-        }
-        
-        // Get events that match user preferences or recent interests
-        const { data: eventData, error } = await supabase
-          .from('events')
-          .select('*')
-          .limit(4)
-          .order('created_at', { ascending: false });
-          
-        if (error) throw error;
-        
-        if (eventData && eventData.length > 0) {
-          // Map database events to our Event interface
-          const mappedEvents = eventData.map(event => mapDatabaseEventToEvent(event));
-          setEvents(mappedEvents);
-        } else {
-          // Fallback to mock data if there's an error
-          const mockEvents = [
-            {
-              id: "rec-1",
-              title: "Tech Conference 2025",
-              description: "Annual technology conference featuring the latest innovations",
-              location: "San Francisco, CA",
-              image_url: "https://source.unsplash.com/random/800x600/?tech",
-              start_date: new Date(Date.now() + 86400000 * 2).toISOString(),
-              category: ["Technology", "Conference"]
-            },
-            {
-              id: "rec-2",
-              title: "Local Art Exhibition",
-              description: "Featuring works from local emerging artists",
-              location: "Portland, OR",
-              image_url: "https://source.unsplash.com/random/800x600/?art",
-              start_date: new Date(Date.now() + 86400000 * 4).toISOString(),
-              category: ["Art", "Exhibition"]
-            },
-          ];
-          
-          // Map mock events to our Event interface
-          const mappedMockEvents = mockEvents.map(event => mapMockEventToEvent(event));
-          setEvents(mappedMockEvents);
-        }
-      } catch (error) {
-        console.error("Error fetching personalized events:", error);
-        // Fallback to mock data if there's an error
-        const mockEvents = [
-          {
-            id: "rec-1",
-            title: "Tech Conference 2025",
-            description: "Annual technology conference featuring the latest innovations",
-            location: "San Francisco, CA",
-            image_url: "https://source.unsplash.com/random/800x600/?tech",
-            start_date: new Date(Date.now() + 86400000 * 2).toISOString(),
-            category: ["Technology", "Conference"]
-          },
-          {
-            id: "rec-2",
-            title: "Local Art Exhibition",
-            description: "Featuring works from local emerging artists",
-            location: "Portland, OR",
-            image_url: "https://source.unsplash.com/random/800x600/?art",
-            start_date: new Date(Date.now() + 86400000 * 4).toISOString(),
-            category: ["Art", "Exhibition"]
-          },
-        ];
-        
-        const mappedMockEvents = mockEvents.map(event => mapMockEventToEvent(event));
-        setEvents(mappedMockEvents);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (!user) return null;
 
-    fetchPersonalizedEvents();
-  }, [user]);
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <Card className="shadow-md border-primary/10">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center text-xl">
-            <Sparkles className="h-5 w-5 mr-2 text-primary" />
-            For You
-          </CardTitle>
-          <CardDescription>Loading personalized recommendations...</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-center py-10">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl font-bold text-gradient">Recommended for You</h2>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="h-80 bg-muted/20 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      </section>
     );
   }
 
-  if (!user || events.length === 0) {
-    return null;
+  if (events.length === 0) {
+    return (
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl font-bold text-gradient">Recommended for You</h2>
+          </div>
+        </div>
+        <div className="glass-panel p-8 rounded-2xl text-center">
+          <p className="text-muted-foreground">No personalized recommendations available yet.</p>
+        </div>
+      </section>
+    );
   }
 
   return (
-    <Card className="shadow-md border-primary/10 overflow-hidden">
-      <CardHeader className="pb-3 bg-gradient-to-r from-background to-primary/5">
-        <CardTitle className="flex items-center text-xl">
-          <Sparkles className="h-5 w-5 mr-2 text-primary" />
-          For You
-        </CardTitle>
-        <CardDescription>Events we think you'll love</CardDescription>
-      </CardHeader>
-      <CardContent className="pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {events.map((event, index) => (
-            <motion.div
-              key={event.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-            >
-              <EventCard event={event} />
-            </motion.div>
-          ))}
+    <motion.section
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <h2 className="text-2xl font-bold text-gradient">Recommended for You</h2>
         </div>
-        {events.length > 0 && (
-          <div className="flex justify-center mt-6">
-            <Button variant="outline" className="border-primary/20 text-primary hover:bg-primary/5">
-              View All Recommendations
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        <Link to="/events">
+          <Button variant="ghost" className="gap-2">
+            View all
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {events.slice(0, 6).map((event, index) => (
+          <motion.div
+            key={event.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
+          >
+            <EventCard event={event} index={index} />
+          </motion.div>
+        ))}
+      </div>
+    </motion.section>
   );
 };

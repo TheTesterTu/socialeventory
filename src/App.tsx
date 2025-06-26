@@ -1,159 +1,137 @@
-
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "sonner";
-import { AuthProvider } from "./contexts/AuthContext";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import { ThemeProvider } from "next-themes";
-import { HelmetProvider } from "react-helmet-async";
-import { TooltipProvider } from "./components/ui/tooltip";
-import { NotFoundRedirect } from "./components/NotFoundRedirect";
-import { OfflineBanner } from "./components/ui/offline-banner";
-import { useAnalytics } from "./hooks/useAnalytics";
-
-// Main Pages
-import Landing from "./pages/Landing";
+import React from 'react';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
 import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import EventDetails from "./pages/EventDetails";
+import Search from "./pages/Search";
+import Nearby from "./pages/Nearby";
+import CreateEvent from "./pages/CreateEvent";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
-import Settings from "./pages/Settings";
-import Search from "./pages/Search";
-import SearchPage from "./pages/SearchPage";
-import NotFound from "./pages/NotFound";
-import CreateEvent from "./pages/CreateEvent";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import Nearby from "./pages/Nearby";
-import ResetPassword from "./pages/ResetPassword";
 import OrganizerProfile from "./pages/OrganizerProfile";
 import Organizers from "./pages/Organizers";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
+import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
+import Settings from "./pages/Settings";
 import NotificationsPage from "./pages/NotificationsPage";
-import AdminDashboard from "./pages/AdminDashboard";
-import ProductionAuditPage from "./pages/ProductionAuditPage";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
-import SystemTest from "./pages/SystemTest";
+import Privacy from "./pages/Privacy";
+import AdminDashboard from "./pages/AdminDashboard";
+import ProductionAuditPage from "./pages/Admin/ProductionAuditPage";
+import SystemTest from "./pages/Admin/SystemTest";
+import NotFound from "./pages/NotFound";
+import Events from './pages/Events';
 
-// Create a client with production-ready settings
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 60, // 1 hour
-      retry: (failureCount, error: any) => {
-        if (error?.status === 404) return false;
-        if (error?.status >= 400 && error?.status < 500) return false;
-        return failureCount < 2;
-      },
-      networkMode: "online",
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: true,
-    },
-    mutations: {
-      retry: 1,
-      networkMode: "online",
-    },
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Index />,
   },
-});
+  {
+    path: "/events",
+    element: <Events />,
+  },
+  {
+    path: "/event/:id",
+    element: <EventDetails />,
+  },
+  {
+    path: "/search",
+    element: <Search />,
+  },
+  {
+    path: "/nearby",
+    element: <Nearby />,
+  },
+  {
+    path: "/create",
+    element: <CreateEvent />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+  },
+  {
+    path: "/profile/:id",
+    element: <OrganizerProfile />,
+  },
+  {
+    path: "/profile/edit",
+    element: <ProfileEdit />,
+  },
+  {
+    path: "/organizers",
+    element: <Organizers />,
+  },
+  {
+    path: "/blog",
+    element: <Blog />,
+  },
+  {
+    path: "/blog/:slug",
+    element: <BlogPost />,
+  },
+  {
+    path: "/auth",
+    element: <Auth />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
+  },
+  {
+    path: "/settings",
+    element: <Settings />,
+  },
+  {
+    path: "/notifications",
+    element: <NotificationsPage />,
+  },
+  {
+    path: "/about",
+    element: <About />,
+  },
+  {
+    path: "/contact",
+    element: <Contact />,
+  },
+  {
+    path: "/terms",
+    element: <Terms />,
+  },
+  {
+    path: "/privacy",
+    element: <Privacy />,
+  },
+  {
+    path: "/admin",
+    element: <AdminDashboard />,
+  },
+  {
+    path: "/admin/production-audit",
+    element: <ProductionAuditPage />,
+  },
+  {
+    path: "/admin/system-test",
+    element: <SystemTest />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+]);
 
-const AppContent = () => {
-  useAnalytics();
-
+function App() {
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Landing />} />
-      <Route path="/events" element={<Index />} />
-      <Route path="/event/:id" element={<EventDetails />} />
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/search" element={<SearchPage />} />
-      <Route path="/search/:query" element={<Search />} />
-      <Route path="/blog" element={<Blog />} />
-      <Route path="/blog/:slug" element={<BlogPost />} />
-      <Route path="/nearby" element={<Nearby />} />
-      <Route path="/organizer/:id" element={<OrganizerProfile />} />
-      <Route path="/organizers" element={<Organizers />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/privacy" element={<Privacy />} />
-      <Route path="/terms" element={<Terms />} />
-
-      {/* Protected Routes */}
-      <Route 
-        path="/profile" 
-        element={<ProtectedRoute><Profile /></ProtectedRoute>} 
-      />
-      <Route 
-        path="/profile/edit" 
-        element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} 
-      />
-      <Route 
-        path="/create-event" 
-        element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} 
-      />
-      <Route 
-        path="/settings" 
-        element={<ProtectedRoute><Settings /></ProtectedRoute>} 
-      />
-      <Route 
-        path="/notifications" 
-        element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} 
-      />
-      
-      {/* Admin Only Routes */}
-      <Route 
-        path="/admin" 
-        element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>} 
-      />
-      <Route 
-        path="/production-audit" 
-        element={<ProtectedRoute adminOnly={true}><ProductionAuditPage /></ProtectedRoute>} 
-      />
-      <Route 
-        path="/system-test" 
-        element={<ProtectedRoute adminOnly={true}><SystemTest /></ProtectedRoute>} 
-      />
-
-      {/* 404 Handling */}
-      <Route path="/404" element={<NotFound />} />
-      <Route path="*" element={
-        <>
-          <NotFoundRedirect />
-          <NotFound />
-        </>
-      } />
-    </Routes>
-  );
-};
-
-export default function App() {
-  return (
-    <HelmetProvider>
-      <ThemeProvider attribute="class" defaultTheme="dark">
-        <TooltipProvider>
-          <QueryClientProvider client={queryClient}>
-            <Router>
-              <AuthProvider>
-                <OfflineBanner />
-                <AppContent />
-                <Toaster 
-                  position="top-right" 
-                  closeButton 
-                  duration={4000}
-                  richColors
-                  expand={false}
-                  visibleToasts={3}
-                />
-              </AuthProvider>
-            </Router>
-          </QueryClientProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-    </HelmetProvider>
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
   );
 }
+
+export default App;
