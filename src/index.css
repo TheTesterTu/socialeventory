@@ -98,18 +98,35 @@
   }
 
   /* Category color classes */
-  .category-music { @apply text-category-music; }
-  .category-tech { @apply text-category-tech; }
-  .category-food { @apply text-category-food; }
-  .category-art { @apply text-category-art; }
-  .category-sports { @apply text-category-sports; }
-  .category-business { @apply text-category-business; }
-  .category-default { @apply text-category-default; }
+  .category-music { 
+    color: hsl(var(--category-music));
+  }
+  .category-tech { 
+    color: hsl(var(--category-tech));
+  }
+  .category-food { 
+    color: hsl(var(--category-food));
+  }
+  .category-art { 
+    color: hsl(var(--category-art));
+  }
+  .category-sports { 
+    color: hsl(var(--category-sports));
+  }
+  .category-business { 
+    color: hsl(var(--category-business));
+  }
+  .category-default { 
+    color: hsl(var(--category-default));
+  }
 
   /* Status classes */
-  .text-success { @apply text-success; }
-  .text-warning { @apply text-warning; }
-  .text-destructive { @apply text-destructive; }
+  .text-success { 
+    color: hsl(var(--success));
+  }
+  .text-warning { 
+    color: hsl(var(--warning));
+  }
 
   /* Button consistency - all buttons should have rounded corners */
   .btn-rounded {
