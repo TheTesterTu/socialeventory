@@ -3,7 +3,7 @@ import { lazy, Suspense } from 'react';
 import { EventDetailsSkeleton } from './EventDetailsSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
 
-const LazyEventDetailsOptimized = lazy(() => 
+const EventDetailsOptimizedLazy = lazy(() => 
   import('./EventDetailsOptimized').then(module => ({
     default: module.EventDetailsOptimized
   }))
@@ -17,7 +17,7 @@ export const LazyEventDetailsOptimized = ({ event }: LazyEventDetailsOptimizedPr
   return (
     <ErrorBoundary>
       <Suspense fallback={<EventDetailsSkeleton />}>
-        <LazyEventDetailsOptimized event={event} />
+        <EventDetailsOptimizedLazy event={event} />
       </Suspense>
     </ErrorBoundary>
   );
