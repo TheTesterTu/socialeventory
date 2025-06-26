@@ -3,13 +3,13 @@ import { useParams } from 'react-router-dom';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { StructuredData } from "@/components/seo/StructuredData";
-import { LazyEventDetails } from "@/components/LazyEventDetails";
 import { EventDetailsSkeleton } from '@/components/EventDetailsSkeleton';
-import { useEvent } from '@/hooks/useEvent';
+import { useOptimizedEventDetails } from '@/hooks/useOptimizedEventDetails';
+import { EventDetailsOptimized } from '@/components/EventDetailsOptimized';
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: event, isLoading, error } = useEvent(id!);
+  const { data: event, isLoading, error } = useOptimizedEventDetails(id!);
 
   if (isLoading) {
     return (
@@ -59,7 +59,7 @@ const EventDetails = () => {
       />
       
       <div className="min-h-screen bg-background section-spacing">
-        <LazyEventDetails event={event} />
+        <EventDetailsOptimized event={event} />
       </div>
     </AppLayout>
   );
