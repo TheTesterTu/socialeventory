@@ -1,22 +1,60 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Music, Code, Coffee, Palette, Trophy, Briefcase } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { UnifiedButton } from "@/components/ui/unified-button";
 import { useNavigate } from "react-router-dom";
 import { getCategoryBgColor, getCategoryTextColor } from "@/lib/utils/categoryColors";
+import { supabase } from "@/integrations/supabase/client";
 
 const categories = [
-  { name: "Music", icon: Music, count: 234 },
-  { name: "Technology", icon: Code, count: 156 },
-  { name: "Food & Drink", icon: Coffee, count: 189 },
-  { name: "Art & Culture", icon: Palette, count: 142 },
-  { name: "Sports", icon: Trophy, count: 98 },
-  { name: "Business", icon: Briefcase, count: 87 },
+  { name: "Music", icon: Music },
+  { name: "Technology", icon: Code },
+  { name: "Food & Drink", icon: Coffee },
+  { name: "Art & Culture", icon: Palette },
+  { name: "Sports", icon: Trophy },
+  { name: "Business", icon: Briefcase },
 ];
 
 export const QuickCategories = () => {
   const navigate = useNavigate();
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategoryCounts = async () => {
+      try {
+        const { data: events, error } = await supabase
+          .from('events')
+          .select('category')
+          .gte('start_date', new Date().toISOString()); // Only upcoming events
+
+        if (error) {
+          console.error('Error fetching events:', error);
+          return;
+        }
+
+        // Count events by category
+        const counts: Record<string, number> = {};
+        
+        events?.forEach(event => {
+          if (event.category && Array.isArray(event.category)) {
+            event.category.forEach(cat => {
+              counts[cat] = (counts[cat] || 0) + 1;
+            });
+          }
+        });
+
+        setCategoryCounts(counts);
+      } catch (error) {
+        console.error('Error fetching category counts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategoryCounts();
+  }, []);
 
   const handleCategoryClick = (categoryName: string) => {
     navigate(`/search?category=${encodeURIComponent(categoryName)}`);
@@ -41,6 +79,7 @@ export const QuickCategories = () => {
       <div className="flex flex-wrap justify-center gap-3 md:gap-4 max-w-4xl mx-auto">
         {categories.map((category, index) => {
           const Icon = category.icon;
+          const count = categoryCounts[category.name] || 0;
           
           return (
             <motion.div
@@ -51,15 +90,13 @@ export const QuickCategories = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button
+              <UnifiedButton
                 variant="outline"
                 size="lg"
                 onClick={() => handleCategoryClick(category.name)}
                 className={`
                   h-auto flex-col gap-2 p-4 md:p-6 min-w-[120px] md:min-w-[140px]
-                  border-2 border-primary/20 hover:border-primary/40
-                  bg-card/40 hover:bg-primary/10 backdrop-blur-sm
-                  transition-all duration-300 group
+                  transition-all duration-300 group glass-card
                 `}
               >
                 <div className={`
@@ -76,10 +113,10 @@ export const QuickCategories = () => {
                     {category.name}
                   </span>
                   <div className="text-xs text-muted-foreground">
-                    {category.count} events
+                    {loading ? '...' : `${count} events`}
                   </div>
                 </div>
-              </Button>
+              </UnifiedButton>
             </motion.div>
           );
         })}

@@ -1,21 +1,14 @@
 
-import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { LazyEventDetails } from "@/components/LazyEventDetails";
 import { EventDetailsSkeleton } from '@/components/EventDetailsSkeleton';
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { MessageCircle } from "lucide-react";
-import { EventChatWidget } from "@/components/chat/EventChatWidget";
 import { useEvent } from '@/hooks/useEvent';
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatMinimized, setChatMinimized] = useState(false);
   const { data: event, isLoading, error } = useEvent(id!);
 
   if (isLoading) {
@@ -65,39 +58,8 @@ const EventDetails = () => {
         }} 
       />
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background section-spacing">
         <LazyEventDetails event={event} />
-        
-        {/* Chat Widget */}
-        <AnimatePresence>
-          {(chatOpen || chatMinimized) && (
-            <EventChatWidget
-              event={event}
-              isMinimized={chatMinimized}
-              onMinimize={() => setChatMinimized(!chatMinimized)}
-              onClose={() => {
-                setChatOpen(false);
-                setChatMinimized(false);
-              }}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Floating Chat Button */}
-        {!chatOpen && !chatMinimized && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="fixed bottom-20 right-4 z-50"
-          >
-            <Button
-              onClick={() => setChatOpen(true)}
-              className="rounded-full h-14 w-14 shadow-lg bg-primary hover:bg-primary/90"
-            >
-              <MessageCircle className="h-6 w-6" />
-            </Button>
-          </motion.div>
-        )}
       </div>
     </AppLayout>
   );

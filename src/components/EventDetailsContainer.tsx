@@ -3,10 +3,10 @@ import { Event } from "@/lib/types";
 import { EventHeader } from "./EventHeader";
 import { EventMetadata } from "./EventMetadata";
 import { EventSocialActions } from "./EventSocialActions";
-import { EventCommunity } from "./EventCommunity";
-import { Tag, Ticket, MapPin, MessageCircle } from "lucide-react";
+import { Tag, Ticket, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { UnifiedButton } from "@/components/ui/unified-button";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -29,12 +29,12 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <h2 className="text-xl font-semibold mb-2">Event data unavailable</h2>
         <p className="text-muted-foreground">There was an issue loading this event.</p>
-        <Button 
+        <UnifiedButton 
           onClick={() => navigate('/')}
           className="mt-4"
         >
           Back to Home
-        </Button>
+        </UnifiedButton>
       </div>
     );
   }
@@ -68,9 +68,10 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto space-y-8 px-4 sm:px-6"
+        className="max-w-6xl mx-auto space-y-8 container-padding"
       >
-        <div className="relative h-[400px] rounded-xl overflow-hidden">
+        {/* Hero Image */}
+        <div className="relative h-[400px] rounded-xl overflow-hidden modern-shadow">
           <img
             src={safeEvent.imageUrl}
             alt={safeEvent.title}
@@ -80,11 +81,13 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
               target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87';
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Event Content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Event Header - Only show once */}
             <EventHeader 
               title={safeEvent.title}
               startDate={safeEvent.startDate}
@@ -93,73 +96,93 @@ export const EventDetailsContainer = ({ event }: EventDetailsContainerProps) => 
               category={safeEvent.category}
             />
 
-            <div className="prose prose-invert max-w-none">
-              <p>{safeEvent.description}</p>
+            {/* Event Description */}
+            <div className="glass-card card-padding">
+              <h3 className="text-lg font-semibold mb-3 text-primary">About This Event</h3>
+              <div className="prose prose-invert max-w-none">
+                <p className="text-foreground/90 leading-relaxed">{safeEvent.description}</p>
+              </div>
             </div>
 
+            {/* Tags */}
             {safeEvent.tags.length > 0 && (
-              <div className="flex flex-wrap gap-4">
-                {safeEvent.tags.map((tag, index) => (
-                  <span key={`${tag}-${index}`} className="text-sm text-muted-foreground flex items-center gap-1 hover:text-primary transition-colors">
-                    <Tag className="h-3 w-3" />
-                    {tag}
-                  </span>
-                ))}
+              <div className="glass-card card-padding">
+                <h3 className="text-lg font-semibold mb-3 text-primary">Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                  {safeEvent.tags.map((tag, index) => (
+                    <span 
+                      key={`${tag}-${index}`} 
+                      className="inline-flex items-center gap-1 px-3 py-1 text-sm bg-primary/10 text-primary rounded-full border border-primary/20 hover:bg-primary/20 transition-colors"
+                    >
+                      <Tag className="h-3 w-3" />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
 
-            <div className="border-t border-border pt-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <EventMetadata 
-                  startDate={safeEvent.startDate}
-                  endDate={safeEvent.endDate}
-                  location={safeEvent.location}
-                  tags={safeEvent.tags}
-                  attendees={safeEvent.attendees || 0}
-                  pricing={safeEvent.pricing}
-                />
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <EventSocialActions 
-                    eventId={safeEvent.id} 
-                    comments={comments?.length || 0}
-                  />
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline"
-                      className="gap-2"
-                      onClick={() => setIsChatModalOpen(true)}
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      Join Chat
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="gap-2"
-                      onClick={handleShowOnMap}
-                    >
-                      <MapPin className="h-4 w-4" />
-                      Show on Map
-                    </Button>
-                    <Button 
-                      className="gap-2 font-medium"
-                      onClick={handleGetTickets}
-                    >
-                      <Ticket className="h-4 w-4" />
-                      Get Tickets
-                    </Button>
-                  </div>
-                </div>
+            {/* Action Buttons */}
+            <div className="glass-card card-padding">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <UnifiedButton 
+                  variant="primary"
+                  size="lg"
+                  className="gap-2 flex-1"
+                  onClick={handleGetTickets}
+                >
+                  <Ticket className="h-5 w-5" />
+                  Get Tickets
+                </UnifiedButton>
+                
+                <UnifiedButton 
+                  variant="outline"
+                  size="lg"
+                  className="gap-2"
+                  onClick={handleShowOnMap}
+                >
+                  <MapPin className="h-5 w-5" />
+                  Show on Map
+                </UnifiedButton>
+                
+                <UnifiedButton 
+                  variant="secondary"
+                  size="lg"
+                  className="gap-2"
+                  onClick={() => setIsChatModalOpen(true)}
+                >
+                  💬 Join Discussion
+                </UnifiedButton>
               </div>
             </div>
           </div>
 
-          {/* Community Chat Sidebar */}
-          <div className="lg:col-span-1">
-            <EventCommunity eventId={safeEvent.id} />
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Event Metadata - Clean display */}
+            <div className="glass-card card-padding">
+              <EventMetadata 
+                startDate={safeEvent.startDate}
+                endDate={safeEvent.endDate}
+                location={safeEvent.location}
+                tags={safeEvent.tags}
+                attendees={safeEvent.attendees || 0}
+                pricing={safeEvent.pricing}
+              />
+            </div>
+
+            {/* Social Actions */}
+            <div className="glass-card card-padding">
+              <EventSocialActions 
+                eventId={safeEvent.id} 
+                comments={comments?.length || 0}
+              />
+            </div>
           </div>
         </div>
       </motion.div>
 
+      {/* Single Unified Chat Modal */}
       <EventChatModal
         event={safeEvent}
         isOpen={isChatModalOpen}
