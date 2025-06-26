@@ -46,7 +46,6 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
   let wheelchairAccessible = false;
   let familyFriendly = true;
 
-  // Safely access accessibility properties
   if (typeof accessibilityData === 'object' && accessibilityData !== null) {
     if (Array.isArray((accessibilityData as any).languages)) {
       languages = (accessibilityData as any).languages as string[];
@@ -61,7 +60,6 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
   let priceRange: [number, number] | undefined = undefined;
   let currency: string | undefined = undefined;
 
-  // Safely access pricing properties
   if (typeof pricingData === 'object' && pricingData !== null) {
     isFree = Boolean((pricingData as any).isFree);
     if (Array.isArray((pricingData as any).priceRange) && (pricingData as any).priceRange.length >= 2) {
@@ -82,9 +80,7 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
     console.log('Processing coordinates:', dbEvent.coordinates, typeof dbEvent.coordinates);
     
     try {
-      // Handle PostgreSQL point format: "(x,y)" or {x: number, y: number}
       if (typeof dbEvent.coordinates === 'string') {
-        // Parse string format "(x,y)"
         const match = dbEvent.coordinates.match(/\(([^,]+),([^)]+)\)/);
         if (match) {
           const lat = safeNumber(match[1]);
@@ -94,16 +90,13 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
           }
         }
       } else if (typeof dbEvent.coordinates === 'object' && dbEvent.coordinates !== null) {
-        // Handle object format {x: number, y: number}
         if ('x' in dbEvent.coordinates && 'y' in dbEvent.coordinates) {
           const lat = safeNumber(dbEvent.coordinates.x);
           const lng = safeNumber(dbEvent.coordinates.y);
           if (lat !== 0 || lng !== 0) {
             coordinates = [lat, lng];
           }
-        }
-        // Handle array format [lat, lng]
-        else if (Array.isArray(dbEvent.coordinates) && dbEvent.coordinates.length >= 2) {
+        } else if (Array.isArray(dbEvent.coordinates) && dbEvent.coordinates.length >= 2) {
           const lat = safeNumber(dbEvent.coordinates[0]);
           const lng = safeNumber(dbEvent.coordinates[1]);
           if (lat !== 0 || lng !== 0) {
@@ -116,8 +109,6 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
       coordinates = [0, 0];
     }
   }
-  
-  console.log('Final coordinates:', coordinates);
 
   // Safely map all properties with proper validation
   const mappedEvent: Event = {
@@ -125,15 +116,14 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
     title: safeString(dbEvent.title, 'Untitled Event'),
     description: safeString(dbEvent.description),
     startDate: safeString(dbEvent.start_date),
-    endDate: safeString(dbEvent.end_date || dbEvent.start_date),
+    endDate: safeString(dbEvent.end_date),
     location: {
       coordinates,
-      address: safeString(dbEvent.location),
+      address: safeString(dbEvent.location, 'Location not specified'),
       venue_name: safeString(dbEvent.venue_name)
     },
-    category: safeArray(dbEvent.category),
+    category: safeArray(dbEvent.category, ['Other']),
     tags: safeArray(dbEvent.tags),
-    culturalContext: safeString(dbEvent.cultural_context),
     accessibility: {
       languages,
       wheelchairAccessible,
@@ -142,71 +132,20 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
     pricing: {
       isFree,
       priceRange,
-      currency
+      currency: currency || 'USD'
     },
     creator: {
       id: safeString(dbEvent.created_by),
       type: 'user' as const
     },
     verification: {
-      status: (dbEvent.verification_status === 'verified' || dbEvent.verification_status === 'featured') 
-        ? dbEvent.verification_status as 'verified' | 'featured'
-        : 'pending' as const
+      status: (dbEvent.verification_status as any) || 'pending'
     },
     imageUrl: safeString(dbEvent.image_url),
     likes: safeNumber(dbEvent.likes),
     attendees: safeNumber(dbEvent.attendees)
   };
-  
-  // Validate required fields
-  if (!mappedEvent.id) {
-    throw new Error('Event must have a valid ID');
-  }
-  
-  console.log('Mapped event:', mappedEvent);
+
+  console.log('Final mapped event:', mappedEvent);
   return mappedEvent;
-}
-
-/**
- * Maps mock event data to the application Event interface
- */
-export function mapMockEventToEvent(mockEvent: any): Event {
-  if (!mockEvent || typeof mockEvent !== 'object') {
-    throw new Error('Invalid mock event data');
-  }
-
-  return {
-    id: safeString(mockEvent.id),
-    title: safeString(mockEvent.title, 'Untitled Event'),
-    description: safeString(mockEvent.description),
-    startDate: safeString(mockEvent.start_date),
-    endDate: safeString(mockEvent.end_date || mockEvent.start_date),
-    location: {
-      coordinates: [0, 0] as [number, number],
-      address: safeString(mockEvent.location),
-      venue_name: safeString(mockEvent.venue_name)
-    },
-    category: safeArray(mockEvent.category),
-    tags: safeArray(mockEvent.tags),
-    accessibility: {
-      languages: ['en'],
-      wheelchairAccessible: false,
-      familyFriendly: true
-    },
-    pricing: {
-      isFree: true,
-      priceRange: [0, 0] as [number, number],
-      currency: 'USD'
-    },
-    creator: {
-      id: safeString(mockEvent.created_by),
-      type: 'user' as const
-    },
-    verification: {
-      status: 'pending' as const
-    },
-    imageUrl: safeString(mockEvent.image_url),
-    likes: safeNumber(mockEvent.likes),
-    attendees: safeNumber(mockEvent.attendees)
-  };
 }

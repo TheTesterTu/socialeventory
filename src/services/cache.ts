@@ -1,25 +1,28 @@
 
-// Enhanced caching service for production performance
-class CacheService {
-  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
-  private maxSize = 100; // Maximum cache entries
+interface CacheItem<T> {
+  data: T;
+  timestamp: number;
+  ttl: number;
+}
 
-  set(key: string, data: any, ttlMinutes: number = 30) {
-    // Clean up if cache is too large
+class MemoryCache {
+  private cache = new Map<string, CacheItem<any>>();
+  private maxSize = 100;
+
+  set<T>(key: string, data: T, ttlMinutes = 5): void {
+    // Clean up if cache is getting too large
     if (this.cache.size >= this.maxSize) {
-      const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
+      this.cleanup();
     }
 
-    const ttl = ttlMinutes * 60 * 1000; // Convert to milliseconds
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
-      ttl
+      ttl: ttlMinutes * 60 * 1000
     });
   }
 
-  get(key: string) {
+  get<T>(key: string): T | null {
     const item = this.cache.get(key);
     
     if (!item) return null;
@@ -30,30 +33,34 @@ class CacheService {
       return null;
     }
     
-    return item.data;
+    return item.data as T;
   }
 
-  clear(pattern?: string) {
-    if (!pattern) {
-      this.cache.clear();
-      return;
-    }
+  delete(key: string): void {
+    this.cache.delete(key);
+  }
 
-    // Clear entries matching pattern
-    for (const key of this.cache.keys()) {
-      if (key.includes(pattern)) {
+  clear(): void {
+    this.cache.clear();
+  }
+
+  private cleanup(): void {
+    const now = Date.now();
+    for (const [key, item] of this.cache.entries()) {
+      if (now - item.timestamp > item.ttl) {
         this.cache.delete(key);
       }
     }
-  }
-
-  getStats() {
-    return {
-      size: this.cache.size,
-      maxSize: this.maxSize,
-      keys: Array.from(this.cache.keys())
-    };
+    
+    // If still too large, remove oldest entries
+    if (this.cache.size >= this.maxSize) {
+      const entries = Array.from(this.cache.entries());
+      entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+      
+      const toRemove = entries.slice(0, Math.floor(this.maxSize / 4));
+      toRemove.forEach(([key]) => this.cache.delete(key));
+    }
   }
 }
 
-export const cache = new CacheService();
+export const cache = new MemoryCache();
