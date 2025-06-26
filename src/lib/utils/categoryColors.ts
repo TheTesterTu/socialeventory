@@ -28,7 +28,7 @@ export const categoryColorMap = {
 } as const;
 
 export type CategoryColorKey = keyof typeof categoryColorMap;
-export type CategoryColorValue = typeof categoryColorMap[CategoryColorKey];
+export type CategoryColorValue = typeof categoryColorMap[CategoryColorKey] | 'default';
 
 /**
  * Get category color class for a given category
