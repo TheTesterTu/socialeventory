@@ -1,3 +1,4 @@
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
@@ -8,7 +9,6 @@ import { router } from './App'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { Toaster } from 'sonner'
-import Events from './pages/Events';
 
 const queryClient = new QueryClient({
   defaultOptions: {

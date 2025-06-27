@@ -1,12 +1,13 @@
+
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Home, Search, MapPin, Newspaper, User, Calendar } from "lucide-react";
+import { Home, Search, MapPin, Calendar, User, LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface NavItem {
   name: string;
-  path: string;
-  icon: React.ReactNode;
+  href: string;
+  icon: LucideIcon;
   badge?: number;
 }
 
@@ -14,7 +15,7 @@ export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  const navigation = [
+  const navigation: NavItem[] = [
     { name: "Home", href: "/", icon: Home },
     { name: "Events", href: "/events", icon: Calendar },
     { name: "Search", href: "/search", icon: Search },
@@ -35,6 +36,7 @@ export const BottomNav = () => {
         <div className="flex justify-between px-2">
           {navigation.map((item) => {
             const active = isActive(item.href);
+            const IconComponent = item.icon;
             
             return (
               <button
@@ -54,7 +56,7 @@ export const BottomNav = () => {
                     active && "bg-primary/10 scale-110"
                   )}
                 >
-                  {item.icon}
+                  <IconComponent size={20} />
                   {item.badge && item.badge > 0 && (
                     <Badge 
                       variant="destructive" 

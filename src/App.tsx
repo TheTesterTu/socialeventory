@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   createBrowserRouter,
@@ -22,12 +23,13 @@ import Contact from "./pages/Contact";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import AdminDashboard from "./pages/AdminDashboard";
-import ProductionAuditPage from "./pages/Admin/ProductionAuditPage";
-import SystemTest from "./pages/Admin/SystemTest";
+import ProductionAuditPage from "./pages/ProductionAuditPage";
+import SystemTest from "./pages/SystemTest";
 import NotFound from "./pages/NotFound";
 import Events from './pages/Events';
+import EventDetails from "./pages/EventDetails";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <Index />,
