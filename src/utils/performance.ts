@@ -1,13 +1,13 @@
 
 // Simple performance utility for marking and measuring
-export const performance = {
-  marks: new Map<string, number>(),
-  measures: new Map<string, number>(),
+const marks = new Map<string, number>();
+const measures = new Map<string, number>();
 
+export const performance = {
   mark: (name: string) => {
     if (typeof window !== 'undefined' && window.performance) {
       window.performance.mark(name);
-      this.marks.set(name, window.performance.now());
+      marks.set(name, window.performance.now());
     }
   },
   
@@ -17,7 +17,7 @@ export const performance = {
         window.performance.measure(name, startMark, endMark);
         const measure = window.performance.getEntriesByName(name, 'measure')[0];
         if (measure) {
-          this.measures.set(name, measure.duration);
+          measures.set(name, measure.duration);
           console.log(`Performance: ${name} took ${measure.duration.toFixed(2)}ms`);
         }
       } catch (error) {
@@ -28,8 +28,8 @@ export const performance = {
 
   getMetrics: () => {
     return {
-      marks: performance.marks,
-      measures: performance.measures
+      marks,
+      measures
     };
   }
 };
