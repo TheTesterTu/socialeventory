@@ -30,6 +30,7 @@ export const usePagePerformance = ({
       isTracked.current = true;
 
       performance.mark(`${pageName}-page-end`);
+      performance.measure(`${pageName}-page-load`, `${pageName}-page-start`, `${pageName}-page-end`);
       
       // Get the duration from our performance metrics
       const metrics = performance.getMetrics();
