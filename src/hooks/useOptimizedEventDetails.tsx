@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { mapDatabaseEventToEvent } from '@/lib/utils/mappers';
 import { Event } from '@/lib/types';
-import { performance } from '@/utils/performance';
 
 export const useOptimizedEventDetails = (eventId: string) => {
   const queryKey = useMemo(() => ['event-details', eventId], [eventId]);
@@ -12,7 +11,7 @@ export const useOptimizedEventDetails = (eventId: string) => {
   return useQuery({
     queryKey,
     queryFn: async () => {
-      performance.mark('event-details-fetch-start');
+      console.log('Fetching event details for ID:', eventId);
       
       try {
         const { data, error } = await supabase
@@ -24,23 +23,33 @@ export const useOptimizedEventDetails = (eventId: string) => {
           .eq('id', eventId)
           .single();
 
-        if (error) throw error;
-        if (!data) return null;
-
-        const mappedEvent = mapDatabaseEventToEvent(data);
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
         
-        performance.mark('event-details-fetch-end');
-        performance.measure('event-details-fetch', 'event-details-fetch-start', 'event-details-fetch-end');
+        if (!data) {
+          console.warn('No event data found for ID:', eventId);
+          return null;
+        }
+
+        console.log('Raw event data from Supabase:', data);
+        
+        const mappedEvent = mapDatabaseEventToEvent(data);
+        console.log('Successfully mapped event:', mappedEvent);
         
         return mappedEvent;
       } catch (error) {
-        performance.mark('event-details-fetch-end');
-        performance.measure('event-details-fetch', 'event-details-fetch-start', 'event-details-fetch-end');
+        console.error('Error in useOptimizedEventDetails:', error);
         throw error;
       }
     },
     enabled: !!eventId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes
+    retry: (failureCount, error) => {
+      console.log('Retry attempt:', failureCount, 'Error:', error);
+      return failureCount < 2;
+    },
   });
 };

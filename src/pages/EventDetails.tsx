@@ -66,8 +66,8 @@ const EventDetails = () => {
             startDate: event.startDate,
             endDate: event.endDate,
             location: {
-              name: event.location.venue_name || event.location.address,
-              address: event.location.address
+              name: event.location?.venue_name || event.location?.address || 'Unknown location',
+              address: event.location?.address || 'Address not specified'
             },
             image: event.imageUrl,
             url: window.location.href

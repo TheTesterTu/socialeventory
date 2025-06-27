@@ -47,6 +47,7 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
     toast("Showing event location on map");
   };
 
+  // Create a safe event object with guaranteed properties
   const safeEvent = {
     ...event,
     title: event.title || 'Untitled Event',
@@ -54,9 +55,16 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
     imageUrl: event.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87',
     tags: Array.isArray(event.tags) ? event.tags : [],
     location: {
-      ...event.location,
+      coordinates: event.location?.coordinates || [37.7749, -122.4194],
       address: event.location?.address || 'Location not specified',
       venue_name: event.location?.venue_name || ''
+    },
+    category: Array.isArray(event.category) ? event.category : ['Other'],
+    pricing: event.pricing || { isFree: true, currency: 'USD' },
+    accessibility: event.accessibility || {
+      languages: ['en'],
+      wheelchairAccessible: false,
+      familyFriendly: true
     }
   };
 
@@ -67,7 +75,7 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
         animate={{ opacity: 1, y: 0 }}
         className="max-w-6xl mx-auto space-y-8 container-padding"
       >
-        {/* Hero Image - with proper rounded corners */}
+        {/* Hero Image */}
         <div className="relative h-[400px] rounded-2xl overflow-hidden modern-shadow">
           <img
             src={safeEvent.imageUrl}

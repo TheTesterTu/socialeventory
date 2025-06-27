@@ -17,42 +17,60 @@ export const useProductionReady = () => {
     const runChecks = async () => {
       const newChecks = { ...checks };
 
-      // Database check
+      // Database check - test basic connection and data fetch
       try {
         const { data, error } = await supabase
           .from('events')
-          .select('count')
+          .select('id, title')
           .limit(1);
         newChecks.database = !error;
-      } catch {
+        console.log('Database check result:', !error, error?.message);
+      } catch (err) {
+        console.error('Database check failed:', err);
         newChecks.database = false;
       }
 
       // Auth check
       newChecks.auth = !!user;
+      console.log('Auth check result:', !!user);
 
-      // Storage check
+      // Storage check - verify buckets exist
       try {
-        const { data } = await supabase.storage.listBuckets();
-        newChecks.storage = data?.some(bucket => 
+        const { data, error } = await supabase.storage.listBuckets();
+        const hasRequiredBuckets = data?.some(bucket => 
           bucket.name === 'event-images' || bucket.name === 'avatars'
         ) || false;
-      } catch {
+        newChecks.storage = hasRequiredBuckets && !error;
+        console.log('Storage check result:', hasRequiredBuckets, 'Buckets:', data?.map(b => b.name));
+      } catch (err) {
+        console.error('Storage check failed:', err);
         newChecks.storage = false;
       }
 
-      // Realtime check
+      // Realtime check - test connection
       try {
-        const channel = supabase.channel('test-connection');
+        const channel = supabase.channel('production-test');
+        let realtimeWorking = false;
+        
         await new Promise((resolve) => {
+          const timeout = setTimeout(() => {
+            resolve(false);
+          }, 3000);
+          
           channel.subscribe((status) => {
-            newChecks.realtime = status === 'SUBSCRIBED';
-            resolve(true);
+            if (status === 'SUBSCRIBED') {
+              realtimeWorking = true;
+              clearTimeout(timeout);
+              resolve(true);
+            }
           });
-          setTimeout(resolve, 2000);
         });
+        
+        newChecks.realtime = realtimeWorking;
+        console.log('Realtime check result:', realtimeWorking);
         supabase.removeChannel(channel);
-      } catch {
+      } catch (err) {
+        console.error('Realtime check failed:', err);
         newChecks.realtime = false;
       }
 
