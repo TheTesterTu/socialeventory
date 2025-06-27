@@ -3,7 +3,9 @@ import React from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
+  Outlet,
 } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
 import Nearby from "./pages/Nearby";
@@ -29,102 +31,117 @@ import NotFound from "./pages/NotFound";
 import Events from './pages/Events';
 import EventDetails from "./pages/EventDetails";
 
+// Root layout component that provides AuthContext to all routes
+const RootLayout = () => {
+  return (
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
+  );
+};
+
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Index />,
-  },
-  {
-    path: "/events",
-    element: <Events />,
-  },
-  {
-    path: "/event/:id",
-    element: <EventDetails />,
-  },
-  {
-    path: "/search",
-    element: <Search />,
-  },
-  {
-    path: "/nearby",
-    element: <Nearby />,
-  },
-  {
-    path: "/create",
-    element: <CreateEvent />,
-  },
-  {
-    path: "/profile",
-    element: <Profile />,
-  },
-  {
-    path: "/profile/:id",
-    element: <OrganizerProfile />,
-  },
-  {
-    path: "/profile/edit",
-    element: <ProfileEdit />,
-  },
-  {
-    path: "/organizers",
-    element: <Organizers />,
-  },
-  {
-    path: "/blog",
-    element: <Blog />,
-  },
-  {
-    path: "/blog/:slug",
-    element: <BlogPost />,
-  },
-  {
-    path: "/auth",
-    element: <Auth />,
-  },
-  {
-    path: "/reset-password",
-    element: <ResetPassword />,
-  },
-  {
-    path: "/settings",
-    element: <Settings />,
-  },
-  {
-    path: "/notifications",
-    element: <NotificationsPage />,
-  },
-  {
-    path: "/about",
-    element: <About />,
-  },
-  {
-    path: "/contact",
-    element: <Contact />,
-  },
-  {
-    path: "/terms",
-    element: <Terms />,
-  },
-  {
-    path: "/privacy",
-    element: <Privacy />,
-  },
-  {
-    path: "/admin",
-    element: <AdminDashboard />,
-  },
-  {
-    path: "/admin/production-audit",
-    element: <ProductionAuditPage />,
-  },
-  {
-    path: "/admin/system-test",
-    element: <SystemTest />,
-  },
-  {
-    path: "*",
-    element: <NotFound />,
+    element: <RootLayout />,
+    children: [
+      {
+        index: true,
+        element: <Index />,
+      },
+      {
+        path: "events",
+        element: <Events />,
+      },
+      {
+        path: "event/:id",
+        element: <EventDetails />,
+      },
+      {
+        path: "search",
+        element: <Search />,
+      },
+      {
+        path: "nearby",
+        element: <Nearby />,
+      },
+      {
+        path: "create",
+        element: <CreateEvent />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
+      },
+      {
+        path: "profile/:id",
+        element: <OrganizerProfile />,
+      },
+      {
+        path: "profile/edit",
+        element: <ProfileEdit />,
+      },
+      {
+        path: "organizers",
+        element: <Organizers />,
+      },
+      {
+        path: "blog",
+        element: <Blog />,
+      },
+      {
+        path: "blog/:slug",
+        element: <BlogPost />,
+      },
+      {
+        path: "auth",
+        element: <Auth />,
+      },
+      {
+        path: "reset-password",
+        element: <ResetPassword />,
+      },
+      {
+        path: "settings",
+        element: <Settings />,
+      },
+      {
+        path: "notifications",
+        element: <NotificationsPage />,
+      },
+      {
+        path: "about",
+        element: <About />,
+      },
+      {
+        path: "contact",
+        element: <Contact />,
+      },
+      {
+        path: "terms",
+        element: <Terms />,
+      },
+      {
+        path: "privacy",
+        element: <Privacy />,
+      },
+      {
+        path: "admin",
+        element: <AdminDashboard />,
+      },
+      {
+        path: "admin/production-audit",
+        element: <ProductionAuditPage />,
+      },
+      {
+        path: "admin/system-test",
+        element: <SystemTest />,
+      },
+      {
+        path: "*",
+        element: <NotFound />,
+      },
+    ],
   },
 ]);
 
