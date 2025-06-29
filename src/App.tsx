@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   createBrowserRouter,
@@ -30,6 +29,7 @@ import SystemTest from "./pages/SystemTest";
 import NotFound from "./pages/NotFound";
 import Events from './pages/Events';
 import EventDetails from "./pages/EventDetails";
+import ProductionStatus from './pages/ProductionStatus';
 
 // Root layout component that provides AuthContext to all routes
 const RootLayout = () => {
@@ -136,6 +136,10 @@ export const router = createBrowserRouter([
       {
         path: "admin/system-test",
         element: <SystemTest />,
+      },
+      {
+        path: "production-status",
+        element: <ProductionStatus />,
       },
       {
         path: "*",
