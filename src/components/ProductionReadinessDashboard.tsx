@@ -3,8 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, XCircle, AlertTriangle, RefreshCw, Database, Shield, Cloud, Zap, User } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, RefreshCw, Database, Shield, Cloud, Zap, User, Wrench } from 'lucide-react';
 import { useProductionReadinessCheck } from '@/hooks/useProductionReadinessCheck';
+import { productionSetupService } from '@/services/productionSetup';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 const categoryIcons = {
   storage: Cloud,
@@ -16,6 +19,7 @@ const categoryIcons = {
 
 export const ProductionReadinessDashboard = () => {
   const { checks, isRunning, overallScore, runChecks, criticalIssues, warnings } = useProductionReadinessCheck();
+  const [isAutoFixing, setIsAutoFixing] = useState(false);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -30,6 +34,34 @@ export const ProductionReadinessDashboard = () => {
     if (score >= 90) return 'text-green-600';
     if (score >= 70) return 'text-yellow-600';
     return 'text-red-600';
+  };
+
+  const handleAutoFix = async () => {
+    setIsAutoFixing(true);
+    toast.info('🔧 Running automatic fixes...');
+
+    try {
+      const setupResult = await productionSetupService.runAutomaticSetup();
+      
+      if (setupResult.success) {
+        toast.success('✅ Auto-fix completed successfully!');
+      } else {
+        toast.warning(`⚠️ Auto-fix completed with ${setupResult.errors.length} issues`);
+        setupResult.errors.forEach(error => {
+          toast.error(error);
+        });
+      }
+
+      // Rerun checks after auto-fix
+      setTimeout(() => {
+        runChecks();
+      }, 1000);
+
+    } catch (error) {
+      toast.error(`❌ Auto-fix failed: ${(error as Error).message}`);
+    } finally {
+      setIsAutoFixing(false);
+    }
   };
 
   const groupedChecks = checks.reduce((acc, check) => {
@@ -50,16 +82,31 @@ export const ProductionReadinessDashboard = () => {
             </div>
           </CardTitle>
           <Progress value={overallScore} className="h-3" />
-          <div className="flex gap-4 text-sm">
-            {criticalIssues.length > 0 && (
-              <span className="text-red-600">⚠️ {criticalIssues.length} Critical Issues</span>
-            )}
-            {warnings.length > 0 && (
-              <span className="text-yellow-600">⚡ {warnings.length} Warnings</span>
-            )}
-            <Button onClick={runChecks} disabled={isRunning} size="sm" className="ml-auto">
-              {isRunning ? 'Checking...' : 'Rerun Checks'}
-            </Button>
+          <div className="flex gap-4 text-sm items-center justify-between">
+            <div className="flex gap-4">
+              {criticalIssues.length > 0 && (
+                <span className="text-red-600">⚠️ {criticalIssues.length} Critical Issues</span>
+              )}
+              {warnings.length > 0 && (
+                <span className="text-yellow-600">⚡ {warnings.length} Warnings</span>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleAutoFix} 
+                disabled={isAutoFixing} 
+                size="sm" 
+                variant="outline"
+                className="border-green-500 text-green-600 hover:bg-green-50"
+              >
+                <Wrench className="h-4 w-4 mr-2" />
+                {isAutoFixing ? 'Auto-Fixing...' : 'Auto-Fix Issues'}
+              </Button>
+              <Button onClick={runChecks} disabled={isRunning} size="sm">
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRunning ? 'animate-spin' : ''}`} />
+                {isRunning ? 'Checking...' : 'Rerun Checks'}
+              </Button>
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -151,6 +198,8 @@ export const ProductionReadinessDashboard = () => {
                 <li>• User authentication system</li>
                 <li>• Event management system</li>
                 <li>• Comment and interaction system</li>
+                <li>• Profile integration system</li>
+                <li>• Auto-fix capabilities</li>
               </ul>
             </div>
             <div className="space-y-2">
@@ -162,11 +211,31 @@ export const ProductionReadinessDashboard = () => {
                 <li>• Implement email notifications</li>
                 <li>• Add analytics tracking</li>
                 <li>• Legal pages review</li>
+                <li>• Performance optimization</li>
+                <li>• SEO enhancements</li>
               </ul>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Production Ready Status */}
+      {overallScore >= 95 && (
+        <Card className="border-green-500/50 bg-green-500/5">
+          <CardHeader>
+            <CardTitle className="text-green-600 flex items-center gap-2">
+              <CheckCircle className="h-5 w-5" />
+              🎉 Production Ready!
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-green-700">
+              Congratulations! Your SocialEventory app has achieved {overallScore}% production readiness. 
+              All critical systems are operational and your app is ready for deployment.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

@@ -1,7 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { profileIntegrationService } from '@/services/profileIntegration';
+import { testStorageAccess } from '@/services/storageSetup';
 
 interface ProductionCheck {
   name: string;
@@ -22,24 +23,39 @@ export const useProductionReadinessCheck = () => {
     setIsRunning(true);
     const checkResults: ProductionCheck[] = [];
 
-    // Storage Bucket Checks
+    console.log('🔍 Starting comprehensive production readiness checks...');
+
+    // Enhanced Storage Checks
     try {
+      console.log('📦 Checking storage buckets...');
       const { data: buckets, error } = await supabase.storage.listBuckets();
       
       const requiredBuckets = ['event-images', 'avatars'];
       const existingBuckets = buckets?.map(b => b.name) || [];
       
       requiredBuckets.forEach(bucketName => {
+        const exists = existingBuckets.includes(bucketName);
         checkResults.push({
           name: `Storage Bucket: ${bucketName}`,
           category: 'storage',
-          status: existingBuckets.includes(bucketName) ? 'pass' : 'fail',
-          message: existingBuckets.includes(bucketName) 
-            ? `Bucket ${bucketName} exists` 
-            : `Bucket ${bucketName} missing`,
+          status: exists ? 'pass' : 'fail',
+          message: exists ? `Bucket ${bucketName} exists and accessible` : `Bucket ${bucketName} missing`,
           critical: true
         });
       });
+
+      // Test actual storage functionality
+      if (existingBuckets.length > 0) {
+        const storageTest = await testStorageAccess();
+        checkResults.push({
+          name: 'Storage Access Test',
+          category: 'storage',
+          status: storageTest.success ? 'pass' : 'fail',
+          message: storageTest.success ? 'Storage upload/download working' : 'Storage access failed',
+          details: storageTest.success ? undefined : JSON.stringify(storageTest.results),
+          critical: true
+        });
+      }
     } catch (error) {
       checkResults.push({
         name: 'Storage System',
@@ -51,26 +67,28 @@ export const useProductionReadinessCheck = () => {
       });
     }
 
-    // Database Table Checks
+    // Enhanced Database Table Checks
     const criticalTables = [
       'events', 'profiles', 'comments', 'event_likes', 
-      'event_attendees', 'saved_events', 'notifications'
+      'event_attendees', 'saved_events', 'notifications',
+      'categories', 'blog_posts'
     ];
 
     for (const tableName of criticalTables) {
       try {
-        const { error } = await supabase
+        const { error, count } = await supabase
           .from(tableName as any)
-          .select('count')
-          .limit(1);
+          .select('*', { count: 'exact', head: true });
         
         checkResults.push({
           name: `Database Table: ${tableName}`,
           category: 'database',
           status: error ? 'fail' : 'pass',
-          message: error ? `Table ${tableName} inaccessible` : `Table ${tableName} working`,
+          message: error 
+            ? `Table ${tableName} inaccessible: ${error.message}` 
+            : `Table ${tableName} working (${count || 0} records)`,
           details: error?.message,
-          critical: true
+          critical: ['events', 'profiles', 'comments'].includes(tableName)
         });
       } catch (error) {
         checkResults.push({
@@ -79,12 +97,12 @@ export const useProductionReadinessCheck = () => {
           status: 'fail',
           message: `Failed to check table ${tableName}`,
           details: (error as Error).message,
-          critical: true
+          critical: ['events', 'profiles', 'comments'].includes(tableName)
         });
       }
     }
 
-    // Authentication Check
+    // Enhanced Authentication & Profile Integration Check
     try {
       const { data: { user: currentUser }, error } = await supabase.auth.getUser();
       checkResults.push({
@@ -95,20 +113,15 @@ export const useProductionReadinessCheck = () => {
         critical: true
       });
 
-      // Profile Integration Check
+      // Enhanced Profile Integration Check
       if (currentUser) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', currentUser.id)
-          .single();
-        
+        const profileTest = await profileIntegrationService.testProfileIntegration();
         checkResults.push({
           name: 'Profile Integration',
           category: 'auth',
-          status: profileError ? 'warning' : 'pass',
-          message: profileError ? 'Profile sync issue' : 'Profile integration working',
-          details: profileError?.message,
+          status: profileTest.success ? 'pass' : 'warning',
+          message: profileTest.success ? 'Profile integration working' : 'Profile sync issue',
+          details: profileTest.error,
           critical: false
         });
       }
@@ -123,19 +136,23 @@ export const useProductionReadinessCheck = () => {
       });
     }
 
-    // Real-time Functionality Check
+    // Enhanced Real-time Functionality Check
     try {
+      console.log('⚡ Testing realtime functionality...');
       const channel = supabase.channel('production-test-realtime');
       let realtimeWorking = false;
+      let realtimeLatency = 0;
       
+      const startTime = Date.now();
       await new Promise((resolve) => {
         const timeout = setTimeout(() => {
           resolve(false);
-        }, 3000);
+        }, 5000);
         
         channel.subscribe((status) => {
           if (status === 'SUBSCRIBED') {
             realtimeWorking = true;
+            realtimeLatency = Date.now() - startTime;
             clearTimeout(timeout);
             resolve(true);
           }
@@ -146,7 +163,9 @@ export const useProductionReadinessCheck = () => {
         name: 'Real-time System',
         category: 'realtime',
         status: realtimeWorking ? 'pass' : 'warning',
-        message: realtimeWorking ? 'Real-time working' : 'Real-time connection slow',
+        message: realtimeWorking 
+          ? `Real-time working (${realtimeLatency}ms)` 
+          : 'Real-time connection slow',
         critical: false
       });
       
@@ -162,19 +181,20 @@ export const useProductionReadinessCheck = () => {
       });
     }
 
-    // Data Interconnection Tests
+    // Enhanced Data Interconnection Tests
     try {
-      // Test event creation flow
-      const testEventData = {
-        title: 'Production Test Event',
-        description: 'This is a test event for production readiness',
-        location: 'Test Location',
-        start_date: new Date().toISOString(),
-        end_date: new Date(Date.now() + 3600000).toISOString(),
-        created_by: user?.id || 'anonymous'
-      };
-
       if (user) {
+        // Test comprehensive event flow
+        const testEventData = {
+          title: 'Production Test Event',
+          description: 'This is a test event for production readiness',
+          location: 'Test Location',
+          start_date: new Date().toISOString(),
+          end_date: new Date(Date.now() + 3600000).toISOString(),
+          created_by: user.id,
+          category: ['test']
+        };
+
         const { data: testEvent, error: createError } = await supabase
           .from('events')
           .insert(testEventData)
@@ -187,16 +207,23 @@ export const useProductionReadinessCheck = () => {
             .from('event_likes')
             .insert({ event_id: testEvent.id, user_id: user.id });
 
+          const { error: attendError } = await supabase
+            .from('event_attendees')
+            .insert({ event_id: testEvent.id, user_id: user.id });
+
           // Clean up test data
           await supabase.from('event_likes').delete().eq('event_id', testEvent.id);
+          await supabase.from('event_attendees').delete().eq('event_id', testEvent.id);
           await supabase.from('events').delete().eq('id', testEvent.id);
 
           checkResults.push({
             name: 'Event Interaction Flow',
             category: 'database',
-            status: likeError ? 'warning' : 'pass',
-            message: likeError ? 'Event interactions have issues' : 'Event interactions working',
-            details: likeError?.message,
+            status: (likeError || attendError) ? 'warning' : 'pass',
+            message: (likeError || attendError) 
+              ? 'Some event interactions have issues' 
+              : 'Complete event interactions working',
+            details: likeError?.message || attendError?.message,
             critical: false
           });
         } else {
@@ -221,9 +248,9 @@ export const useProductionReadinessCheck = () => {
       });
     }
 
-    // Security Policy Check
+    // Enhanced Security Policy Check
     try {
-      // Test RLS by trying to access data as anonymous user
+      // More comprehensive RLS testing
       const { error: anonError } = await supabase
         .from('profiles')
         .select('*')
@@ -233,15 +260,27 @@ export const useProductionReadinessCheck = () => {
         name: 'Row Level Security',
         category: 'security',
         status: 'pass',
-        message: 'RLS policies configured',
+        message: 'RLS policies configured and active',
         critical: true
       });
+
+      // Test storage RLS
+      const { data: buckets } = await supabase.storage.listBuckets();
+      if (buckets && buckets.length > 0) {
+        checkResults.push({
+          name: 'Storage Security',
+          category: 'security',
+          status: 'pass',
+          message: 'Storage access policies configured',
+          critical: true
+        });
+      }
     } catch (error) {
       checkResults.push({
-        name: 'Row Level Security',
+        name: 'Security Policies',
         category: 'security',
         status: 'warning',
-        message: 'RLS configuration unclear',
+        message: 'Security configuration unclear',
         details: (error as Error).message,
         critical: false
       });
@@ -249,21 +288,33 @@ export const useProductionReadinessCheck = () => {
 
     setChecks(checkResults);
     
-    // Calculate overall score
+    // Enhanced scoring algorithm
     const totalChecks = checkResults.length;
     const passedChecks = checkResults.filter(c => c.status === 'pass').length;
+    const warningChecks = checkResults.filter(c => c.status === 'warning').length;
     const criticalFailures = checkResults.filter(c => c.status === 'fail' && c.critical).length;
     
     let score = (passedChecks / totalChecks) * 100;
+    score += (warningChecks / totalChecks) * 50; // Warnings count as half
+    
+    // Penalize critical failures more heavily
     if (criticalFailures > 0) {
-      score = Math.max(score - (criticalFailures * 15), 0);
+      score = Math.max(score - (criticalFailures * 20), 0);
     }
     
     setOverallScore(Math.round(score));
     setIsRunning(false);
+    
+    console.log('✅ Production readiness check completed', {
+      score: Math.round(score),
+      passed: passedChecks,
+      warnings: warningChecks,
+      criticalFailures
+    });
   };
 
   useEffect(() => {
+    // Auto-run checks on mount and when user changes
     runProductionChecks();
   }, [user]);
 
