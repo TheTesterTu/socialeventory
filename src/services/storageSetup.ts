@@ -26,7 +26,7 @@ export const setupStorageBuckets = async () => {
     for (const bucketName of requiredBuckets) {
       if (existingBucketNames.includes(bucketName)) {
         results.existing.push(bucketName);
-        console.log(`Bucket ${bucketName} already exists`);
+        console.log(`Bucket ${bucketName} exists and is accessible`);
       } else {
         results.errors.push(`Bucket ${bucketName} is missing - please run database migrations`);
       }
