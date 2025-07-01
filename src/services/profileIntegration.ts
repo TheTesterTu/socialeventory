@@ -30,32 +30,12 @@ export const profileIntegrationService = {
         return { success: true, profile: existingProfile };
       }
 
-      // Create profile if it doesn't exist
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        return { success: false, error: 'User not authenticated' };
-      }
-
-      const newProfile = {
-        id: userId,
-        username: user.email?.split('@')[0] || `user_${userId.slice(0, 8)}`,
-        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Anonymous',
-        avatar_url: user.user_metadata?.avatar_url || null,
-        bio: null,
-        role: 'user'
+      // If no profile exists, it means the user needs to create one
+      // In production, profiles should be created via auth triggers
+      return { 
+        success: false, 
+        error: 'Profile not found - user needs to complete registration' 
       };
-
-      const { data: createdProfile, error: createError } = await supabase
-        .from('profiles')
-        .insert(newProfile)
-        .select()
-        .single();
-
-      if (createError) {
-        return { success: false, error: `Profile creation error: ${createError.message}` };
-      }
-
-      return { success: true, profile: createdProfile };
     } catch (error) {
       return { success: false, error: (error as Error).message };
     }
@@ -88,13 +68,13 @@ export const profileIntegrationService = {
         return { success: false, error: 'No authenticated user for testing' };
       }
 
-      // Test profile creation/retrieval
+      // Test profile retrieval
       const profileResult = await this.ensureProfileExists(user.id);
       if (!profileResult.success) {
         return { success: false, error: profileResult.error };
       }
 
-      // Test profile update
+      // Test profile update permissions
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ updated_at: new Date().toISOString() })

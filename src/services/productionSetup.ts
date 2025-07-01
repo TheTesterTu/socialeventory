@@ -29,21 +29,21 @@ export const productionSetupService = {
 
     try {
       // 1. Setup storage buckets
-      console.log('📦 Setting up storage buckets...');
+      console.log('📦 Checking storage buckets...');
       const storageResult = await setupStorageBuckets();
       results.results.storage = storageResult;
       
       if (storageResult.errors.length > 0) {
-        results.errors.push(...storageResult.errors);
+        results.errors.push(...storageResult.errors.map(e => `Storage: ${e}`));
       }
 
       // 2. Setup user profile integration
-      console.log('👤 Setting up profile integration...');
+      console.log('👤 Testing profile integration...');
       const profileResult = await profileIntegrationService.syncUserWithProfile();
       results.results.profile = profileResult;
       
       if (!profileResult.success && profileResult.error) {
-        results.errors.push(`Profile setup: ${profileResult.error}`);
+        results.errors.push(`Profile: ${profileResult.error}`);
       }
 
       // 3. Test realtime connection
@@ -60,7 +60,7 @@ export const productionSetupService = {
       const healthCheck = await this.runHealthCheck();
       
       if (!healthCheck.success) {
-        results.errors.push(...healthCheck.errors);
+        results.errors.push(...healthCheck.errors.map(e => `Health: ${e}`));
       }
 
       results.success = results.errors.length === 0;

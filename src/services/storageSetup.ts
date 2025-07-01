@@ -20,46 +20,20 @@ export const setupStorageBuckets = async () => {
     const existingBucketNames = existingBuckets?.map(b => b.name) || [];
     console.log('Existing buckets:', existingBucketNames);
 
-    const requiredBuckets = [
-      { 
-        name: 'event-images', 
-        public: true,
-        allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-        fileSizeLimit: 10485760 // 10MB
-      },
-      { 
-        name: 'avatars', 
-        public: true,
-        allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-        fileSizeLimit: 5242880 // 5MB
-      }
-    ];
+    const requiredBuckets = ['event-images', 'avatars'];
 
-    for (const bucket of requiredBuckets) {
-      if (existingBucketNames.includes(bucket.name)) {
-        results.existing.push(bucket.name);
-        console.log(`Bucket ${bucket.name} already exists`);
-        continue;
-      }
-
-      console.log(`Creating bucket: ${bucket.name}`);
-      const { error } = await supabase.storage.createBucket(bucket.name, {
-        public: bucket.public,
-        allowedMimeTypes: bucket.allowedMimeTypes,
-        fileSizeLimit: bucket.fileSizeLimit
-      });
-
-      if (error) {
-        console.error(`Failed to create ${bucket.name}:`, error);
-        results.errors.push(`Failed to create ${bucket.name}: ${error.message}`);
+    // Check if required buckets exist
+    for (const bucketName of requiredBuckets) {
+      if (existingBucketNames.includes(bucketName)) {
+        results.existing.push(bucketName);
+        console.log(`Bucket ${bucketName} already exists`);
       } else {
-        results.bucketsCreated.push(bucket.name);
-        console.log(`Successfully created bucket: ${bucket.name}`);
+        results.errors.push(`Bucket ${bucketName} is missing - please run database migrations`);
       }
     }
 
-    // Test bucket access after creation
-    for (const bucketName of [...results.bucketsCreated, ...results.existing]) {
+    // Test bucket access for existing buckets
+    for (const bucketName of results.existing) {
       const accessTest = await testBucketAccess(bucketName);
       if (!accessTest.success) {
         results.errors.push(`Bucket ${bucketName} access test failed: ${accessTest.error}`);
