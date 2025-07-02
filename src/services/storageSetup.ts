@@ -31,7 +31,7 @@ export const setupStorageBuckets = async () => {
         console.log(`✅ Bucket ${bucketName} exists`);
         results.existing.push(bucketName);
         
-        // Test actual bucket access
+        // Test actual bucket access with a more comprehensive test
         const accessTest = await testBucketAccess(bucketName);
         if (!accessTest.success) {
           console.error(`❌ Bucket ${bucketName} access failed:`, accessTest.error);
@@ -67,16 +67,17 @@ export const testBucketAccess = async (bucketName: string) => {
   try {
     console.log(`🧪 Testing bucket access: ${bucketName}`);
     
-    // Create a small test file
-    const testContent = new Uint8Array([72, 101, 108, 108, 111]); // "Hello" in bytes
+    // Create a test file with current timestamp
+    const testContent = new Blob(['Test content ' + new Date().toISOString()], { type: 'text/plain' });
     const testFileName = `test-access-${Date.now()}.txt`;
 
-    // Test upload
+    // Test upload with proper File object
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(bucketName)
       .upload(testFileName, testContent, {
         contentType: 'text/plain',
-        cacheControl: '3600'
+        cacheControl: '3600',
+        upsert: true
       });
 
     if (uploadError) {
@@ -84,7 +85,7 @@ export const testBucketAccess = async (bucketName: string) => {
       return { success: false, error: `Upload failed: ${uploadError.message}` };
     }
 
-    console.log(`✅ Upload test passed for ${bucketName}`);
+    console.log(`✅ Upload test passed for ${bucketName}`, uploadData);
 
     // Test download/public URL
     const { data: publicUrlData } = supabase.storage
@@ -95,7 +96,19 @@ export const testBucketAccess = async (bucketName: string) => {
       return { success: false, error: 'Failed to get public URL' };
     }
 
-    console.log(`✅ Public URL test passed for ${bucketName}`);
+    console.log(`✅ Public URL test passed for ${bucketName}:`, publicUrlData.publicUrl);
+
+    // Test actual file retrieval
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from(bucketName)
+      .download(testFileName);
+
+    if (downloadError) {
+      console.warn(`⚠️ Download test failed for ${bucketName}:`, downloadError.message);
+      // Don't fail completely on download issues
+    } else {
+      console.log(`✅ Download test passed for ${bucketName}`);
+    }
 
     // Clean up test file
     const { error: deleteError } = await supabase.storage
@@ -108,7 +121,7 @@ export const testBucketAccess = async (bucketName: string) => {
       console.log(`🧹 Cleanup successful for ${bucketName}`);
     }
 
-    return { success: true };
+    return { success: true, publicUrl: publicUrlData.publicUrl };
   } catch (error) {
     console.error(`❌ Bucket access test failed for ${bucketName}:`, error);
     return { success: false, error: (error as Error).message };
@@ -141,18 +154,49 @@ export const testStorageAccess = async () => {
   };
 };
 
-// Helper function to create missing buckets (if needed)
-export const createMissingBuckets = async () => {
-  console.log('🔧 Attempting to create missing storage buckets...');
-  
-  const results = {
-    created: [] as string[],
-    errors: [] as string[]
-  };
-
-  // Note: Bucket creation is handled by SQL migrations
-  // This function is for reference and debugging
-  results.errors.push('Bucket creation must be done via SQL migrations - check database setup');
-  
-  return results;
+// Enhanced function to upload a real image for testing
+export const uploadTestImage = async (bucketName: string) => {
+  try {
+    // Create a test image (1x1 pixel PNG)
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas context not available');
+    
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(0, 0, 1, 1);
+    
+    return new Promise<string>((resolve, reject) => {
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          reject(new Error('Failed to create test image blob'));
+          return;
+        }
+        
+        const fileName = `test-image-${Date.now()}.png`;
+        
+        const { data, error } = await supabase.storage
+          .from(bucketName)
+          .upload(fileName, blob, {
+            contentType: 'image/png',
+            cacheControl: '3600',
+            upsert: true
+          });
+        
+        if (error) {
+          reject(error);
+          return;
+        }
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from(bucketName)
+          .getPublicUrl(fileName);
+        
+        resolve(publicUrl);
+      }, 'image/png');
+    });
+  } catch (error) {
+    throw new Error(`Failed to upload test image: ${(error as Error).message}`);
+  }
 };
