@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -55,7 +54,7 @@ export const ComprehensiveTestRunner = () => {
       });
     }
 
-    // Test 2: Storage System (Fixed)
+    // Test 2: Storage System
     setProgress(20);
     try {
       const storageResult = await testStorageAccess();
@@ -126,15 +125,29 @@ export const ComprehensiveTestRunner = () => {
       }
     }
 
-    // Test 5: Error Boundaries
+    // Test 5: Error Boundaries - Enhanced Detection
     setProgress(60);
-    const hasErrorBoundaries = document.querySelector('[data-error-boundary]') !== null;
+    const errorBoundaryElements = document.querySelectorAll('[data-error-boundary="true"]');
+    const hasGlobalErrorBoundary = errorBoundaryElements.length > 0;
+    const hasAppLevelBoundary = document.querySelector('#root [data-error-boundary="true"]') !== null;
+    
+    let errorBoundaryStatus: 'pass' | 'warning' | 'fail' = 'pass';
+    let errorBoundaryMessage = `Found ${errorBoundaryElements.length} error boundary elements`;
+    
+    if (!hasGlobalErrorBoundary) {
+      errorBoundaryStatus = 'fail';
+      errorBoundaryMessage = 'No error boundaries detected';
+    } else if (!hasAppLevelBoundary) {
+      errorBoundaryStatus = 'warning';
+      errorBoundaryMessage = 'Error boundaries present but may need app-level coverage';
+    }
+
     results.push({
       name: 'Error Boundaries',
       category: 'Reliability',
-      status: hasErrorBoundaries ? 'pass' : 'warning',
-      message: hasErrorBoundaries ? 'Error boundaries active' : 'Error boundaries missing',
-      autoFixAvailable: !hasErrorBoundaries
+      status: errorBoundaryStatus,
+      message: errorBoundaryMessage,
+      autoFixAvailable: errorBoundaryStatus !== 'pass'
     });
 
     // Test 6: Performance Check
