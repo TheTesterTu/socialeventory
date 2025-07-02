@@ -63,19 +63,45 @@ export const setupStorageBuckets = async () => {
   return results;
 };
 
+// Create a proper test image instead of text file
+const createTestImage = (): Blob => {
+  // Create a 1x1 pixel PNG image as a Blob
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  const ctx = canvas.getContext('2d');
+  
+  if (ctx) {
+    ctx.fillStyle = '#FF0000';
+    ctx.fillRect(0, 0, 1, 1);
+  }
+  
+  // Convert canvas to blob synchronously for testing
+  const imageData = canvas.toDataURL('image/png');
+  const byteString = atob(imageData.split(',')[1]);
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  
+  return new Blob([ab], { type: 'image/png' });
+};
+
 export const testBucketAccess = async (bucketName: string) => {
   try {
     console.log(`🧪 Testing bucket access: ${bucketName}`);
     
-    // Create a test file with current timestamp
-    const testContent = new Blob(['Test content ' + new Date().toISOString()], { type: 'text/plain' });
-    const testFileName = `test-access-${Date.now()}.txt`;
+    // Create a proper test image file
+    const testImage = createTestImage();
+    const testFileName = `test-access-${Date.now()}.png`;
 
-    // Test upload with proper File object
+    // Test upload with proper image file
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(bucketName)
-      .upload(testFileName, testContent, {
-        contentType: 'text/plain',
+      .upload(testFileName, testImage, {
+        contentType: 'image/png',
         cacheControl: '3600',
         upsert: true
       });
@@ -157,45 +183,26 @@ export const testStorageAccess = async () => {
 // Enhanced function to upload a real image for testing
 export const uploadTestImage = async (bucketName: string) => {
   try {
-    // Create a test image (1x1 pixel PNG)
-    const canvas = document.createElement('canvas');
-    canvas.width = 1;
-    canvas.height = 1;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Canvas context not available');
+    const testImage = createTestImage();
+    const fileName = `test-image-${Date.now()}.png`;
     
-    ctx.fillStyle = '#ff0000';
-    ctx.fillRect(0, 0, 1, 1);
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .upload(fileName, testImage, {
+        contentType: 'image/png',
+        cacheControl: '3600',
+        upsert: true
+      });
     
-    return new Promise<string>((resolve, reject) => {
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          reject(new Error('Failed to create test image blob'));
-          return;
-        }
-        
-        const fileName = `test-image-${Date.now()}.png`;
-        
-        const { data, error } = await supabase.storage
-          .from(bucketName)
-          .upload(fileName, blob, {
-            contentType: 'image/png',
-            cacheControl: '3600',
-            upsert: true
-          });
-        
-        if (error) {
-          reject(error);
-          return;
-        }
-        
-        const { data: { publicUrl } } = supabase.storage
-          .from(bucketName)
-          .getPublicUrl(fileName);
-        
-        resolve(publicUrl);
-      }, 'image/png');
-    });
+    if (error) {
+      throw error;
+    }
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(fileName);
+    
+    return publicUrl;
   } catch (error) {
     throw new Error(`Failed to upload test image: ${(error as Error).message}`);
   }

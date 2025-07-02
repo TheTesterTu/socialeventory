@@ -55,7 +55,7 @@ export const ComprehensiveTestRunner = () => {
       });
     }
 
-    // Test 2: Storage System
+    // Test 2: Storage System (Fixed)
     setProgress(20);
     try {
       const storageResult = await testStorageAccess();
@@ -63,8 +63,8 @@ export const ComprehensiveTestRunner = () => {
         name: 'Storage System',
         category: 'Infrastructure',
         status: storageResult.success ? 'pass' : 'fail',
-        message: storageResult.success ? 'All storage buckets working' : 'Storage issues detected',
-        details: storageResult.success ? undefined : JSON.stringify(storageResult.results),
+        message: storageResult.success ? 'All storage buckets working' : 'Storage access issues detected',
+        details: storageResult.success ? undefined : storageResult.results.map(r => `${r.bucket}: ${r.error}`).join(', '),
         autoFixAvailable: !storageResult.success
       });
     } catch (err) {
@@ -233,7 +233,7 @@ export const ComprehensiveTestRunner = () => {
 
   const autoFixIssues = async () => {
     setIsAutoFixing(true);
-    toast.info('🔧 Running auto-fix for all detected issues...');
+    toast.info('🔧 Running auto-fix for detected issues...');
 
     try {
       // Run comprehensive production setup
@@ -249,9 +249,9 @@ export const ComprehensiveTestRunner = () => {
           status: test.autoFixAvailable && test.status === 'fail' ? 'pass' : test.status
         })));
       } else {
-        toast.warning(`⚠️ Auto-fix completed with issues`);
+        toast.warning(`⚠️ Auto-fix completed with some issues`);
         setupResult.errors.forEach(error => {
-          toast.error(error);
+          console.error('Auto-fix error:', error);
         });
       }
 
