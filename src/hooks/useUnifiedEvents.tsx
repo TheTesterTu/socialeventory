@@ -9,24 +9,28 @@ interface UseUnifiedEventsParams {
   category?: string[];
   featured?: boolean;
   limit?: number;
+  sortBy?: 'created_at' | 'start_date' | 'likes';
+  sortOrder?: 'asc' | 'desc';
 }
 
 export const useUnifiedEvents = ({
   searchQuery,
   category,
   featured = false,
-  limit
+  limit,
+  sortBy = 'created_at',
+  sortOrder = 'desc'
 }: UseUnifiedEventsParams = {}) => {
   return useQuery({
-    queryKey: ['unified-events', { searchQuery, category, featured, limit }],
+    queryKey: ['unified-events', { searchQuery, category, featured, limit, sortBy, sortOrder }],
     queryFn: async (): Promise<Event[]> => {
-      console.log('Fetching unified events with params:', { searchQuery, category, featured, limit });
+      console.log('Fetching unified events with params:', { searchQuery, category, featured, limit, sortBy, sortOrder });
       
       try {
         let query = supabase
           .from('events')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order(sortBy, { ascending: sortOrder === 'asc' });
 
         // Apply filters
         if (featured) {

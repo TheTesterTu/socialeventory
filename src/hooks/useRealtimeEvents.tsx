@@ -24,15 +24,16 @@ export const useRealtimeEvents = () => {
         (payload) => {
           const newEvent = mapDatabaseEventToEvent(payload.new);
           
-          // Invalidate relevant queries
+          // Invalidate all event-related queries
+          queryClient.invalidateQueries({ queryKey: ['unified-events'] });
           queryClient.invalidateQueries({ queryKey: ['events'] });
           queryClient.invalidateQueries({ queryKey: ['nearby-events'] });
           
           // Show notification for new events
-          toast.success('Nuovo evento aggiunto!', {
+          toast.success('New event added!', {
             description: newEvent.title,
             action: {
-              label: 'Visualizza',
+              label: 'View',
               onClick: () => window.location.href = `/events/${newEvent.id}`
             },
           });
@@ -46,10 +47,14 @@ export const useRealtimeEvents = () => {
           table: 'events',
         },
         (payload) => {
-          // Invalidate specific event queries
+          // Invalidate specific event queries and lists
           queryClient.invalidateQueries({ 
-            queryKey: ['event', payload.new.id] 
+            queryKey: ['event-details', payload.new.id] 
           });
+          queryClient.invalidateQueries({ 
+            queryKey: ['event-stats', payload.new.id] 
+          });
+          queryClient.invalidateQueries({ queryKey: ['unified-events'] });
           queryClient.invalidateQueries({ queryKey: ['events'] });
         }
       )
@@ -61,13 +66,65 @@ export const useRealtimeEvents = () => {
           table: 'events',
         },
         (payload) => {
-          // Remove from cache
+          // Remove from cache and invalidate lists
           queryClient.removeQueries({ 
-            queryKey: ['event', payload.old.id] 
+            queryKey: ['event-details', payload.old.id] 
           });
+          queryClient.removeQueries({ 
+            queryKey: ['event-stats', payload.old.id] 
+          });
+          queryClient.invalidateQueries({ queryKey: ['unified-events'] });
           queryClient.invalidateQueries({ queryKey: ['events'] });
           
-          toast.info('Un evento è stato rimosso');
+          toast.info('An event was removed');
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'event_likes',
+        },
+        (payload) => {
+          // Invalidate like-related queries
+          queryClient.invalidateQueries({ 
+            queryKey: ['event-stats', payload.new?.event_id || payload.old?.event_id] 
+          });
+          queryClient.invalidateQueries({ 
+            queryKey: ['event-like'] 
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'event_attendees',
+        },
+        (payload) => {
+          // Invalidate attendance-related queries
+          queryClient.invalidateQueries({ 
+            queryKey: ['event-stats', payload.new?.event_id || payload.old?.event_id] 
+          });
+          queryClient.invalidateQueries({ 
+            queryKey: ['event-attending'] 
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'comments',
+        },
+        (payload) => {
+          // Invalidate comment-related queries
+          queryClient.invalidateQueries({ 
+            queryKey: ['comments', payload.new?.event_id || payload.old?.event_id] 
+          });
         }
       )
       .subscribe((status) => {

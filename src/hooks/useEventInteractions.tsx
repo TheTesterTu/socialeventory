@@ -13,9 +13,9 @@ export const useEventInteractions = (eventId: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch initial event data
-  const { data: eventData } = useQuery({
-    queryKey: ['event-details', eventId],
+  // Fetch event stats
+  const { data: eventStats } = useQuery({
+    queryKey: ['event-stats', eventId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('events')
@@ -29,14 +29,6 @@ export const useEventInteractions = (eventId: string) => {
     enabled: !!eventId
   });
 
-  // Set initial counts from event data
-  useEffect(() => {
-    if (eventData) {
-      setLikesCount(eventData.likes || 0);
-      setAttendeesCount(eventData.attendees || 0);
-    }
-  }, [eventData]);
-
   // Check if user has liked this event
   const { data: likeStatus } = useQuery({
     queryKey: ['event-like', eventId, user?.id],
@@ -48,9 +40,9 @@ export const useEventInteractions = (eventId: string) => {
         .select('id')
         .eq('event_id', eventId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error checking like status:', error);
         return false;
       }
@@ -71,9 +63,9 @@ export const useEventInteractions = (eventId: string) => {
         .select('id')
         .eq('event_id', eventId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error checking attending status:', error);
         return false;
       }
@@ -83,7 +75,14 @@ export const useEventInteractions = (eventId: string) => {
     enabled: !!user && !!eventId,
   });
   
-  // Update states when query results change
+  // Update states when data changes
+  useEffect(() => {
+    if (eventStats) {
+      setLikesCount(eventStats.likes || 0);
+      setAttendeesCount(eventStats.attendees || 0);
+    }
+  }, [eventStats]);
+
   useEffect(() => {
     if (likeStatus !== undefined) {
       setIsLiked(likeStatus);
@@ -119,20 +118,45 @@ export const useEventInteractions = (eventId: string) => {
       }
     },
     onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['event-like', eventId, user?.id] });
+      await queryClient.cancelQueries({ queryKey: ['event-stats', eventId] });
+      
       // Optimistic update
-      setIsLiked(!isLiked);
-      setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+      const newLikeStatus = !isLiked;
+      const newCount = newLikeStatus ? likesCount + 1 : likesCount - 1;
+      
+      setIsLiked(newLikeStatus);
+      setLikesCount(newCount);
+      
+      // Update cache
+      queryClient.setQueryData(['event-like', eventId, user?.id], newLikeStatus);
+      queryClient.setQueryData(['event-stats', eventId], (old: any) => ({
+        ...old,
+        likes: newCount
+      }));
+      
+      return { previousLikeStatus: isLiked, previousCount: likesCount };
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
       // Revert optimistic update on error
+      if (context) {
+        setIsLiked(context.previousLikeStatus);
+        setLikesCount(context.previousCount);
+        queryClient.setQueryData(['event-like', eventId, user?.id], context.previousLikeStatus);
+        queryClient.setQueryData(['event-stats', eventId], (old: any) => ({
+          ...old,
+          likes: context.previousCount
+        }));
+      }
       console.error('Like error:', error);
-      setIsLiked(!isLiked);
-      setLikesCount(prev => isLiked ? prev + 1 : prev - 1);
       toast.error('Failed to update like status');
     },
     onSettled: () => {
+      // Refetch to ensure consistency
       queryClient.invalidateQueries({ queryKey: ['event-like', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['event-details', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['event-stats', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['unified-events'] });
     }
   });
 
@@ -159,9 +183,25 @@ export const useEventInteractions = (eventId: string) => {
       }
     },
     onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['event-attending', eventId, user?.id] });
+      await queryClient.cancelQueries({ queryKey: ['event-stats', eventId] });
+      
       // Optimistic update
-      setIsAttending(!isAttending);
-      setAttendeesCount(prev => isAttending ? prev - 1 : prev + 1);
+      const newAttendingStatus = !isAttending;
+      const newCount = newAttendingStatus ? attendeesCount + 1 : attendeesCount - 1;
+      
+      setIsAttending(newAttendingStatus);
+      setAttendeesCount(newCount);
+      
+      // Update cache
+      queryClient.setQueryData(['event-attending', eventId, user?.id], newAttendingStatus);
+      queryClient.setQueryData(['event-stats', eventId], (old: any) => ({
+        ...old,
+        attendees: newCount
+      }));
+      
+      return { previousAttendingStatus: isAttending, previousCount: attendeesCount };
     },
     onSuccess: (data) => {
       if (data.attending) {
@@ -170,16 +210,25 @@ export const useEventInteractions = (eventId: string) => {
         toast.info("You are no longer attending this event");
       }
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
       // Revert optimistic update on error
+      if (context) {
+        setIsAttending(context.previousAttendingStatus);
+        setAttendeesCount(context.previousCount);
+        queryClient.setQueryData(['event-attending', eventId, user?.id], context.previousAttendingStatus);
+        queryClient.setQueryData(['event-stats', eventId], (old: any) => ({
+          ...old,
+          attendees: context.previousCount
+        }));
+      }
       console.error('Attendance error:', error);
-      setIsAttending(!isAttending);
-      setAttendeesCount(prev => isAttending ? prev + 1 : prev - 1);
       toast.error('Failed to update attendance status');
     },
     onSettled: () => {
+      // Refetch to ensure consistency
       queryClient.invalidateQueries({ queryKey: ['event-attending', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['event-details', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['event-stats', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['unified-events'] });
     }
   });
 

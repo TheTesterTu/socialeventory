@@ -1,9 +1,9 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { trackEvent } from '@/services/analytics';
 
 export interface Comment {
   id: string;
@@ -54,7 +54,9 @@ export const useEventComments = (eventId: string) => {
         createdAt: new Date(comment.created_at)
       }));
     },
-    enabled: !!eventId
+    enabled: !!eventId,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
   });
 
   const addCommentMutation = useMutation({
@@ -68,19 +70,69 @@ export const useEventComments = (eventId: string) => {
           user_id: user.id,
           content
         })
-        .select()
+        .select(`
+          id,
+          content,
+          created_at,
+          user_id,
+          profiles:user_id (
+            username,
+            avatar_url,
+            full_name
+          )
+        `)
         .single();
 
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments', eventId] });
+    onMutate: async (content: string) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['comments', eventId] });
+      
+      // Create optimistic comment
+      const optimisticComment: Comment = {
+        id: `temp-${Date.now()}`,
+        userId: user?.id || '',
+        username: user?.user_metadata?.username || user?.email?.split('@')[0] || 'You',
+        avatar: user?.user_metadata?.avatar_url,
+        content: content,
+        createdAt: new Date()
+      };
+      
+      // Optimistically update the cache
+      queryClient.setQueryData(['comments', eventId], (old: Comment[] = []) => [
+        optimisticComment,
+        ...old
+      ]);
+      
+      return { optimisticComment };
+    },
+    onSuccess: (data, content, context) => {
+      // Replace optimistic comment with real one
+      queryClient.setQueryData(['comments', eventId], (old: Comment[] = []) => {
+        const filtered = old.filter(c => c.id !== context?.optimisticComment.id);
+        const newComment: Comment = {
+          id: data.id,
+          userId: data.user_id,
+          username: data.profiles?.username || data.profiles?.full_name || 'Anonymous',
+          avatar: data.profiles?.avatar_url,
+          content: data.content,
+          createdAt: new Date(data.created_at)
+        };
+        return [newComment, ...filtered];
+      });
+      
       setCommentText('');
       toast.success('Comment posted!');
-      trackEvent('comment_posted', { event_id: eventId });
     },
-    onError: (error) => {
+    onError: (error, content, context) => {
+      // Remove optimistic comment on error
+      if (context?.optimisticComment) {
+        queryClient.setQueryData(['comments', eventId], (old: Comment[] = []) =>
+          old.filter(c => c.id !== context.optimisticComment.id)
+        );
+      }
       console.error('Error posting comment:', error);
       toast.error('Failed to post comment. Please try again.');
     }
@@ -98,12 +150,26 @@ export const useEventComments = (eventId: string) => {
       if (error) throw error;
       return commentId;
     },
-    onSuccess: (commentId) => {
-      queryClient.invalidateQueries({ queryKey: ['comments', eventId] });
-      toast.success('Comment deleted');
-      trackEvent('comment_deleted', { event_id: eventId, comment_id: commentId });
+    onMutate: async (commentId: string) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['comments', eventId] });
+      
+      // Optimistically remove comment
+      const previousComments = queryClient.getQueryData<Comment[]>(['comments', eventId]) || [];
+      queryClient.setQueryData(['comments', eventId], 
+        previousComments.filter(c => c.id !== commentId)
+      );
+      
+      return { previousComments, commentId };
     },
-    onError: (error) => {
+    onSuccess: () => {
+      toast.success('Comment deleted');
+    },
+    onError: (error, commentId, context) => {
+      // Restore previous comments on error
+      if (context?.previousComments) {
+        queryClient.setQueryData(['comments', eventId], context.previousComments);
+      }
       console.error('Error deleting comment:', error);
       toast.error('Failed to delete comment. Please try again.');
     }
