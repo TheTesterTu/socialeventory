@@ -7,12 +7,14 @@ import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 
 export const FeaturedEvents = () => {
-  const { data: events = [], isLoading } = useUnifiedEvents({
+  const { data: events = [], isLoading, error } = useUnifiedEvents({
     featured: true,
     limit: 6,
-    sortBy: 'created_at',
-    sortOrder: 'desc'
+    sortBy: 'start_date',
+    sortOrder: 'asc'
   });
+
+  console.log('🔄 FeaturedEvents - Loading:', isLoading, 'Events:', events.length, 'Error:', error);
 
   if (isLoading) {
     return (
@@ -29,7 +31,23 @@ export const FeaturedEvents = () => {
     );
   }
 
+  if (error) {
+    console.error('❌ FeaturedEvents error:', error);
+    return (
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gradient">Featured Events</h2>
+        </div>
+        <div className="glass-panel p-8 rounded-2xl text-center">
+          <p className="text-destructive mb-2">Error loading featured events</p>
+          <p className="text-muted-foreground text-sm">{error?.message || 'Please try again later'}</p>
+        </div>
+      </section>
+    );
+  }
+
   if (events.length === 0) {
+    console.log('⚠️ No featured events found');
     return (
       <section className="space-y-6">
         <div className="flex items-center justify-between">
@@ -37,10 +55,13 @@ export const FeaturedEvents = () => {
         </div>
         <div className="glass-panel p-8 rounded-2xl text-center">
           <p className="text-muted-foreground">No featured events available at the moment.</p>
+          <p className="text-muted-foreground text-sm mt-2">Check back later for exciting events!</p>
         </div>
       </section>
     );
   }
+
+  console.log('✅ Rendering', events.length, 'featured events');
 
   return (
     <motion.section

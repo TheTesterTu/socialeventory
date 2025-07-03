@@ -3,14 +3,14 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Event } from '@/lib/types';
-import { mapDatabaseEventToEvent } from '@/lib/utils/mappers';
 
 export const useRealtimeEvents = () => {
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    console.log('🔄 Setting up real-time events subscription...');
+    
     // Subscribe to real-time events
     const channel = supabase
       .channel('events-realtime')
@@ -22,20 +22,15 @@ export const useRealtimeEvents = () => {
           table: 'events',
         },
         (payload) => {
-          const newEvent = mapDatabaseEventToEvent(payload.new);
+          console.log('✅ New event added:', payload.new);
           
           // Invalidate all event-related queries
           queryClient.invalidateQueries({ queryKey: ['unified-events'] });
           queryClient.invalidateQueries({ queryKey: ['events'] });
-          queryClient.invalidateQueries({ queryKey: ['nearby-events'] });
           
           // Show notification for new events
           toast.success('New event added!', {
-            description: newEvent.title,
-            action: {
-              label: 'View',
-              onClick: () => window.location.href = `/events/${newEvent.id}`
-            },
+            description: (payload.new as any)?.title || 'Check it out!',
           });
         }
       )
@@ -47,13 +42,16 @@ export const useRealtimeEvents = () => {
           table: 'events',
         },
         (payload) => {
-          // Invalidate specific event queries and lists
-          queryClient.invalidateQueries({ 
-            queryKey: ['event-details', payload.new.id] 
-          });
-          queryClient.invalidateQueries({ 
-            queryKey: ['event-stats', payload.new.id] 
-          });
+          console.log('✅ Event updated:', payload.new);
+          
+          const eventId = (payload.new as any)?.id;
+          if (eventId) {
+            // Invalidate specific event queries
+            queryClient.invalidateQueries({ queryKey: ['event-details', eventId] });
+            queryClient.invalidateQueries({ queryKey: ['event-stats', eventId] });
+          }
+          
+          // Invalidate general event lists
           queryClient.invalidateQueries({ queryKey: ['unified-events'] });
           queryClient.invalidateQueries({ queryKey: ['events'] });
         }
@@ -66,13 +64,16 @@ export const useRealtimeEvents = () => {
           table: 'events',
         },
         (payload) => {
-          // Remove from cache and invalidate lists
-          queryClient.removeQueries({ 
-            queryKey: ['event-details', payload.old.id] 
-          });
-          queryClient.removeQueries({ 
-            queryKey: ['event-stats', payload.old.id] 
-          });
+          console.log('✅ Event deleted:', payload.old);
+          
+          const eventId = (payload.old as any)?.id;
+          if (eventId) {
+            // Remove from cache
+            queryClient.removeQueries({ queryKey: ['event-details', eventId] });
+            queryClient.removeQueries({ queryKey: ['event-stats', eventId] });
+          }
+          
+          // Invalidate lists
           queryClient.invalidateQueries({ queryKey: ['unified-events'] });
           queryClient.invalidateQueries({ queryKey: ['events'] });
           
@@ -87,16 +88,15 @@ export const useRealtimeEvents = () => {
           table: 'event_likes',
         },
         (payload) => {
-          // Type assertion for payload
-          const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
+          console.log('✅ Event like changed:', payload);
           
-          // Invalidate like-related queries
-          queryClient.invalidateQueries({ 
-            queryKey: ['event-stats', eventId] 
-          });
-          queryClient.invalidateQueries({ 
-            queryKey: ['event-like'] 
-          });
+          const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
+          if (eventId) {
+            // Invalidate like-related queries
+            queryClient.invalidateQueries({ queryKey: ['event-stats', eventId] });
+            queryClient.invalidateQueries({ queryKey: ['event-like'] });
+            queryClient.invalidateQueries({ queryKey: ['unified-events'] });
+          }
         }
       )
       .on(
@@ -107,16 +107,15 @@ export const useRealtimeEvents = () => {
           table: 'event_attendees',
         },
         (payload) => {
-          // Type assertion for payload
-          const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
+          console.log('✅ Event attendance changed:', payload);
           
-          // Invalidate attendance-related queries
-          queryClient.invalidateQueries({ 
-            queryKey: ['event-stats', eventId] 
-          });
-          queryClient.invalidateQueries({ 
-            queryKey: ['event-attending'] 
-          });
+          const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
+          if (eventId) {
+            // Invalidate attendance-related queries
+            queryClient.invalidateQueries({ queryKey: ['event-stats', eventId] });
+            queryClient.invalidateQueries({ queryKey: ['event-attending'] });
+            queryClient.invalidateQueries({ queryKey: ['unified-events'] });
+          }
         }
       )
       .on(
@@ -127,23 +126,27 @@ export const useRealtimeEvents = () => {
           table: 'comments',
         },
         (payload) => {
-          // Type assertion for payload
-          const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
+          console.log('✅ Comment changed:', payload);
           
-          // Invalidate comment-related queries
-          queryClient.invalidateQueries({ 
-            queryKey: ['comments', eventId] 
-          });
+          const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
+          if (eventId) {
+            // Invalidate comment-related queries
+            queryClient.invalidateQueries({ queryKey: ['comments', eventId] });
+          }
         }
       )
       .subscribe((status) => {
+        console.log('🔄 Real-time subscription status:', status);
         setIsConnected(status === 'SUBSCRIBED');
         if (status === 'SUBSCRIBED') {
-          console.log('🔴 Real-time events subscription active');
+          console.log('✅ Real-time events subscription active');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ Real-time subscription error');
         }
       });
 
     return () => {
+      console.log('🔄 Cleaning up real-time subscription');
       supabase.removeChannel(channel);
       setIsConnected(false);
     };
