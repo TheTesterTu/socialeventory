@@ -87,9 +87,12 @@ export const useRealtimeEvents = () => {
           table: 'event_likes',
         },
         (payload) => {
+          // Type assertion for payload
+          const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
+          
           // Invalidate like-related queries
           queryClient.invalidateQueries({ 
-            queryKey: ['event-stats', payload.new?.event_id || payload.old?.event_id] 
+            queryKey: ['event-stats', eventId] 
           });
           queryClient.invalidateQueries({ 
             queryKey: ['event-like'] 
@@ -104,9 +107,12 @@ export const useRealtimeEvents = () => {
           table: 'event_attendees',
         },
         (payload) => {
+          // Type assertion for payload
+          const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
+          
           // Invalidate attendance-related queries
           queryClient.invalidateQueries({ 
-            queryKey: ['event-stats', payload.new?.event_id || payload.old?.event_id] 
+            queryKey: ['event-stats', eventId] 
           });
           queryClient.invalidateQueries({ 
             queryKey: ['event-attending'] 
@@ -121,9 +127,12 @@ export const useRealtimeEvents = () => {
           table: 'comments',
         },
         (payload) => {
+          // Type assertion for payload
+          const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
+          
           // Invalidate comment-related queries
           queryClient.invalidateQueries({ 
-            queryKey: ['comments', payload.new?.event_id || payload.old?.event_id] 
+            queryKey: ['comments', eventId] 
           });
         }
       )
