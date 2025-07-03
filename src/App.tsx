@@ -56,9 +56,9 @@ function App() {
       <HelmetProvider>
         <ThemeProvider>
           <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <TooltipProvider>
-                <BrowserRouter>
+            <BrowserRouter>
+              <AuthProvider>
+                <TooltipProvider>
                   <div className="min-h-screen bg-background font-sans antialiased">
                     <Routes>
                       <Route path="/" element={<Index />} />
@@ -91,9 +91,9 @@ function App() {
                     </Routes>
                     <Toaster />
                   </div>
-                </BrowserRouter>
-              </TooltipProvider>
-            </AuthProvider>
+                </TooltipProvider>
+              </AuthProvider>
+            </BrowserRouter>
           </QueryClientProvider>
         </ThemeProvider>
       </HelmetProvider>
