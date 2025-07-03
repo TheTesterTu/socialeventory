@@ -65,6 +65,7 @@ function App() {
                       <Route path="/landing" element={<Landing />} />
                       <Route path="/events" element={<Events />} />
                       <Route path="/events/:id" element={<EventDetails />} />
+                      <Route path="/event/:id" element={<EventDetails />} />
                       <Route path="/create-event" element={<CreateEvent />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/profile/edit" element={<ProfileEdit />} />

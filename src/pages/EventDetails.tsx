@@ -34,12 +34,15 @@ const EventDetails = () => {
 
   if (error || !event) {
     return (
-      <AppLayout pageTitle="Error">
+      <AppLayout pageTitle="Event Not Found">
         <div className="flex flex-col items-center justify-center h-full text-center py-20">
-          <h2 className="text-2xl font-semibold mb-4">Error Loading Event</h2>
-          <p className="text-muted-foreground">
-            {error?.message || 'The event could not be found.'}
+          <h2 className="text-2xl font-semibold mb-4">Event Not Found</h2>
+          <p className="text-muted-foreground mb-4">
+            The event you're looking for doesn't exist or has been removed.
           </p>
+          <a href="/events" className="text-primary hover:underline">
+            Browse all events
+          </a>
         </div>
       </AppLayout>
     );

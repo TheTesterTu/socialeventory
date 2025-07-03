@@ -4,79 +4,75 @@ import { supabase } from '@/integrations/supabase/client';
 import { mapDatabaseEventToEvent } from '@/lib/utils/mappers';
 import { Event } from '@/lib/types';
 
-interface UseUnifiedEventsOptions {
-  limit?: number;
+interface UseUnifiedEventsParams {
+  searchQuery?: string;
   category?: string[];
   featured?: boolean;
-  sortBy?: 'created_at' | 'start_date' | 'likes';
-  sortOrder?: 'asc' | 'desc';
-  searchQuery?: string;
+  limit?: number;
 }
 
-export const useUnifiedEvents = (options: UseUnifiedEventsOptions = {}) => {
-  const {
-    limit,
-    category,
-    featured,
-    sortBy = 'created_at',
-    sortOrder = 'desc',
-    searchQuery
-  } = options;
-
+export const useUnifiedEvents = ({
+  searchQuery,
+  category,
+  featured = false,
+  limit
+}: UseUnifiedEventsParams = {}) => {
   return useQuery({
-    queryKey: ['unified-events', options],
-    queryFn: async () => {
-      console.log('Fetching unified events with options:', options);
+    queryKey: ['unified-events', { searchQuery, category, featured, limit }],
+    queryFn: async (): Promise<Event[]> => {
+      console.log('Fetching unified events with params:', { searchQuery, category, featured, limit });
       
-      let query = supabase
-        .from('events')
-        .select('*');
+      try {
+        let query = supabase
+          .from('events')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      // Apply search filter if provided
-      if (searchQuery && searchQuery.trim()) {
-        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
-      }
+        // Apply filters
+        if (featured) {
+          query = query.eq('is_featured', true);
+        }
 
-      // Apply category filter
-      if (category && category.length > 0) {
-        query = query.overlaps('category', category);
-      }
+        if (category && category.length > 0) {
+          query = query.overlaps('category', category);
+        }
 
-      // Apply featured filter
-      if (featured !== undefined) {
-        query = query.eq('is_featured', featured);
-      }
+        if (searchQuery && searchQuery.trim()) {
+          query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
+        }
 
-      // Apply sorting
-      query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+        if (limit) {
+          query = query.limit(limit);
+        }
 
-      // Apply limit
-      if (limit) {
-        query = query.limit(limit);
-      }
+        const { data, error } = await query;
 
-      const { data, error } = await query;
+        if (error) {
+          console.error('Supabase query error:', error);
+          throw error;
+        }
 
-      if (error) {
-        console.error('Error fetching events:', error);
+        if (!data || data.length === 0) {
+          console.log('No events found in database');
+          return [];
+        }
+
+        console.log(`Found ${data.length} events from database`);
+        
+        const mappedEvents = data.map(mapDatabaseEventToEvent);
+        console.log('Successfully mapped events:', mappedEvents.length);
+        
+        return mappedEvents;
+      } catch (error) {
+        console.error('Error in useUnifiedEvents:', error);
         throw error;
       }
-
-      console.log('Raw events from database:', data);
-      
-      const mappedEvents = data?.map(event => {
-        try {
-          return mapDatabaseEventToEvent(event);
-        } catch (mappingError) {
-          console.error('Error mapping event:', event, mappingError);
-          return null;
-        }
-      }).filter(Boolean) || [];
-
-      console.log('Successfully mapped events:', mappedEvents.length);
-      return mappedEvents as Event[];
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 15, // 15 minutes
+    retry: (failureCount, error) => {
+      console.log('Retry attempt:', failureCount, 'Error:', error);
+      return failureCount < 2;
+    },
   });
 };
