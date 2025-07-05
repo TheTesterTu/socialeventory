@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
@@ -9,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { Event } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { mapDatabaseEventToEvent, mapMockEventToEvent } from "@/lib/utils/mappers";
+import { mapDatabaseEventToEvent } from "@/lib/utils/mappers";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 
@@ -52,38 +51,84 @@ const Profile = () => {
           setDraftEvents(mappedEvents.filter(event => 
             event.verification.status === 'pending'));
         } else {
-          // Mock data if no real data available
-          const mockEvents = [
+          // Mock data if no real data available - create Event objects directly
+          const mockEvents: Event[] = [
             {
               id: "1",
               title: "Tech Meetup 2025",
               description: "A gathering of tech enthusiasts",
-              location: "San Francisco, CA",
-              image_url: "https://source.unsplash.com/random/800x600/?tech",
-              start_date: new Date(Date.now() + 86400000 * 5).toISOString(),
-              verification_status: 'verified',
-              category: ["Technology", "Networking"]
+              startDate: new Date(Date.now() + 86400000 * 5).toISOString(),
+              endDate: new Date(Date.now() + 86400000 * 5 + 7200000).toISOString(),
+              location: {
+                coordinates: [37.7749, -122.4194],
+                address: "San Francisco, CA",
+                venue_name: "Tech Hub"
+              },
+              category: ["Technology", "Networking"],
+              tags: ["tech", "networking"],
+              accessibility: {
+                languages: ["en"],
+                wheelchairAccessible: false,
+                familyFriendly: true
+              },
+              pricing: {
+                isFree: true,
+                currency: "USD"
+              },
+              creator: {
+                id: user.id,
+                type: "user" as const
+              },
+              verification: {
+                status: "verified" as const
+              },
+              imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87",
+              likes: 0,
+              attendees: 0
             },
             {
               id: "2",
               title: "Art Exhibition",
               description: "Showcasing local artists' work",
-              location: "New York, NY",
-              image_url: "https://source.unsplash.com/random/800x600/?art",
-              start_date: new Date(Date.now() + 86400000 * 12).toISOString(),
-              verification_status: 'pending',
-              category: ["Art", "Culture"]
+              startDate: new Date(Date.now() + 86400000 * 12).toISOString(),
+              endDate: new Date(Date.now() + 86400000 * 12 + 14400000).toISOString(),
+              location: {
+                coordinates: [40.7128, -74.0060],
+                address: "New York, NY",
+                venue_name: "Art Gallery"
+              },
+              category: ["Art", "Culture"],
+              tags: ["art", "culture"],
+              accessibility: {
+                languages: ["en"],
+                wheelchairAccessible: true,
+                familyFriendly: true
+              },
+              pricing: {
+                isFree: false,
+                currency: "USD",
+                priceRange: [15, 25]
+              },
+              creator: {
+                id: user.id,
+                type: "user" as const
+              },
+              verification: {
+                status: "pending" as const
+              },
+              imageUrl: "https://images.unsplash.com/photo-1541961017774-22349e4a1262",
+              likes: 0,
+              attendees: 0
             }
           ];
           
-          const mappedMockEvents = mockEvents.map(event => mapMockEventToEvent(event));
-          setEvents(mappedMockEvents);
+          setEvents(mockEvents);
           
           // Filter mock events by verification status
-          setPublishedEvents(mappedMockEvents.filter(event => 
+          setPublishedEvents(mockEvents.filter(event => 
             event.verification.status === 'verified' || event.verification.status === 'featured'));
           
-          setDraftEvents(mappedMockEvents.filter(event => 
+          setDraftEvents(mockEvents.filter(event => 
             event.verification.status === 'pending'));
         }
         
@@ -110,17 +155,42 @@ const Profile = () => {
           }
         } else {
           // Mock saved events
-          const mockSavedEvents = [
+          const mockSavedEvents: Event[] = [
             {
               id: "3",
               title: "Music Festival",
               description: "Annual music celebration",
-              location: "Austin, TX",
-              image_url: "https://source.unsplash.com/random/800x600/?music",
-              start_date: new Date(Date.now() + 86400000 * 45).toISOString(),
-              category: ["Music", "Festival"]
+              startDate: new Date(Date.now() + 86400000 * 45).toISOString(),
+              endDate: new Date(Date.now() + 86400000 * 45 + 28800000).toISOString(),
+              location: {
+                coordinates: [30.2672, -97.7431],
+                address: "Austin, TX",
+                venue_name: "Music Venue"
+              },
+              category: ["Music", "Festival"],
+              tags: ["music", "festival"],
+              accessibility: {
+                languages: ["en"],
+                wheelchairAccessible: true,
+                familyFriendly: true
+              },
+              pricing: {
+                isFree: false,
+                currency: "USD",
+                priceRange: [50, 150]
+              },
+              creator: {
+                id: "other-user",
+                type: "user" as const
+              },
+              verification: {
+                status: "verified" as const
+              },
+              imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f",
+              likes: 0,
+              attendees: 0
             }
-          ].map(event => mapMockEventToEvent(event));
+          ];
           
           setSavedEvents(mockSavedEvents);
         }
