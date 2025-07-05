@@ -14,6 +14,8 @@ interface CheckResult {
   details?: any;
 }
 
+type TableName = 'events' | 'profiles' | 'event_likes' | 'event_attendees' | 'comments' | 'categories' | 'notifications' | 'saved_events' | 'blog_posts' | 'admin_settings' | 'api_configurations' | 'facebook_integration' | 'saved_locations';
+
 export const PipelineCheck = () => {
   const [checks, setChecks] = useState<CheckResult[]>([]);
   const [isChecking, setIsChecking] = useState(true);
@@ -83,17 +85,17 @@ export const PipelineCheck = () => {
 
     // Check 4: Database Tables
     try {
-      const tables = ['events', 'profiles', 'event_likes', 'event_attendees', 'comments'];
+      const tables: TableName[] = ['events', 'profiles', 'event_likes', 'event_attendees', 'comments'];
       const tableChecks = await Promise.all(
-        tables.map(async (table) => {
+        tables.map(async (tableName) => {
           try {
             const { count, error } = await supabase
-              .from(table)
+              .from(tableName)
               .select('*', { count: 'exact', head: true });
             if (error) throw error;
-            return { table, count, status: 'success' };
+            return { table: tableName, count: count || 0, status: 'success' as const };
           } catch (error: any) {
-            return { table, count: 0, status: 'error', error: error.message };
+            return { table: tableName, count: 0, status: 'error' as const, error: error.message };
           }
         })
       );
@@ -126,12 +128,12 @@ export const PipelineCheck = () => {
     // Check 5: Real-time Connection
     try {
       const channel = supabase.channel('pipeline-test');
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         const timeout = setTimeout(() => reject(new Error('Timeout')), 5000);
         channel.subscribe((status) => {
           clearTimeout(timeout);
           if (status === 'SUBSCRIBED') {
-            resolve(status);
+            resolve();
           } else if (status === 'CHANNEL_ERROR') {
             reject(new Error('Channel error'));
           }
