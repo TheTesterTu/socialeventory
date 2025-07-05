@@ -4,112 +4,154 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Database, Plus, Trash2, Download } from 'lucide-react';
+import { Database, Upload, Trash2, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const SampleDataLoader = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const { user } = useAuth();
 
-  const sampleEvents = [
-    {
-      title: "Tech Meetup 2025",
-      description: "Join us for an exciting tech meetup featuring the latest in AI and web development.",
-      location: "San Francisco, CA",
-      venue_name: "Tech Hub Downtown",
-      start_date: new Date(Date.now() + 86400000 * 7).toISOString(), // 7 days from now
-      end_date: new Date(Date.now() + 86400000 * 7 + 7200000).toISOString(), // +2 hours
-      category: ["Technology", "Networking"],
-      tags: ["ai", "web-dev", "networking"],
-      coordinates: "(37.7749, -122.4194)",
-      accessibility: {
-        languages: ["en"],
-        wheelchairAccessible: true,
-        familyFriendly: false
-      },
-      pricing: {
-        isFree: true,
-        currency: "USD"
-      },
-      is_featured: true,
-      image_url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-    },
-    {
-      title: "Summer Music Festival",
-      description: "A three-day outdoor music festival featuring local and international artists.",
-      location: "Austin, TX",
-      venue_name: "Riverside Park",
-      start_date: new Date(Date.now() + 86400000 * 14).toISOString(), // 14 days from now
-      end_date: new Date(Date.now() + 86400000 * 16).toISOString(), // +3 days
-      category: ["Music", "Festival"],
-      tags: ["music", "festival", "outdoor"],
-      coordinates: "(30.2672, -97.7431)",
-      accessibility: {
-        languages: ["en", "es"],
-        wheelchairAccessible: true,
-        familyFriendly: true
-      },
-      pricing: {
-        isFree: false,
-        currency: "USD",
-        priceRange: [75, 150]
-      },
-      is_featured: true,
-      image_url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-    },
-    {
-      title: "Art & Wine Evening",
-      description: "An elegant evening combining fine art exhibition with wine tasting.",
-      location: "New York, NY",
-      venue_name: "Metropolitan Gallery",
-      start_date: new Date(Date.now() + 86400000 * 21).toISOString(), // 21 days from now
-      end_date: new Date(Date.now() + 86400000 * 21 + 14400000).toISOString(), // +4 hours
-      category: ["Art", "Culture", "Food & Drink"],
-      tags: ["art", "wine", "culture"],
-      coordinates: "(40.7128, -74.0060)",
-      accessibility: {
-        languages: ["en"],
-        wheelchairAccessible: true,
-        familyFriendly: false
-      },
-      pricing: {
-        isFree: false,
-        currency: "USD",
-        priceRange: [45, 85]
-      },
-      is_featured: false,
-      image_url: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-    }
-  ];
-
-  const loadSampleData = async () => {
-    if (!user) {
-      toast.error('Please sign in to load sample data');
+  const handleCsvUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) {
+      toast.error('Please select a CSV file and sign in');
       return;
     }
 
-    setIsLoading(true);
+    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+      toast.error('Please select a valid CSV file');
+      return;
+    }
+
+    setIsUploading(true);
     
     try {
-      const eventsWithCreator = sampleEvents.map(event => ({
-        ...event,
-        created_by: user.id
-      }));
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        throw new Error('CSV file must have headers and at least one data row');
+      }
+
+      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+      const events = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+        if (values.length < headers.length) continue;
+
+        const event: any = { created_by: user.id };
+        
+        headers.forEach((header, index) => {
+          const value = values[index];
+          
+          switch (header) {
+            case 'category':
+            case 'tags':
+            case 'accessibility_languages':
+              try {
+                event[header === 'accessibility_languages' ? 'accessibility' : header] = 
+                  header === 'accessibility_languages' 
+                    ? { languages: JSON.parse(value), wheelchairAccessible: false, familyFriendly: true }
+                    : JSON.parse(value);
+              } catch {
+                event[header] = [value];
+              }
+              break;
+            case 'accessibility_wheelchairAccessible':
+              event.accessibility = { 
+                ...event.accessibility, 
+                wheelchairAccessible: value.toLowerCase() === 'true' 
+              };
+              break;
+            case 'accessibility_familyFriendly':
+              event.accessibility = { 
+                ...event.accessibility, 
+                familyFriendly: value.toLowerCase() === 'true' 
+              };
+              break;
+            case 'pricing_isFree':
+              event.pricing = { 
+                ...event.pricing, 
+                isFree: value.toLowerCase() === 'true',
+                currency: 'USD'
+              };
+              break;
+            case 'pricing_currency':
+              event.pricing = { ...event.pricing, currency: value };
+              break;
+            case 'pricing_priceRange_min':
+            case 'pricing_priceRange_max':
+              const isMin = header.includes('min');
+              const currentRange = event.pricing?.priceRange || [0, 0];
+              if (isMin) {
+                currentRange[0] = parseFloat(value) || 0;
+              } else {
+                currentRange[1] = parseFloat(value) || 0;
+              }
+              event.pricing = { 
+                ...event.pricing, 
+                priceRange: currentRange,
+                isFree: false
+              };
+              break;
+            case 'coordinates':
+              // Parse coordinates in format "(lat, lng)"
+              const coordMatch = value.match(/\(([^,]+),\s*([^)]+)\)/);
+              if (coordMatch) {
+                const lat = parseFloat(coordMatch[1]);
+                const lng = parseFloat(coordMatch[2]);
+                event.coordinates = `(${lat}, ${lng})`;
+              }
+              break;
+            case 'is_featured':
+              event[header] = value.toLowerCase() === 'true';
+              break;
+            default:
+              event[header] = value;
+              break;
+          }
+        });
+
+        // Ensure required fields
+        if (!event.title || !event.location || !event.start_date || !event.end_date) {
+          console.warn(`Skipping row ${i}: missing required fields`);
+          continue;
+        }
+
+        // Set defaults if missing
+        event.accessibility = event.accessibility || {
+          languages: ['en'],
+          wheelchairAccessible: false,
+          familyFriendly: true
+        };
+        event.pricing = event.pricing || { isFree: true, currency: 'USD' };
+        event.is_featured = event.is_featured || false;
+
+        events.push(event);
+      }
+
+      if (events.length === 0) {
+        throw new Error('No valid events found in CSV');
+      }
 
       const { data, error } = await supabase
         .from('events')
-        .insert(eventsWithCreator)
+        .insert(events)
         .select();
 
       if (error) throw error;
 
-      toast.success(`Successfully loaded ${data.length} sample events!`);
-      console.log('✅ Sample events loaded:', data);
+      toast.success(`Successfully loaded ${data.length} events from CSV!`);
+      console.log('✅ CSV events loaded:', data);
     } catch (error: any) {
-      console.error('❌ Error loading sample data:', error);
-      toast.error(`Failed to load sample data: ${error.message}`);
+      console.error('❌ Error loading CSV:', error);
+      toast.error(`Failed to load CSV: ${error.message}`);
     } finally {
-      setIsLoading(false);
+      setIsUploading(false);
+      // Reset file input
+      event.target.value = '';
     }
   };
 
@@ -214,20 +256,32 @@ export const SampleDataLoader = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Database className="h-5 w-5" />
-          Sample Data Management
+          CSV Event Data Management
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="flex flex-wrap gap-3">
-            <Button
-              onClick={loadSampleData}
-              disabled={isLoading || !user}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Load Sample Events
-            </Button>
+            <div className="relative">
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleCsvUpload}
+                disabled={isUploading || !user}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                id="csv-upload"
+              />
+              <Button
+                disabled={isUploading || !user}
+                className="flex items-center gap-2"
+                asChild
+              >
+                <label htmlFor="csv-upload" className="cursor-pointer">
+                  <Upload className="h-4 w-4" />
+                  {isUploading ? 'Uploading...' : 'Upload CSV Events'}
+                </label>
+              </Button>
+            </div>
             
             <Button
               onClick={clearAllData}
@@ -251,7 +305,7 @@ export const SampleDataLoader = () => {
           
           {!user && (
             <p className="text-sm text-muted-foreground">
-              Please sign in to manage sample data
+              Please sign in to manage event data
             </p>
           )}
 

@@ -6,7 +6,7 @@ import { FeaturedEvents } from "@/components/home/FeaturedEvents";
 import { QuickCategories } from "@/components/home/QuickCategories";
 import { EventsNearYou } from "@/components/home/EventsNearYou";
 import { useRealtimeEvents } from "@/hooks/useRealtimeEvents";
-import { ProductionReadyBanner } from "@/components/ProductionReadyBanner";
+import { ProductionReadinessDashboard } from "@/components/ProductionReadinessDashboard";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { PipelineCheck } from "@/components/debug/PipelineCheck";
 import { SampleDataLoader } from "@/components/debug/SampleDataLoader";
@@ -41,7 +41,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8 space-y-12">
           <PipelineCheck />
           <SampleDataLoader />
-          <ProductionReadyBanner />
+          <ProductionReadinessDashboard />
           <HomeHero />
           <QuickCategories />
           <FeaturedEvents />
