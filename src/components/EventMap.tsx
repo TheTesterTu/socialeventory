@@ -242,13 +242,17 @@ const EventMap = ({
         const address = eventData.location?.address || 'Location not specified';
         const venueName = eventData.location?.venue_name || '';
         const eventId = eventData.id || '';
+        const imageUrl = eventData.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87';
         
         return `
-          <div class="p-4 space-y-3 min-w-[240px] bg-white rounded-lg shadow-lg">
-            <div class="space-y-2">
-              <h3 class="font-bold text-lg text-gray-900 line-clamp-2">${title}</h3>
-              <p class="text-sm text-gray-600">${address}</p>
-              ${venueName ? `<p class="text-sm font-medium text-primary">${venueName}</p>` : ''}
+          <div class="p-4 space-y-3 min-w-[280px] bg-white rounded-lg shadow-lg">
+            <div class="space-y-3">
+              <img src="${imageUrl}" alt="${title}" class="w-full h-32 object-cover rounded-lg" />
+              <div class="space-y-2">
+                <h3 class="font-bold text-lg text-gray-900 line-clamp-2">${title}</h3>
+                <p class="text-sm text-gray-600">${address}</p>
+                ${venueName ? `<p class="text-sm font-medium text-primary">${venueName}</p>` : ''}
+              </div>
             </div>
             <div class="pt-2 border-t border-gray-100">
               <button 

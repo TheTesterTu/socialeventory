@@ -60,11 +60,12 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
         )}>
           <div className="relative">
             <OptimizedImage
-              src={imageUrl}
+              src={imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
               alt={title}
               className={cn("w-full object-cover transition-transform duration-300 group-hover:scale-105", isCompact ? 'h-32' : 'h-48')}
               aspectRatio="video"
               priority={index < 4 ? 'high' : 'medium'}
+              fallback="https://images.unsplash.com/photo-1540575467063-178a50c2df87"
             />
             
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />

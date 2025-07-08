@@ -70,7 +70,7 @@ export const EventBasicInfo = ({
                 onImageSelect={field.onChange}
                 currentImage={field.value}
                 placeholder="Click to upload event image"
-                bucket="events"
+                bucket="event-images"
                 folder="images"
                 aspectRatio="video"
               />
