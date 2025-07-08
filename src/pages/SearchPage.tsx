@@ -5,7 +5,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { SearchFilters } from "@/components/SearchFilters";
 import { ActiveFilters } from "@/components/ActiveFilters";
 import { SearchResults } from "@/components/SearchResults";
-import { mockEvents } from "@/lib/mock-data";
+import { useUnifiedEvents } from "@/hooks/useUnifiedEvents";
 import { Event } from "@/lib/types";
 import { EventFilters } from "@/lib/types/filters";
 import { useLocation } from "react-router-dom";
@@ -15,7 +15,6 @@ import { format } from "date-fns";
 const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [filters, setFilters] = useState<EventFilters>({
     accessibility: {
       wheelchairAccessible: false,
@@ -31,6 +30,12 @@ const SearchPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const location = useLocation();
 
+  // Use real data from Supabase
+  const { data: events = [], isLoading } = useUnifiedEvents({
+    searchQuery: searchQuery || undefined,
+    category: selectedCategories.length > 0 ? selectedCategories : undefined,
+  });
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const queryParam = params.get('q');
@@ -45,42 +50,27 @@ const SearchPage = () => {
     }
   }, [location.search]);
 
-  useEffect(() => {
-    const filtered = mockEvents.filter((event) => {
-      const matchesSearch = 
-        searchQuery === "" ||
-        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.location.address.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesCategories = 
-        selectedCategories.length === 0 ||
-        event.category.some(cat => selectedCategories.includes(cat));
-      
-      const matchesDate = !selectedDate || 
-        format(new Date(event.startDate), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
-      
-      const matchesAccessibility =
-        !filters.accessibility?.wheelchairAccessible || event.accessibility.wheelchairAccessible;
-  
-      const matchesFamilyFriendly =
-        !filters.accessibility?.familyFriendly || event.accessibility.familyFriendly;
-  
-      const matchesPricing =
-        (!filters.pricing?.isFree || event.pricing.isFree) &&
-        (!filters.pricing?.maxPrice || 
-          (event.pricing.priceRange && event.pricing.priceRange[1] <= filters.pricing.maxPrice));
-  
-      return matchesSearch && 
-             matchesCategories && 
-             matchesAccessibility && 
-             matchesFamilyFriendly && 
-             matchesPricing &&
-             matchesDate;
-    });
+  // Filter events based on additional criteria (date, accessibility, pricing)
+  const filteredEvents = events.filter((event) => {
+    const matchesDate = !selectedDate || 
+      format(new Date(event.startDate), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
     
-    setFilteredEvents(filtered);
-  }, [searchQuery, selectedCategories, filters, selectedDate]);
+    const matchesAccessibility =
+      !filters.accessibility?.wheelchairAccessible || event.accessibility.wheelchairAccessible;
+
+    const matchesFamilyFriendly =
+      !filters.accessibility?.familyFriendly || event.accessibility.familyFriendly;
+
+    const matchesPricing =
+      (!filters.pricing?.isFree || event.pricing.isFree) &&
+      (!filters.pricing?.maxPrice || 
+        (event.pricing.priceRange && event.pricing.priceRange[1] <= filters.pricing.maxPrice));
+
+    return matchesAccessibility && 
+           matchesFamilyFriendly && 
+           matchesPricing &&
+           matchesDate;
+  });
 
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev => 
@@ -120,7 +110,7 @@ const SearchPage = () => {
             </div>
             
             <div className="text-sm text-muted-foreground">
-              {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'} found
+              {isLoading ? 'Loading...' : `${filteredEvents.length} ${filteredEvents.length === 1 ? 'event' : 'events'} found`}
             </div>
           </div>
           

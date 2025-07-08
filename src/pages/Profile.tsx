@@ -51,85 +51,10 @@ const Profile = () => {
           setDraftEvents(mappedEvents.filter(event => 
             event.verification.status === 'pending'));
         } else {
-          // Mock data if no real data available - create Event objects directly
-          const mockEvents: Event[] = [
-            {
-              id: "1",
-              title: "Tech Meetup 2025",
-              description: "A gathering of tech enthusiasts",
-              startDate: new Date(Date.now() + 86400000 * 5).toISOString(),
-              endDate: new Date(Date.now() + 86400000 * 5 + 7200000).toISOString(),
-              location: {
-                coordinates: [37.7749, -122.4194],
-                address: "San Francisco, CA",
-                venue_name: "Tech Hub"
-              },
-              category: ["Technology", "Networking"],
-              tags: ["tech", "networking"],
-              accessibility: {
-                languages: ["en"],
-                wheelchairAccessible: false,
-                familyFriendly: true
-              },
-              pricing: {
-                isFree: true,
-                currency: "USD"
-              },
-              creator: {
-                id: user.id,
-                type: "user" as const
-              },
-              verification: {
-                status: "verified" as const
-              },
-              imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87",
-              likes: 0,
-              attendees: 0
-            },
-            {
-              id: "2",
-              title: "Art Exhibition",
-              description: "Showcasing local artists' work",
-              startDate: new Date(Date.now() + 86400000 * 12).toISOString(),
-              endDate: new Date(Date.now() + 86400000 * 12 + 14400000).toISOString(),
-              location: {
-                coordinates: [40.7128, -74.0060],
-                address: "New York, NY",
-                venue_name: "Art Gallery"
-              },
-              category: ["Art", "Culture"],
-              tags: ["art", "culture"],
-              accessibility: {
-                languages: ["en"],
-                wheelchairAccessible: true,
-                familyFriendly: true
-              },
-              pricing: {
-                isFree: false,
-                currency: "USD",
-                priceRange: [15, 25]
-              },
-              creator: {
-                id: user.id,
-                type: "user" as const
-              },
-              verification: {
-                status: "pending" as const
-              },
-              imageUrl: "https://images.unsplash.com/photo-1541961017774-22349e4a1262",
-              likes: 0,
-              attendees: 0
-            }
-          ];
-          
-          setEvents(mockEvents);
-          
-          // Filter mock events by verification status
-          setPublishedEvents(mockEvents.filter(event => 
-            event.verification.status === 'verified' || event.verification.status === 'featured'));
-          
-          setDraftEvents(mockEvents.filter(event => 
-            event.verification.status === 'pending'));
+          // No events found for this user
+          setEvents([]);
+          setPublishedEvents([]);
+          setDraftEvents([]);
         }
         
         // Fetch saved events (likes or bookmarks)

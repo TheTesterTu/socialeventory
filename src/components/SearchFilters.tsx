@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Filter, Calendar as CalendarIcon, Map, List } from "lucide-react";
-import { categories } from "@/lib/mock-data";
+import { useCategoryNames } from "@/hooks/useCategories";
 import { motion } from "framer-motion";
 import { EventAdvancedFilters } from "./EventAdvancedFilters";
 import { EventFilters } from "@/lib/types/filters";
@@ -44,6 +44,7 @@ export const SearchFilters = ({
   viewMode = 'list',
   onViewModeChange
 }: SearchFiltersProps) => {
+  const { data: categories = [] } = useCategoryNames();
   const navigate = useNavigate();
   const [date, setDate] = useState<Date | undefined>(selectedDate);
 

@@ -5,7 +5,7 @@ import { useUnifiedEvents } from "@/hooks/useUnifiedEvents";
 import { EventsGrid } from "@/components/events/EventsGrid";
 import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui/button";
-import { categories } from "@/lib/mock-data";
+import { useCategoryNames } from "@/hooks/useCategories";
 import { motion } from "framer-motion";
 import { Filter } from "lucide-react";
 
@@ -13,6 +13,7 @@ const Events = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const { data: categories = [] } = useCategoryNames();
 
   const { data: events = [], isLoading, error } = useUnifiedEvents({
     searchQuery: searchQuery || undefined,

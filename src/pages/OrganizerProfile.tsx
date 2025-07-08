@@ -34,24 +34,6 @@ const mockOrganizer = {
   }
 };
 
-const mockEvents = [
-  {
-    id: "1",
-    title: "Jazz Under the Stars",
-    date: "2024-02-15",
-    location: "Central Park, NY",
-    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=200&fit=crop",
-    attendees: 150
-  },
-  {
-    id: "2", 
-    title: "Street Art Workshop",
-    date: "2024-02-20",
-    location: "Brooklyn Art Center",
-    image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=300&h=200&fit=crop",
-    attendees: 45
-  }
-];
 
 const OrganizerProfile = () => {
   const { id } = useParams();
@@ -216,33 +198,9 @@ const OrganizerProfile = () => {
               <CardTitle>Recent Events</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {mockEvents.map((event, index) => (
-                <div key={event.id}>
-                  <div className="flex gap-4">
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      className="w-20 h-20 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-semibold">{event.title}</h4>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(event.date).toLocaleDateString()}
-                      </p>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {event.location}
-                      </p>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        {event.attendees} attendees
-                      </p>
-                    </div>
-                  </div>
-                  {index < mockEvents.length - 1 && <Separator className="mt-4" />}
-                </div>
-              ))}
+              <p className="text-muted-foreground text-center py-8">
+                No events to display for this organizer.
+              </p>
             </CardContent>
           </Card>
         </motion.div>
