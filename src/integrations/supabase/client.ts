@@ -2,10 +2,23 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://afdkepzhghdoeyjncnah.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmZGtlcHpoZ2hkb2V5am5jbmFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyOTAyMjcsImV4cCI6MjA1Mzg2NjIyN30.eXHV-DvZPyEopTOkpK9LWHrcx1QEhUjAhvoonv718G0";
+// Retrieve Supabase URL and Anon Key from Vite environment variables
+// IMPORTANT: Only non-sensitive, public keys should be exposed to the frontend.
+// The Supabase Anon Key is designed to be public. Ensure VITE_SUPABASE_URL is also appropriate for client-side exposure.
+// Do NOT expose sensitive keys like Supabase service_role key or other private API keys here.
+const VITE_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const VITE_SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Validate that the environment variables are set
+if (!VITE_SUPABASE_URL) {
+  throw new Error("VITE_SUPABASE_URL is not set. Please check your .env file.");
+}
+
+if (!VITE_SUPABASE_ANON_KEY) {
+  throw new Error("VITE_SUPABASE_ANON_KEY is not set. Please check your .env file.");
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+export const supabase = createClient<Database>(VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY);
