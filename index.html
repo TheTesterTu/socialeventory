@@ -9,6 +9,25 @@
     <meta name="author" content="SocialEventory Team" />
     <meta property="og:image" content="/og-image.png" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    <!-- Security Meta Tags -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <!-- A basic Content-Security-Policy. This should be reviewed and configured more robustly via Vercel's vercel.json or dashboard. -->
+    <!-- Allows 'self', Supabase domains (including wss for realtime), and the gptengineer script. Inline styles/scripts might be blocked. -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self' *.supabase.co wss://*.supabase.co;
+                   script-src 'self' https://cdn.gpteng.co *.supabase.co 'unsafe-inline' 'unsafe-eval';
+                   style-src 'self' 'unsafe-inline';
+                   img-src 'self' data: *.supabase.co;
+                   font-src 'self';
+                   connect-src 'self' *.supabase.co wss://*.supabase.co;
+                   frame-src 'self' *.supabase.co;
+                   object-src 'none';
+                   base-uri 'self';
+                   form-action 'self';
+                   frame-ancestors 'none';">
+                   <!-- Consider adding a report-uri directive if you have a CSP reporting endpoint -->
   </head>
 
   <body>
