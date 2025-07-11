@@ -113,9 +113,9 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
               <div className="glass-card card-padding rounded-2xl">
                 <h3 className="text-lg font-semibold mb-3 text-primary">Tags</h3>
                 <div className="flex flex-wrap gap-2">
-                  {safeEvent.tags.map((tag, index) => (
+                  {safeEvent.tags.map((tag) => (
                     <span 
-                      key={`${tag}-${index}`} 
+                      key={tag}
                       className="inline-flex items-center gap-1 px-3 py-1 text-sm bg-primary/10 text-primary rounded-full border border-primary/20 hover:bg-primary/20 transition-colors"
                     >
                       <Tag className="h-3 w-3" />

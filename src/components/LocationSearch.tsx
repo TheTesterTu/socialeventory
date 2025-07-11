@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
+import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import { getAPIConfig } from '@/services/api-config';
@@ -13,6 +14,7 @@ interface LocationSearchProps {
 export const LocationSearch = ({ value, onChange, onLocationSelect }: LocationSearchProps) => {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [debouncedValue] = useDebounce(value, 300);
   const [showDropdown, setShowDropdown] = useState(false);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,13 +51,13 @@ export const LocationSearch = ({ value, onChange, onLocationSelect }: LocationSe
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (!value || value.length < 3 || !mapboxToken) return;
+      if (!debouncedValue || debouncedValue.length < 3 || !mapboxToken) return;
       
       setLoading(true);
       try {
-        const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${mapboxToken}&types=address,place,poi&limit=5`
-        );
+        const geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(debouncedValue)}.json?access_token=${mapboxToken}&types=address,place,poi&limit=5`;
+        
+        const response = await fetch(geocodingUrl);
         
         if (!response.ok) throw new Error('Geocoding request failed');
         
@@ -69,12 +71,8 @@ export const LocationSearch = ({ value, onChange, onLocationSelect }: LocationSe
       }
     };
 
-    const debounceTimer = setTimeout(() => {
-      fetchSuggestions();
-    }, 300);
-
-    return () => clearTimeout(debounceTimer);
-  }, [value, mapboxToken]);
+    fetchSuggestions();
+  }, [debouncedValue, mapboxToken]);
 
   const handleSelectLocation = (location: any) => {
     const address = location.place_name;
@@ -113,7 +111,7 @@ export const LocationSearch = ({ value, onChange, onLocationSelect }: LocationSe
           <ul className="py-1">
             {suggestions.map((suggestion) => (
               <li
-                key={suggestion.id}
+                key={suggestion.id || suggestion.place_name}
                 className="px-4 py-2 hover:bg-accent cursor-pointer"
                 onClick={() => handleSelectLocation(suggestion)}
               >
