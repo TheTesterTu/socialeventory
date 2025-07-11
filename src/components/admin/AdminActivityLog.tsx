@@ -10,36 +10,8 @@ type AdminActivity = {
   date: string;
 };
 
-const MOCK_ACTIVITIES: AdminActivity[] = [
-  {
-    id: "1",
-    type: "create",
-    user: "admin@socialeventory.com",
-    action: "Created event: Hackathon 2025",
-    date: "2025-06-10 15:30"
-  },
-  {
-    id: "2",
-    type: "delete",
-    user: "owner@socialeventory.com",
-    action: "Deleted event: Old Expo",
-    date: "2025-06-11 12:10"
-  },
-  {
-    id: "3",
-    type: "access",
-    user: "admin@socialeventory.com",
-    action: "Admin dashboard login",
-    date: "2025-06-14 09:20"
-  },
-  {
-    id: "4",
-    type: "update",
-    user: "admin@socialeventory.com",
-    action: "Edited user permissions",
-    date: "2025-06-15 17:45"
-  }
-];
+// TODO: Replace with real activity log from admin_settings table
+const activities: AdminActivity[] = [];
 
 const getIcon = (type: AdminActivity["type"]) => {
   switch (type) {
@@ -68,18 +40,24 @@ export const AdminActivityLog = () => {
         <div className="text-sm text-muted-foreground mb-3">
           Storico delle ultime operazioni critiche eseguite dagli admin/owner.
         </div>
-        <div className="max-h-64 overflow-auto">
-          <ul className="divide-y">
-            {MOCK_ACTIVITIES.map((item) => (
-              <li key={item.id} className="py-2 flex items-center gap-3">
-                <span>{getIcon(item.type)}</span>
-                <span className="font-mono text-xs text-muted-foreground">{item.date}</span>
-                <span className="text-sm">{item.action}</span>
-                <span className="ml-auto text-xs text-muted-foreground">{item.user}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {activities.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">
+            No recent activity to display
+          </p>
+        ) : (
+          <div className="max-h-64 overflow-auto">
+            <ul className="divide-y">
+              {activities.map((item) => (
+                <li key={item.id} className="py-2 flex items-center gap-3">
+                  <span>{getIcon(item.type)}</span>
+                  <span className="font-mono text-xs text-muted-foreground">{item.date}</span>
+                  <span className="text-sm">{item.action}</span>
+                  <span className="ml-auto text-xs text-muted-foreground">{item.user}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

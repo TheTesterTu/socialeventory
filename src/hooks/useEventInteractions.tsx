@@ -33,7 +33,7 @@ export const useEventInteractions = (eventId: string) => {
       return data;
     },
     enabled: !!eventId,
-    staleTime: 1000 * 30 // 30 seconds
+    staleTime: 1000 * 60 * 2 // 2 minutes
   });
 
   // Check if user has liked this event
@@ -60,7 +60,7 @@ export const useEventInteractions = (eventId: string) => {
       return liked;
     },
     enabled: !!user && !!eventId,
-    staleTime: 1000 * 30 // 30 seconds
+    staleTime: 1000 * 60 * 2 // 2 minutes
   });
 
   // Check if user is attending this event
@@ -87,7 +87,7 @@ export const useEventInteractions = (eventId: string) => {
       return attending;
     },
     enabled: !!user && !!eventId,
-    staleTime: 1000 * 30 // 30 seconds
+    staleTime: 1000 * 60 * 2 // 2 minutes
   });
   
   // Update local states when data changes
