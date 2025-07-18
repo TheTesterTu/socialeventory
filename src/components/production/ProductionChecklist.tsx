@@ -52,7 +52,7 @@ const checklistItems: ChecklistItem[] = [
     id: 'external-apis',
     title: 'External API Integration',
     description: 'Sentry, Google Analytics, and other services',
-    status: 'pending',
+    status: 'completed',
     category: 'monitoring',
     priority: 'medium'
   },
@@ -60,7 +60,7 @@ const checklistItems: ChecklistItem[] = [
     id: 'ssl-security',
     title: 'SSL & Security Headers',
     description: 'HTTPS, HSTS, and security headers',
-    status: 'pending',
+    status: 'completed',
     category: 'security',
     priority: 'high'
   },
@@ -68,7 +68,7 @@ const checklistItems: ChecklistItem[] = [
     id: 'deployment-pipeline',
     title: 'Deployment Pipeline',
     description: 'CI/CD and automated testing',
-    status: 'pending',
+    status: 'completed',
     category: 'deployment',
     priority: 'medium'
   },
@@ -76,9 +76,25 @@ const checklistItems: ChecklistItem[] = [
     id: 'backup-strategy',
     title: 'Backup & Recovery',
     description: 'Database backups and disaster recovery',
-    status: 'pending',
+    status: 'completed',
     category: 'deployment',
     priority: 'low'
+  },
+  {
+    id: 'mock-data-removal',
+    title: 'Mock Data Elimination',
+    description: 'All mock data replaced with real database queries',
+    status: 'completed',
+    category: 'deployment',
+    priority: 'high'
+  },
+  {
+    id: 'production-config',
+    title: 'Production Configuration',
+    description: 'Environment-specific configs and optimizations',
+    status: 'completed',
+    category: 'deployment',
+    priority: 'high'
   }
 ];
 

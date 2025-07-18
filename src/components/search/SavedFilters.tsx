@@ -39,31 +39,12 @@ export const SavedFilters = ({ onApplyFilter, currentFilters }: SavedFiltersProp
     const fetchSavedFilters = async () => {
       setLoading(true);
       try {
-        // In a real app, we would fetch saved filters from the database
-        // For now, we'll use mock data
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Mock data
-        setSavedFilters([
-          {
-            id: "1",
-            name: "Weekend Music",
-            filters: {
-              categories: ["Music", "Live", "Festival"],
-              priceRange: [0, 50],
-              distance: 25
-            }
-          },
-          {
-            id: "2",
-            name: "Free Tech Events",
-            filters: {
-              categories: ["Technology", "Workshop", "Conference"],
-              priceRange: [0, 0],
-              location: "San Francisco"
-            }
-          }
-        ]);
+        // TODO: Implement saved filters in database when user settings are expanded
+        // For now, use localStorage for saved filters
+        const saved = localStorage.getItem(`savedFilters_${user.id}`);
+        if (saved) {
+          setSavedFilters(JSON.parse(saved));
+        }
       } catch (error) {
         console.error("Error fetching saved filters:", error);
       } finally {
@@ -90,12 +71,16 @@ export const SavedFilters = ({ onApplyFilter, currentFilters }: SavedFiltersProp
       filters: currentFilters
     };
     
-    setSavedFilters([...savedFilters, newFilter]);
+    const updatedFilters = [...savedFilters, newFilter];
+    setSavedFilters(updatedFilters);
+    localStorage.setItem(`savedFilters_${user.id}`, JSON.stringify(updatedFilters));
     toast.success(`Filter "${name}" saved successfully`);
   };
   
   const handleDeleteFilter = (id: string) => {
-    setSavedFilters(savedFilters.filter(filter => filter.id !== id));
+    const updatedFilters = savedFilters.filter(filter => filter.id !== id);
+    setSavedFilters(updatedFilters);
+    localStorage.setItem(`savedFilters_${user.id}`, JSON.stringify(updatedFilters));
     toast.success("Filter removed");
   };
   

@@ -1,49 +1,13 @@
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-
-// Mock creators data
-const mockCreators = [
-  {
-    id: "1",
-    name: "Alex Morgan",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
-    events: 12,
-    role: "Event Organizer",
-    type: "Featured"
-  },
-  {
-    id: "2",
-    name: "Sam Wilson",
-    avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-    events: 8,
-    role: "Venue Manager",
-    type: "Popular"
-  },
-  {
-    id: "3",
-    name: "Jamie Lee",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956",
-    events: 15,
-    role: "Community Leader",
-    type: "Featured"
-  },
-  {
-    id: "4",
-    name: "Taylor Reed",
-    avatar: "https://images.unsplash.com/photo-1607346256330-dee7af15f7c5",
-    events: 6,
-    role: "Music Artist",
-    type: "Rising"
-  }
-];
+import { useTopOrganizers } from "@/hooks/useTopOrganizers";
 
 export const FeaturedCreators = () => {
-  const [creators] = useState(mockCreators);
+  const { organizers: creators, loading } = useTopOrganizers(4);
   const navigate = useNavigate();
 
   const getCreatorInitials = (name: string) => {
@@ -67,8 +31,23 @@ export const FeaturedCreators = () => {
         </Button>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {creators.map((creator, index) => (
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="glass-panel p-3 md:p-4 rounded-xl animate-pulse">
+              <div className="h-14 w-14 md:h-16 md:w-16 bg-muted rounded-full mx-auto mb-2" />
+              <div className="h-4 bg-muted rounded mb-1" />
+              <div className="h-3 bg-muted rounded" />
+            </div>
+          ))}
+        </div>
+      ) : creators.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          No organizers found
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {creators.map((creator, index) => (
           <motion.div
             key={creator.id}
             initial={{ opacity: 0, scale: 0.95 }}
@@ -99,7 +78,8 @@ export const FeaturedCreators = () => {
             </div>
           </motion.div>
         ))}
-      </div>
+        </div>
+      )}
     </motion.div>
   );
 };
