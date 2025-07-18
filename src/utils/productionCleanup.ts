@@ -11,7 +11,7 @@ export const cleanupDevCode = () => {
 
 // Clean up console logs in production builds
 export const cleanConsole = () => {
-  if (process.env.NODE_ENV === 'production') {
+  if (import.meta.env.MODE === 'production') {
     // Preserve error logs but remove debug logs
     const originalLog = console.log;
     const originalWarn = console.warn;
@@ -39,22 +39,16 @@ export const validateProductionReadiness = () => {
     issues.push('Mock data is still enabled');
   }
   
-  // Check environment variables
-  const requiredEnvVars = ['NODE_ENV'];
-  requiredEnvVars.forEach(envVar => {
-    if (!process.env[envVar]) {
-      issues.push(`Missing environment variable: ${envVar}`);
-    }
-  });
+  // Check environment mode
+  if (!import.meta.env.MODE) {
+    issues.push('Environment mode not detected');
+  }
   
-  // Check for development dependencies in production
-  if (process.env.NODE_ENV === 'production') {
-    try {
-      // This will throw in production builds if dev dependencies are included
-      require('react-dev-utils');
-      issues.push('Development dependencies found in production build');
-    } catch {
-      // Good - dev dependencies not included
+  // Check for development mode warnings
+  if (import.meta.env.MODE === 'production') {
+    // In production, we should have optimizations enabled
+    if (import.meta.env.DEV) {
+      issues.push('Development mode detected in production build');
     }
   }
   

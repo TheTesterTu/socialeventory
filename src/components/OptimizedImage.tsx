@@ -80,7 +80,7 @@ export const OptimizedImage = ({
       />
       
       {/* Performance indicator for development */}
-      {process.env.NODE_ENV === 'development' && isOptimized && (
+      {import.meta.env.MODE === 'development' && isOptimized && (
         <div className="absolute top-1 right-1 bg-green-500 text-white text-xs px-1 rounded">
           WebP
         </div>

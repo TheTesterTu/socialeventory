@@ -1,10 +1,10 @@
 // Production configuration and environment checks
 export const isProduction = () => {
-  return process.env.NODE_ENV === 'production';
+  return import.meta.env.MODE === 'production';
 };
 
 export const isDevelopment = () => {
-  return process.env.NODE_ENV === 'development';
+  return import.meta.env.MODE === 'development';
 };
 
 // Safely log only in development
