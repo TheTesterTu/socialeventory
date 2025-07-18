@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { AdminTools } from "@/components/admin/AdminTools";
 import { useAuth } from "@/contexts/AuthContext";
+import { isAdminUser } from "@/utils/adminAccess";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
 
@@ -205,7 +206,7 @@ const Settings = () => {
           </TabsContent>
         </Tabs>
         
-        {isAdmin && (
+        {isAdminUser(user) && (
           <div className="pt-6 border-t border-border/40">
             <AdminTools />
           </div>

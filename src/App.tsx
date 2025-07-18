@@ -34,17 +34,21 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ProductionStatus from "./pages/ProductionStatus";
 import ProductionAuditPage from "./pages/ProductionAuditPage";
 import SystemTest from "./pages/SystemTest";
+import { ProtectedAdminRoute } from "@/components/ProtectedAdminRoute";
+import { PERFORMANCE_CONFIG } from "@/utils/productionConfig";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,
+      staleTime: PERFORMANCE_CONFIG.QUERY_STALE_TIME,
+      gcTime: PERFORMANCE_CONFIG.CACHE_TIME, // React Query v5 uses gcTime instead of cacheTime
+      refetchOnWindowFocus: false, // Optimize for production
       retry: (failureCount, error) => {
         if (error && typeof error === 'object' && 'status' in error) {
           const status = error.status as number;
           if (status >= 400 && status < 500) return false;
         }
-        return failureCount < 3;
+        return failureCount < PERFORMANCE_CONFIG.RETRY_COUNT;
       },
     },
   },
@@ -84,10 +88,10 @@ function App() {
                       <Route path="/organizers" element={<Organizers />} />
                       <Route path="/organizers/:id" element={<OrganizerProfile />} />
                       <Route path="/notifications" element={<NotificationsPage />} />
-                      <Route path="/admin" element={<AdminDashboard />} />
-                      <Route path="/admin/production-audit" element={<ProductionAuditPage />} />
-                      <Route path="/production-status" element={<ProductionStatus />} />
-                      <Route path="/system-test" element={<SystemTest />} />
+                      <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
+                      <Route path="/admin/production-audit" element={<ProtectedAdminRoute><ProductionAuditPage /></ProtectedAdminRoute>} />
+                      <Route path="/production-status" element={<ProtectedAdminRoute><ProductionStatus /></ProtectedAdminRoute>} />
+                      <Route path="/system-test" element={<ProtectedAdminRoute><SystemTest /></ProtectedAdminRoute>} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                     <Toaster />

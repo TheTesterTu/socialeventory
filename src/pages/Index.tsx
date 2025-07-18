@@ -6,17 +6,16 @@ import { FeaturedEvents } from "@/components/home/FeaturedEvents";
 import { QuickCategories } from "@/components/home/QuickCategories";
 import { EventsNearYou } from "@/components/home/EventsNearYou";
 import { useRealtimeEvents } from "@/hooks/useRealtimeEvents";
-import { ProductionReadinessDashboard } from "@/components/ProductionReadinessDashboard";
+
 import { SEOHead } from "@/components/seo/SEOHead";
-import { PipelineCheck } from "@/components/debug/PipelineCheck";
-import { SampleDataLoader } from "@/components/debug/SampleDataLoader";
 import { motion } from "framer-motion";
+import { isDevelopment } from "@/utils/productionConfig";
 
 const Index = () => {
   const { isConnected } = useRealtimeEvents();
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && isDevelopment()) {
       console.log('🔴 Real-time connection established on Index page');
     }
   }, [isConnected]);
@@ -39,9 +38,6 @@ const Index = () => {
         className="min-h-screen bg-background"
       >
         <div className="container mx-auto px-4 py-8 space-y-12">
-          <PipelineCheck />
-          <SampleDataLoader />
-          <ProductionReadinessDashboard />
           <HomeHero />
           <QuickCategories />
           <FeaturedEvents />

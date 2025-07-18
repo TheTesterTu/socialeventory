@@ -5,6 +5,7 @@ import { useUnifiedEvents } from "@/hooks/useUnifiedEvents";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
+import { devLog } from "@/utils/productionConfig";
 
 export const FeaturedEvents = () => {
   const { data: events = [], isLoading, error } = useUnifiedEvents({
@@ -14,7 +15,7 @@ export const FeaturedEvents = () => {
     sortOrder: 'asc'
   });
 
-  console.log('🔄 FeaturedEvents - Loading:', isLoading, 'Events:', events.length, 'Error:', error);
+  devLog('🔄 FeaturedEvents - Loading:', isLoading, 'Events:', events.length, 'Error:', error);
 
   if (isLoading) {
     return (
@@ -47,7 +48,7 @@ export const FeaturedEvents = () => {
   }
 
   if (events.length === 0) {
-    console.log('⚠️ No featured events found');
+    devLog('⚠️ No featured events found');
     return (
       <section className="space-y-6">
         <div className="flex items-center justify-between">
@@ -61,7 +62,7 @@ export const FeaturedEvents = () => {
     );
   }
 
-  console.log('✅ Rendering', events.length, 'featured events');
+  devLog('✅ Rendering', events.length, 'featured events');
 
   return (
     <motion.section

@@ -3,13 +3,14 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { devLog, errorLog } from '@/utils/productionConfig';
 
 export const useRealtimeEvents = () => {
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    console.log('🔄 Setting up real-time events subscription...');
+    devLog('🔄 Setting up real-time events subscription...');
     
     // Subscribe to real-time events
     const channel = supabase
@@ -22,7 +23,7 @@ export const useRealtimeEvents = () => {
           table: 'events',
         },
         (payload) => {
-          console.log('✅ New event added:', payload.new);
+          devLog('✅ New event added:', payload.new);
           
           // Invalidate all event-related queries
           queryClient.invalidateQueries({ queryKey: ['unified-events'] });
@@ -42,7 +43,7 @@ export const useRealtimeEvents = () => {
           table: 'events',
         },
         (payload) => {
-          console.log('✅ Event updated:', payload.new);
+          devLog('✅ Event updated:', payload.new);
           
           const eventId = (payload.new as any)?.id;
           if (eventId) {
@@ -64,7 +65,7 @@ export const useRealtimeEvents = () => {
           table: 'events',
         },
         (payload) => {
-          console.log('✅ Event deleted:', payload.old);
+          devLog('✅ Event deleted:', payload.old);
           
           const eventId = (payload.old as any)?.id;
           if (eventId) {
@@ -88,7 +89,7 @@ export const useRealtimeEvents = () => {
           table: 'event_likes',
         },
         (payload) => {
-          console.log('✅ Event like changed:', payload);
+          devLog('✅ Event like changed:', payload);
           
           const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
           if (eventId) {
@@ -107,7 +108,7 @@ export const useRealtimeEvents = () => {
           table: 'event_attendees',
         },
         (payload) => {
-          console.log('✅ Event attendance changed:', payload);
+          devLog('✅ Event attendance changed:', payload);
           
           const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
           if (eventId) {
@@ -126,7 +127,7 @@ export const useRealtimeEvents = () => {
           table: 'comments',
         },
         (payload) => {
-          console.log('✅ Comment changed:', payload);
+          devLog('✅ Comment changed:', payload);
           
           const eventId = (payload.new as any)?.event_id || (payload.old as any)?.event_id;
           if (eventId) {
@@ -136,17 +137,17 @@ export const useRealtimeEvents = () => {
         }
       )
       .subscribe((status) => {
-        console.log('🔄 Real-time subscription status:', status);
+        devLog('🔄 Real-time subscription status:', status);
         setIsConnected(status === 'SUBSCRIBED');
         if (status === 'SUBSCRIBED') {
-          console.log('✅ Real-time events subscription active');
+          devLog('✅ Real-time events subscription active');
         } else if (status === 'CHANNEL_ERROR') {
-          console.error('❌ Real-time subscription error');
+          errorLog('❌ Real-time subscription error');
         }
       });
 
     return () => {
-      console.log('🔄 Cleaning up real-time subscription');
+      devLog('🔄 Cleaning up real-time subscription');
       supabase.removeChannel(channel);
       setIsConnected(false);
     };
