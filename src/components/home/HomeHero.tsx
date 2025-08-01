@@ -4,8 +4,93 @@ import { CalendarPlus, Search, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { SearchBar } from "@/components/SearchBar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+
+const DynamicStats = () => {
+  const [stats, setStats] = useState({
+    totalEvents: 0,
+    thisWeekEvents: 0,
+    todayEvents: 0,
+    loading: true
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const now = new Date();
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
+
+        // Total upcoming events
+        const { count: totalEvents } = await supabase
+          .from('events')
+          .select('*', { count: 'exact', head: true })
+          .gte('start_date', now.toISOString());
+
+        // Events this week
+        const { count: thisWeekEvents } = await supabase
+          .from('events')
+          .select('*', { count: 'exact', head: true })
+          .gte('start_date', weekAgo.toISOString())
+          .lt('start_date', now.toISOString());
+
+        // Events today
+        const { count: todayEvents } = await supabase
+          .from('events')
+          .select('*', { count: 'exact', head: true })
+          .gte('start_date', todayStart.toISOString())
+          .lt('start_date', todayEnd.toISOString());
+
+        setStats({
+          totalEvents: totalEvents || 0,
+          thisWeekEvents: thisWeekEvents || 0,
+          todayEvents: todayEvents || 0,
+          loading: false
+        });
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        setStats(prev => ({ ...prev, loading: false }));
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (stats.loading) {
+    return (
+      <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary/70 bg-primary/30 backdrop-blur-sm shadow-lg">
+        <span className="inline-block h-2 w-2 rounded-full bg-primary animate-pulse"></span>
+        <span className="text-sm font-medium text-white">Loading...</span>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {stats.totalEvents > 0 && (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-emerald-400/70 bg-emerald-500/30 backdrop-blur-sm shadow-lg">
+          <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+          <span className="text-sm font-medium text-white">{stats.totalEvents} upcoming</span>
+        </div>
+      )}
+      {stats.thisWeekEvents > 0 && (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary/70 bg-primary/30 backdrop-blur-sm shadow-lg">
+          <span className="inline-block h-2 w-2 rounded-full bg-primary"></span>
+          <span className="text-sm font-medium text-white">{stats.thisWeekEvents} this week</span>
+        </div>
+      )}
+      {stats.todayEvents > 0 && (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-amber-400/70 bg-amber-500/30 backdrop-blur-sm shadow-lg">
+          <span className="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
+          <span className="text-sm font-medium text-white">{stats.todayEvents} today</span>
+        </div>
+      )}
+    </>
+  );
+};
 
 export const HomeHero = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,25 +191,14 @@ export const HomeHero = () => {
             </Link>
           </motion.div>
 
-          {/* Stats with consistent primary colors */}
+          {/* Dynamic Stats */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.6 }}
             className="flex items-center justify-center flex-wrap gap-4 lg:gap-6 pt-6 px-4"
           >
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-emerald-400/70 bg-emerald-500/30 backdrop-blur-sm shadow-lg">
-              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
-              <span className="text-sm font-medium text-white">Live now</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary/70 bg-primary/30 backdrop-blur-sm shadow-lg">
-              <span className="inline-block h-2 w-2 rounded-full bg-primary"></span>
-              <span className="text-sm font-medium text-white">1000+ this week</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-amber-400/70 bg-amber-500/30 backdrop-blur-sm shadow-lg">
-              <span className="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
-              <span className="text-sm font-medium text-white">New daily</span>
-            </div>
+            <DynamicStats />
           </motion.div>
         </motion.div>
       </div>
