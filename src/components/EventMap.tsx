@@ -192,23 +192,29 @@ const EventMap = ({
         return;
       }
       
-      // Create improved marker element with fixed positioning
+      // Determine marker color based on event status
+      const isPast = (event as any).isPast || new Date(event.endDate) < new Date();
+      const markerColor = isPast ? '#6B7280' : '#16a085'; // Gray for past, teal for active/future
+      const borderColor = isPast ? '#9CA3AF' : 'white';
+      
+      // Create improved marker element with status-based styling
       const el = document.createElement('div');
-      el.className = 'event-marker';
+      el.className = `event-marker ${isPast ? 'past-event' : 'active-event'}`;
       el.style.cssText = `
         width: 28px;
         height: 28px;
         border-radius: 50%;
         cursor: pointer;
-        border: 3px solid white;
-        background-color: #16a085;
-        box-shadow: 0 4px 12px rgba(22, 160, 133, 0.4);
+        border: 3px solid ${borderColor};
+        background-color: ${markerColor};
+        box-shadow: 0 4px 12px ${isPast ? 'rgba(107, 114, 128, 0.3)' : 'rgba(22, 160, 133, 0.4)'};
         transition: all 0.2s ease;
         position: relative;
         z-index: 5;
         display: flex;
         align-items: center;
         justify-content: center;
+        ${isPast ? 'opacity: 0.7;' : ''}
       `;
 
       // Add inner dot for better visibility
@@ -243,13 +249,25 @@ const EventMap = ({
         const venueName = eventData.location?.venue_name || '';
         const eventId = eventData.id || '';
         const imageUrl = eventData.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87';
+        const isPast = (eventData as any).isPast || new Date(eventData.endDate) < new Date();
+        const eventDate = new Date(eventData.startDate).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
         
         return `
           <div class="p-4 space-y-3 min-w-[280px] bg-white rounded-lg shadow-lg">
             <div class="space-y-3">
               <img src="${imageUrl}" alt="${title}" class="w-full h-32 object-cover rounded-lg" />
               <div class="space-y-2">
-                <h3 class="font-bold text-lg text-gray-900 line-clamp-2">${title}</h3>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-lg text-gray-900 line-clamp-2 flex-1">${title}</h3>
+                  ${isPast ? '<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Past</span>' : ''}
+                </div>
+                <p class="text-sm text-gray-600">${eventDate}</p>
                 <p class="text-sm text-gray-600">${address}</p>
                 ${venueName ? `<p class="text-sm font-medium text-primary">${venueName}</p>` : ''}
               </div>
@@ -257,9 +275,9 @@ const EventMap = ({
             <div class="pt-2 border-t border-gray-100">
               <button 
                 onclick="window.location.href='/event/${eventId}'" 
-                class="w-full bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                class="w-full ${isPast ? 'bg-gray-500 hover:bg-gray-600' : 'bg-primary hover:bg-primary/90'} text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
-                View Details
+                ${isPast ? 'View Past Event' : 'View Details'}
               </button>
             </div>
           </div>

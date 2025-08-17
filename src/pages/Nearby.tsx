@@ -19,6 +19,7 @@ const Nearby = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [radius, setRadius] = useState<number>(5);
   const [showEventsList, setShowEventsList] = useState(false);
+  const [showPastEvents, setShowPastEvents] = useState(false);
   
   const { coordinates, isLoading: locationLoading, error: locationError } = useGeolocation();
   const { events, isLoading: eventsLoading, error: eventsError, fetchNearbyEvents } = useNearbyEvents();
@@ -26,9 +27,9 @@ const Nearby = () => {
   // Fetch events when location or filters change
   useEffect(() => {
     if (coordinates) {
-      fetchNearbyEvents(coordinates.lat, coordinates.lng, radius, selectedDate);
+      fetchNearbyEvents(coordinates.lat, coordinates.lng, radius, selectedDate, showPastEvents);
     }
-  }, [coordinates, radius, selectedDate]);
+  }, [coordinates, radius, selectedDate, showPastEvents]);
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
@@ -73,6 +74,14 @@ const Nearby = () => {
                 />
               </PopoverContent>
             </Popover>
+
+            <Button 
+              variant={showPastEvents ? "default" : "outline"} 
+              onClick={() => setShowPastEvents(!showPastEvents)}
+              className="gap-2 bg-white/80 backdrop-blur-sm"
+            >
+              {showPastEvents ? 'Hide Past' : 'Show Past'}
+            </Button>
 
             <Button 
               variant={showEventsList ? "default" : "outline"} 

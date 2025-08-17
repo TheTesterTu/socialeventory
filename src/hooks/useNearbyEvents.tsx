@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { Event } from '@/lib/types';
 import { supabase } from '@/integrations/supabase/client';
 import { mapDatabaseEventToEvent } from '@/lib/utils/mappers';
 import { useToast } from '@/components/ui/use-toast';
+import { startOfDay, endOfDay, isBefore, isAfter } from 'date-fns';
 
 export const useNearbyEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -11,24 +11,61 @@ export const useNearbyEvents = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchNearbyEvents = async (lat: number, lng: number, radius: number = 5, selectedDate?: Date) => {
+  const fetchNearbyEvents = async (
+    lat: number, 
+    lng: number, 
+    radius: number = 5, 
+    selectedDate?: Date,
+    showPastEvents: boolean = false
+  ) => {
     try {
       setIsLoading(true);
       setError(null);
       
-      console.log('Fetching nearby events with params:', { lat, lng, radius, selectedDate });
+      console.log('Fetching nearby events with params:', { lat, lng, radius, selectedDate, showPastEvents });
       
       const radiusMeters = radius * 1000; // Convert km to meters
+      const now = new Date();
       
-      // First, let's try to get all events to debug
-      const { data: allEvents, error: allEventsError } = await supabase
+      // Build date filter conditions
+      let dateFilter = '';
+      if (selectedDate) {
+        const dayStart = startOfDay(selectedDate);
+        const dayEnd = endOfDay(selectedDate);
+        dateFilter = `and start_date >= '${dayStart.toISOString()}' and start_date <= '${dayEnd.toISOString()}'`;
+      } else if (!showPastEvents) {
+        // Only show future/current events by default
+        dateFilter = `and end_date >= '${now.toISOString()}'`;
+      }
+      
+      // First, let's get all events with proper date filtering
+      let query = supabase
         .from('events')
-        .select('*');
+        .select('*')
+        .not('coordinates', 'is', null);
       
-      console.log('All events in database:', allEvents);
+      if (selectedDate) {
+        const dayStart = startOfDay(selectedDate);
+        const dayEnd = endOfDay(selectedDate);
+        query = query
+          .gte('start_date', dayStart.toISOString())
+          .lte('start_date', dayEnd.toISOString());
+      } else if (!showPastEvents) {
+        // Only show events that haven't ended yet
+        query = query.gte('end_date', now.toISOString());
+      }
       
-      // Then try the RPC function
-      const { data: eventsData, error } = await supabase
+      const { data: allEvents, error: allEventsError } = await query;
+      
+      if (allEventsError) {
+        console.error('Database error:', allEventsError);
+        throw allEventsError;
+      }
+      
+      console.log('Events from database with date filter:', allEvents);
+      
+      // Try the RPC function first for precise distance calculation
+      const { data: rpcEvents, error: rpcError } = await supabase
         .rpc('find_nearby_events', {
           lat: lat,
           lon: lng,
@@ -38,25 +75,19 @@ export const useNearbyEvents = () => {
           accessibility_filter: null
         });
 
-      if (error) {
-        console.error('RPC error:', error);
-        throw error;
-      }
-
-      console.log('Raw events data from RPC:', eventsData);
-
-      // If RPC returns no results, fall back to all events and filter manually
       let finalEventsData;
-      if (!eventsData || eventsData.length === 0) {
-        console.log('No events from RPC, falling back to manual filtering');
+      
+      if (rpcError || !rpcEvents || rpcEvents.length === 0) {
+        console.log('RPC failed or returned no results, using manual filtering');
+        
+        // Manual distance filtering
         finalEventsData = allEvents?.filter(event => {
           if (!event.coordinates) return false;
-          // Basic distance check (simplified)
+          
           let eventLat: number;
           let eventLng: number;
           
           if (typeof event.coordinates === 'string') {
-            // Parse string format "(x,y)"
             const match = event.coordinates.match(/\(([^,]+),([^)]+)\)/);
             if (match) {
               eventLat = parseFloat(match[1]);
@@ -65,7 +96,6 @@ export const useNearbyEvents = () => {
               return false;
             }
           } else if (typeof event.coordinates === 'object' && event.coordinates !== null) {
-            // Handle object format {x: number, y: number}
             const coords = event.coordinates as any;
             if ('x' in coords && 'y' in coords) {
               eventLat = coords.x;
@@ -80,26 +110,70 @@ export const useNearbyEvents = () => {
             return false;
           }
           
-          // Simple distance check (within reasonable bounds)
-          const latDiff = Math.abs(lat - eventLat);
-          const lngDiff = Math.abs(lng - eventLng);
-          return latDiff < 1 && lngDiff < 1; // Rough 100km radius
+          // Haversine distance calculation for more accurate filtering
+          const R = 6371; // Earth's radius in km
+          const dLat = (eventLat - lat) * Math.PI / 180;
+          const dLng = (eventLng - lng) * Math.PI / 180;
+          const a = 
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat * Math.PI / 180) * Math.cos(eventLat * Math.PI / 180) * 
+            Math.sin(dLng/2) * Math.sin(dLng/2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+          const distance = R * c;
+          
+          return distance <= radius;
         }) || [];
       } else {
-        finalEventsData = eventsData;
+        // Use RPC results but still apply date filtering
+        finalEventsData = rpcEvents.filter((event: any) => {
+          if (selectedDate) {
+            // Handle different possible date field names from RPC
+            const startDate = event.start_date || event.startDate;
+            if (!startDate) return false;
+            
+            const eventDate = new Date(startDate);
+            const dayStart = startOfDay(selectedDate);
+            const dayEnd = endOfDay(selectedDate);
+            return eventDate >= dayStart && eventDate <= dayEnd;
+          } else if (!showPastEvents) {
+            // Handle different possible date field names from RPC
+            const endDate = event.end_date || event.endDate;
+            if (!endDate) return true; // Include if no end date
+            
+            const eventEndDate = new Date(endDate);
+            return eventEndDate >= now;
+          }
+          return true;
+        });
       }
 
       console.log('Final events data to process:', finalEventsData);
 
-      // Map the events using the proper mapper
+      // Map the events and add past/future status
       const formattedEvents: Event[] = (finalEventsData as any[] || []).map(event => {
-        console.log('Processing event:', event);
-        return mapDatabaseEventToEvent(event);
+        const mappedEvent = mapDatabaseEventToEvent(event);
+        
+        // Add past event indicator
+        const eventEndDate = new Date(mappedEvent.endDate);
+        if (isBefore(eventEndDate, now)) {
+          (mappedEvent as any).isPast = true;
+        }
+        
+        return mappedEvent;
       }).filter(event => {
         // Filter out events with invalid coordinates
         const [lat, lng] = event.location.coordinates;
         const isValid = !isNaN(lat) && !isNaN(lng) && !(lat === 0 && lng === 0);
-        console.log(`Event "${event.title}" coordinates [${lat}, ${lng}] valid: ${isValid}`);
+        
+        // Also check if coordinates are reasonable (not default fallback values)
+        const isReasonableCoords = !(lat === 37.7749 && lng === -122.4194);
+        
+        if (!isValid) {
+          console.log(`Event "${event.title}" has invalid coordinates [${lat}, ${lng}]`);
+        } else if (!isReasonableCoords) {
+          console.log(`Event "${event.title}" using default coordinates [${lat}, ${lng}] - might need better location data`);
+        }
+        
         return isValid;
       });
 

@@ -44,6 +44,7 @@ export interface Event {
   imageUrl: string;
   likes: number;
   attendees: number;
+  isPast?: boolean; // Add flag for past events
 }
 
 export interface EventStory {
