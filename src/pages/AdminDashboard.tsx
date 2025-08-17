@@ -19,56 +19,41 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminOverview } from "@/components/admin/AdminOverview";
 import { AdminActivityLog } from "@/components/admin/AdminActivityLog";
-
-// Mock admin data
-const adminStats = {
-  totalUsers: 2847,
-  totalEvents: 156,
-  activeEvents: 42,
-  pendingApprovals: 8,
-  monthlyGrowth: 12.5,
-  revenueGrowth: 8.3
-};
-
-const recentEvents = [
-  {
-    id: "1",
-    title: "Tech Conference 2024",
-    organizer: "TechCorp Inc.",
-    status: "pending",
-    attendees: 250,
-    date: "2024-03-15"
-  },
-  {
-    id: "2",
-    title: "Music Festival",
-    organizer: "Music Events Co.",
-    status: "approved",
-    attendees: 1500,
-    date: "2024-03-20"
-  }
-];
-
-const recentUsers = [
-  {
-    id: "1",
-    name: "John Smith",
-    email: "john@example.com",
-    role: "user",
-    joinDate: "2024-01-15",
-    eventsCreated: 3
-  },
-  {
-    id: "2", 
-    name: "Sarah Johnson",
-    email: "sarah@example.com",
-    role: "organizer",
-    joinDate: "2024-01-10",
-    eventsCreated: 12
-  }
-];
+import { EventApprovalCard } from "@/components/admin/EventApprovalCard";
+import { useProductionStats } from "@/hooks/useProductionStats";
+import { useAdminData } from "@/hooks/useAdminData";
+import { LoadingSpinner } from "@/components/loading/LoadingSpinner";
 
 const AdminDashboard = () => {
+  const stats = useProductionStats();
+  const { pendingEvents, recentUsers, loading, error, approveEvent, rejectEvent, deleteEvent } = useAdminData();
+
+  if (loading) {
+    return (
+      <AppLayout
+        pageTitle="Admin Dashboard"
+        pageDescription="Manage your platform and monitor activity"
+      >
+        <div className="flex justify-center items-center min-h-[400px]">
+          <LoadingSpinner size="lg" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AppLayout
+        pageTitle="Admin Dashboard"
+        pageDescription="Manage your platform and monitor activity"
+      >
+        <div className="text-center text-red-500">
+          Error loading admin data: {error}
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout
       pageTitle="Admin Dashboard"
@@ -90,28 +75,28 @@ const AdminDashboard = () => {
           {[
             { 
               title: "Total Users", 
-              value: adminStats.totalUsers.toLocaleString(), 
+              value: stats.totalUsers.toLocaleString(), 
               icon: Users, 
-              trend: `+${adminStats.monthlyGrowth}%`,
+              trend: stats.loading ? "Loading..." : "Active",
               color: "text-blue-500"
             },
             { 
               title: "Total Events", 
-              value: adminStats.totalEvents.toLocaleString(), 
+              value: stats.totalEvents.toLocaleString(), 
               icon: Calendar, 
-              trend: `+${adminStats.revenueGrowth}%`,
+              trend: stats.loading ? "Loading..." : "All Time",
               color: "text-green-500" 
             },
             { 
-              title: "Active Events", 
-              value: adminStats.activeEvents.toLocaleString(), 
+              title: "Live Events", 
+              value: stats.liveEvents.toLocaleString(), 
               icon: TrendingUp, 
-              trend: "Live",
+              trend: "Right Now",
               color: "text-purple-500"
             },
             { 
               title: "Pending Approvals", 
-              value: adminStats.pendingApprovals.toLocaleString(), 
+              value: pendingEvents.length.toLocaleString(), 
               icon: AlertCircle, 
               trend: "Needs Review",
               color: "text-orange-500"
@@ -155,44 +140,30 @@ const AdminDashboard = () => {
 
             <TabsContent value="events" className="space-y-6">
               <Card className="glass-card">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Recent Events</CardTitle>
-                  <Button size="sm" className="gradient-primary gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add Event
-                  </Button>
+                <CardHeader>
+                  <CardTitle>Events Pending Approval ({pendingEvents.length})</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Review and approve or reject events submitted by users
+                  </p>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {recentEvents.map((event) => (
-                      <div key={event.id} className="flex items-center justify-between p-4 glass-card rounded-lg">
-                        <div className="space-y-1">
-                          <h4 className="font-semibold">{event.title}</h4>
-                          <p className="text-sm text-muted-foreground">by {event.organizer}</p>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span>{event.attendees} attendees</span>
-                            <span>{new Date(event.date).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Badge variant={event.status === 'approved' ? 'default' : 'secondary'}>
-                            {event.status}
-                          </Badge>
-                          <div className="flex gap-1">
-                            <Button size="icon" variant="ghost">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button size="icon" variant="ghost">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button size="icon" variant="ghost">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  {pendingEvents.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No events pending approval
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {pendingEvents.map((event) => (
+                        <EventApprovalCard
+                          key={event.id}
+                          event={event}
+                          onApprove={approveEvent}
+                          onReject={rejectEvent}
+                          onDelete={deleteEvent}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -200,36 +171,53 @@ const AdminDashboard = () => {
             <TabsContent value="users" className="space-y-6">
               <Card className="glass-card">
                 <CardHeader>
-                  <CardTitle>Recent Users</CardTitle>
+                  <CardTitle>Recent Users ({recentUsers.length})</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Latest users who joined the platform
+                  </p>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {recentUsers.map((user) => (
-                      <div key={user.id} className="flex items-center justify-between p-4 glass-card rounded-lg">
-                        <div className="space-y-1">
-                          <h4 className="font-semibold">{user.name}</h4>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span>Joined {new Date(user.joinDate).toLocaleDateString()}</span>
-                            <span>{user.eventsCreated} events created</span>
+                  {recentUsers.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No users found
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {recentUsers.map((user) => (
+                        <div key={user.id} className="flex items-center justify-between p-4 glass-card rounded-lg">
+                          <div className="flex items-center gap-3">
+                            {user.avatar_url && (
+                              <img 
+                                src={user.avatar_url} 
+                                alt={user.full_name || user.username || 'User'}
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            )}
+                            <div className="space-y-1">
+                              <h4 className="font-semibold">
+                                {user.full_name || user.username || `User ${user.id.slice(0, 8)}`}
+                              </h4>
+                              <p className="text-sm text-muted-foreground">@{user.username || 'no-username'}</p>
+                              <div className="flex items-center gap-4 text-sm">
+                                <span>Joined {new Date(user.created_at).toLocaleDateString()}</span>
+                                <span>{user.eventsCreated} events created</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                              {user.role}
+                            </Badge>
+                            <div className="flex gap-1">
+                              <Button size="icon" variant="ghost">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <Badge variant={user.role === 'organizer' ? 'default' : 'secondary'}>
-                            {user.role}
-                          </Badge>
-                          <div className="flex gap-1">
-                            <Button size="icon" variant="ghost">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button size="icon" variant="ghost">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
