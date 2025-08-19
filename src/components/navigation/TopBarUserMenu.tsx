@@ -1,5 +1,5 @@
 
-import { User, Settings, LogOut, Plus, Heart, Calendar, Bell } from "lucide-react";
+import { User, Settings, LogOut, Plus, Heart, Calendar, Bell, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { isAdminUser } from "@/utils/adminAccess";
 
 export const TopBarUserMenu = () => {
   const { user, signOut } = useAuth();
@@ -133,6 +134,19 @@ export const TopBarUserMenu = () => {
           <Settings className="mr-3 h-4 w-4 text-gray-600" />
           <span className="text-gray-900 font-medium">Settings</span>
         </DropdownMenuItem>
+        
+        {isAdminUser(user) && (
+          <>
+            <DropdownMenuSeparator className="my-2 bg-gray-200" />
+            <DropdownMenuItem 
+              className="rounded-lg hover:bg-primary/10 transition-colors cursor-pointer p-3"
+              onClick={() => navigate("/admin")}
+            >
+              <Shield className="mr-3 h-4 w-4 text-primary" />
+              <span className="text-gray-900 font-medium">Admin Dashboard</span>
+            </DropdownMenuItem>
+          </>
+        )}
         
         <DropdownMenuSeparator className="my-2 bg-gray-200" />
         

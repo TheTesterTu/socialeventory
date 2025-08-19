@@ -84,6 +84,14 @@
     @apply bg-white/10 backdrop-blur-md border border-white/20;
   }
   
+  .glass-card {
+    @apply bg-white/95 backdrop-blur-sm border border-border/20 shadow-lg;
+  }
+  
+  .glass-input {
+    @apply bg-white/90 backdrop-blur-sm border border-border/30 shadow-sm;
+  }
+  
   .container-padding {
     @apply px-4 sm:px-6 lg:px-8;
   }
