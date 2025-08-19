@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -567,7 +567,7 @@ export type Database = {
     }
     Functions: {
       calculate_distance: {
-        Args: { lat1: number; lon1: number; lat2: number; lon2: number }
+        Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
       }
       can_create_events: {
@@ -576,27 +576,31 @@ export type Database = {
       }
       find_nearby_events: {
         Args: {
+          accessibility_filter?: Json
+          category_filter?: string[]
           lat: number
           lon: number
-          radius_meters?: number
-          category_filter?: string[]
           max_price?: number
-          accessibility_filter?: Json
+          radius_meters?: number
         }
         Returns: {
-          id: string
-          title: string
-          location: string
+          accessibility: Json
+          category: string[]
           coordinates: unknown
           distance: number
-          category: string[]
+          id: string
+          location: string
           pricing: Json
-          accessibility: Json
+          title: string
           venue_name: string
         }[]
       }
       is_admin: {
         Args: { user_id: string }
+        Returns: boolean
+      }
+      validate_password_strength: {
+        Args: { password: string }
         Returns: boolean
       }
     }
