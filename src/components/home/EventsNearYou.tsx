@@ -164,11 +164,47 @@ export const EventsNearYou = () => {
         />
         
         {nearbyEvents.length > 0 && nearbyEvents[0].location.coordinates[0] !== 0 ? (
-          <img 
-            src={`https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/pin-s+8B5CF6(${nearbyEvents[0].location.coordinates[1]},${nearbyEvents[0].location.coordinates[0]})/auto/800x200@2x?access_token=pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbHFrazlmam8wMXlnMnFxcWV6OXZ2MnFqIn0.n7ZZPfC3JG0Vl-xSQyzkww`}
-            alt="Map with events near you"
-            className="w-full h-48 object-cover"
-          />
+          <div className="w-full h-48 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg border border-border/20 overflow-hidden relative">
+            {/* Map background pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none">
+                <pattern id="map-grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+                </pattern>
+                <rect width="100" height="100" fill="url(#map-grid)" />
+              </svg>
+            </div>
+            
+            {/* Event markers */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative w-full h-full">
+                {nearbyEvents.slice(0, 6).map((event, index) => {
+                  const row = Math.floor(index / 3);
+                  const col = index % 3;
+                  const x = 25 + col * 25; // 25%, 50%, 75%
+                  const y = 35 + row * 30; // 35%, 65%
+                  
+                  return (
+                    <div
+                      key={event.id}
+                      className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
+                      style={{ left: `${x}%`, top: `${y}%` }}
+                    >
+                      <div className="relative">
+                        <MapPin 
+                          className="h-6 w-6 text-primary drop-shadow-lg transition-all duration-200 group-hover:scale-110 animate-pulse" 
+                          fill="currentColor"
+                        />
+                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                          {event.title.length > 15 ? `${event.title.slice(0, 15)}...` : event.title}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="w-full h-48 bg-gradient-to-r from-primary/20 to-accent/20 flex items-center justify-center">
             <div className="text-center text-muted-foreground">

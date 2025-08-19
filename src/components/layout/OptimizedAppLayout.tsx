@@ -9,6 +9,7 @@ import { PropsWithChildren, useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingSpinner } from "@/components/loading/LoadingSpinner";
+import { AdminQuickAccess } from "@/components/navigation/AdminQuickAccess";
 
 interface OptimizedAppLayoutProps extends PropsWithChildren {
   hideTopBar?: boolean;
@@ -88,6 +89,9 @@ export const OptimizedAppLayout = ({
             <FloatingActions />
           </>
         )}
+        
+        {/* Admin Quick Access - shows for all screen sizes */}
+        <AdminQuickAccess />
       </div>
     </ErrorBoundary>
   );
