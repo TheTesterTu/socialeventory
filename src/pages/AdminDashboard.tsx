@@ -17,8 +17,8 @@ import {
   Shield
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProductionReadinessAudit } from "@/components/production/ProductionReadinessAudit";
 import { AdminOverview } from "@/components/admin/AdminOverview";
-import { AdminActivityLog } from "@/components/admin/AdminActivityLog";
 import { EventApprovalCard } from "@/components/admin/EventApprovalCard";
 import { useProductionStats } from "@/hooks/useProductionStats";
 import { useAdminData } from "@/hooks/useAdminData";
@@ -40,7 +40,6 @@ const AdminDashboard = () => {
       </AppLayout>
     );
   }
-
   if (error) {
     return (
       <AppLayout
@@ -59,11 +58,9 @@ const AdminDashboard = () => {
       pageTitle="Admin Dashboard"
       pageDescription="Manage your platform and monitor activity"
     >
-      {/* -- NOVITÀ: OVERVIEW ADMIN -- */}
-      <AdminOverview />
-
-      {/* -- NOVITÀ: LOG ATTIVITÀ ADMIN -- */}
-      <AdminActivityLog />
+      <div className="mb-8">
+        <ProductionReadinessAudit />
+      </div>
 
       <div className="space-y-8">
         {/* Stats Grid */}

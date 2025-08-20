@@ -104,24 +104,24 @@ export const HomeHero = () => {
 
   return (
     <div className="relative overflow-hidden min-h-screen w-full flex items-center">
-      {/* Full viewport background */}
+      {/* Full viewport background - properly responsive */}
       <div className="absolute inset-0 w-full h-full">
         <img
           src="https://images.unsplash.com/photo-1557682250-33bd709cbe85?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
           alt="Abstract geometric pattern"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-black/60 to-black/80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/20 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
       </div>
       
-      <div className="relative z-10 w-full h-full flex items-center">
-        <div className="container mx-auto container-padding section-spacing">
+      <div className="relative z-10 w-full min-h-screen flex items-center justify-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto text-center mobile-spacing desktop-spacing"
+            className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8"
           >
             {/* Badge with improved contrast */}
             <motion.div 
@@ -139,7 +139,7 @@ export const HomeHero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mobile-spacing"
+              className="space-y-4 sm:space-y-6"
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white drop-shadow-xl">
                 Find Your{" "}
@@ -147,7 +147,7 @@ export const HomeHero = () => {
                   Next Epic Experience
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-lg px-4">
+              <p className="text-base sm:text-lg lg:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
                 Unforgettable moments await you
               </p>
             </motion.div>
@@ -157,9 +157,9 @@ export const HomeHero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="w-full px-4"
+              className="w-full max-w-3xl mx-auto"
             >
-              <div className="p-3 rounded-2xl border-2 border-primary/30 bg-white/98 backdrop-blur-sm max-w-3xl mx-auto shadow-2xl">
+              <div className="p-2 sm:p-3 rounded-2xl border-2 border-primary/30 bg-white/98 backdrop-blur-sm shadow-2xl">
                 <SearchBar onSearch={handleSearch} />
               </div>
             </motion.div>
@@ -169,7 +169,7 @@ export const HomeHero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 px-4"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center"
             >
               <Link to="/create-event" className="w-full sm:w-auto">
                 <Button 
@@ -197,7 +197,7 @@ export const HomeHero = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex items-center justify-center flex-wrap gap-4 lg:gap-6 pt-6 px-4"
+              className="flex items-center justify-center flex-wrap gap-3 lg:gap-4"
             >
               <DynamicStats />
             </motion.div>
