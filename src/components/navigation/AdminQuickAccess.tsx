@@ -3,7 +3,7 @@ import { Shield, Settings, Users, Calendar, BarChart, ChevronUp } from 'lucide-r
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { isAdminUser } from '@/utils/adminAccess';
+import { isAdminUserSync } from '@/utils/adminAccess';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -13,7 +13,7 @@ export const AdminQuickAccess = () => {
   const { user } = useAuth();
 
   // Only show for admin users
-  if (!user || !isAdminUser(user)) {
+  if (!user || !isAdminUserSync(user)) {
     return null;
   }
 
