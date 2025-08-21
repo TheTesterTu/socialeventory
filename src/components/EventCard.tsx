@@ -54,9 +54,9 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
     >
       <Link to={`/event/${id}`} className="block h-full">
         <Card className={cn(
-          "overflow-hidden transition-all duration-300 backdrop-blur-sm h-full flex flex-col border group-hover:shadow-lg",
-          "glass-card hover:border-primary/40",
-          isFeatured && "ring-2 ring-primary/20 shadow-lg"
+          "overflow-hidden transition-all duration-300 backdrop-blur-sm h-full flex flex-col border group-hover:shadow-xl hover:shadow-primary/20",
+          "bg-white/95 backdrop-blur-sm border border-border/50 hover:border-primary/60 shadow-lg",
+          isFeatured && "ring-2 ring-primary/30 shadow-xl bg-gradient-to-br from-white via-white to-primary/5"
         )}>
           <div className="relative">
             <OptimizedImage
@@ -91,53 +91,53 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
             )}
           </div>
 
-          <CardContent className="card-padding flex flex-col flex-grow">
-            <div className="flex-grow mobile-spacing">
+          <CardContent className="p-4 flex flex-col flex-grow">
+            <div className="flex-grow space-y-2">
               <h3 className={cn(
-                "font-semibold text-foreground tracking-tight line-clamp-2",
+                "font-semibold text-foreground tracking-tight line-clamp-2 leading-tight",
                 isCompact ? 'text-base' : 'text-lg'
               )}>
                 {title}
               </h3>
               
               {!isCompact && description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
+                <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                   {description}
                 </p>
               )}
             </div>
 
-            <div className="pt-3 mt-auto space-y-2.5 text-sm text-muted-foreground border-t border-primary/20">
+            <div className="pt-3 mt-auto space-y-2 text-sm text-muted-foreground border-t border-border/50">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-primary" />
-                <span>{format(new Date(startDate), "E, MMM d, yyyy")}</span>
+                <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
+                <span className="truncate">{format(new Date(startDate), "E, MMM d, yyyy")}</span>
               </div>
               
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-primary" />
-                <span>{format(new Date(startDate), "p")}</span>
+                <Clock className="h-4 w-4 text-primary flex-shrink-0" />
+                <span className="truncate">{format(new Date(startDate), "p")}</span>
               </div>
               
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span className="line-clamp-1">
+                <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+                <span className="truncate">
                   {location.venue_name || location.address}
                 </span>
               </div>
             </div>
 
-            <div className="pt-3 mt-3 flex justify-between items-center border-t border-primary/20">
+            <div className="pt-3 mt-3 flex justify-between items-center border-t border-border/50">
               <div className="flex items-center gap-2 text-sm">
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="font-medium text-foreground">{attendees}</span>
-                <span className="text-muted-foreground">attending</span>
+                <span className="text-muted-foreground truncate">attending</span>
               </div>
               
               {pricing && (
-                <div>
+                <div className="flex items-center">
                   <span className={cn(
-                    "text-sm font-bold",
-                    pricing.isFree ? 'text-green-500' : 'text-foreground'
+                    "text-sm font-bold truncate",
+                    pricing.isFree ? 'text-emerald-600' : 'text-foreground'
                   )}>
                     {pricing.isFree 
                       ? 'FREE' 
@@ -146,7 +146,9 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
                         : 'Paid'
                     }
                   </span>
-                  {pricing.priceRange && !pricing.isFree && <span className="text-xs text-muted-foreground"> onwards</span>}
+                  {pricing.priceRange && !pricing.isFree && (
+                    <span className="text-xs text-muted-foreground ml-1">+</span>
+                  )}
                 </div>
               )}
             </div>
