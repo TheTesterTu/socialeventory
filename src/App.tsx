@@ -34,6 +34,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ProductionStatus from "./pages/ProductionStatus";
 import ProductionAuditPage from "./pages/ProductionAuditPage";
 import SystemTest from "./pages/SystemTest";
+import ProductionDashboard from "./pages/ProductionDashboard";
 import { ProtectedAdminRoute } from "@/components/ProtectedAdminRoute";
 import { PERFORMANCE_CONFIG } from "@/utils/productionConfig";
 
@@ -91,6 +92,7 @@ function App() {
                       <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
                       <Route path="/admin/production-audit" element={<ProtectedAdminRoute><ProductionAuditPage /></ProtectedAdminRoute>} />
                       <Route path="/production-status" element={<ProtectedAdminRoute><ProductionStatus /></ProtectedAdminRoute>} />
+                      <Route path="/production-dashboard" element={<ProtectedAdminRoute><ProductionDashboard /></ProtectedAdminRoute>} />
                       <Route path="/system-test" element={<ProtectedAdminRoute><SystemTest /></ProtectedAdminRoute>} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
