@@ -21,30 +21,28 @@ const Index = () => {
   }, [isConnected]);
 
   return (
-    <AppLayoutWithBoundary 
-      hideTopBar={true} 
-      pageTitle="SocialEventory - Discover Amazing Events" 
-      pageDescription="Find and join exciting events in your community"
-    >
+    <div className="min-h-screen bg-background">
       <SEOHead 
         title="SocialEventory - Discover Amazing Events Near You"
         description="Find and share the best local events. Connect with your community through concerts, workshops, cultural events and more."
       />
       
+      {/* Hero without any container constraints */}
+      <HomeHero />
+      
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="min-h-screen bg-background"
+        className="bg-background"
       >
         <div className="container mx-auto px-4 py-8 space-y-12">
-          <HomeHero />
           <QuickCategories />
           <FeaturedEvents />
           <EventsNearYou />
         </div>
       </motion.div>
-    </AppLayoutWithBoundary>
+    </div>
   );
 };
 

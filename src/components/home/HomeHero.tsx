@@ -111,8 +111,8 @@ export const HomeHero = () => {
           alt="Abstract geometric pattern"
           className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/20 to-black/70" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 via-blue-600/30 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       </div>
       
       <div className="relative z-10 w-full min-h-screen flex items-center justify-center">
@@ -128,9 +128,9 @@ export const HomeHero = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium border-2 border-primary bg-primary/30 backdrop-blur-sm shadow-lg"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium border-2 border-white/40 bg-black/50 backdrop-blur-sm shadow-lg"
             >
-              <Sparkles className="h-4 w-4 text-white" />
+              <Sparkles className="h-4 w-4 text-cyan-400" />
               <span>Discover epic events worldwide</span>
             </motion.div>
 
@@ -141,13 +141,13 @@ export const HomeHero = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="space-y-4 sm:space-y-6"
             >
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white drop-shadow-xl">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white drop-shadow-2xl">
                 Find Your{" "}
-                <span className="text-gradient">
+                <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                   Next Epic Experience
                 </span>
               </h1>
-              <p className="text-base sm:text-lg lg:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
+              <p className="text-base sm:text-lg lg:text-xl text-white max-w-2xl mx-auto leading-relaxed drop-shadow-xl font-medium">
                 Unforgettable moments await you
               </p>
             </motion.div>
