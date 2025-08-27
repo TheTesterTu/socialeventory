@@ -9,11 +9,12 @@ export interface APIConfig {
 }
 
 export const getAPIConfig = async (key: string): Promise<string | null> => {
+  // Note: API configurations are now admin-only for security
+  // Public configurations should be moved to environment variables
   const { data, error } = await supabase
     .from('api_configurations')
     .select('value')
     .eq('key', key)
-    .eq('is_public', true)
     .single();
 
   if (error) {

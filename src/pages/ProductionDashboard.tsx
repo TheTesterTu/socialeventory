@@ -1,4 +1,5 @@
 import { ProductionReadinessChecker } from '@/components/production/ProductionReadinessChecker';
+import { SecurityStatus } from '@/components/SecurityStatus';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -120,6 +121,9 @@ const ProductionDashboard = () => {
 
           {/* Overall Status */}
           <ProductionReadinessChecker />
+
+          {/* Security Status */}
+          <SecurityStatus />
 
           {/* Detailed Sections */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
