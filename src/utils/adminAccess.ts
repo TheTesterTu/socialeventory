@@ -2,50 +2,39 @@ import { User } from '@supabase/supabase-js';
 import { isDevelopment } from './productionConfig';
 import { supabase } from '@/integrations/supabase/client';
 
-// Admin email addresses - fallback for emergency access
-const ADMIN_EMAILS = [
-  'admin@socialeventory.com',
-  // Add more admin emails here
-];
-
 export const isAdminUser = async (user: User | null): Promise<boolean> => {
   if (!user) return false;
   
   try {
-    // First, try to get role from database using secure function
+    // Use secure database function to check admin role
     const { data, error } = await supabase.rpc('get_user_role', { 
       user_id: user.id 
     });
     
-    if (!error && data) {
-      return data === 'admin';
+    if (error) {
+      console.error('Error checking admin role:', error);
+      return false;
     }
     
-    // Fallback to email check only in development or if database call fails
-    if (isDevelopment()) {
-      return ADMIN_EMAILS.includes(user.email || '');
-    }
-    
-    return false;
+    return data === 'admin';
   } catch (error) {
-    // Emergency fallback for development
-    if (isDevelopment()) {
-      return ADMIN_EMAILS.includes(user.email || '');
-    }
+    console.error('Failed to check admin role:', error);
     return false;
   }
 };
 
-// Synchronous version for non-async contexts - less secure
+// Synchronous version - always returns false in production for security
 export const isAdminUserSync = (user: User | null): boolean => {
   if (!user) return false;
   
-  // Only allow email-based admin check in development
+  // In production, always require async database check for security
+  // Only allow fallback in development for testing purposes
   if (isDevelopment()) {
-    return ADMIN_EMAILS.includes(user.email || '');
+    // Even in development, we should use the async version when possible
+    console.warn('Using synchronous admin check - prefer isAdminUser() for security');
+    return false;
   }
   
-  // In production, require async database check
   return false;
 };
 

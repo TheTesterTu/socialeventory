@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { isAdminUserSync, isProductionToolsEnabled } from '@/utils/adminAccess';
+import { isAdminUser, isProductionToolsEnabled } from '@/utils/adminAccess';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield } from 'lucide-react';
+import { Shield, Loader2 } from 'lucide-react';
 
 interface ProtectedAdminRouteProps {
   children: ReactNode;
@@ -11,12 +11,33 @@ interface ProtectedAdminRouteProps {
 
 export const ProtectedAdminRoute = ({ children }: ProtectedAdminRouteProps) => {
   const { user, loading } = useAuth();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
+
+  useEffect(() => {
+    if (user && !loading) {
+      setCheckingAdmin(true);
+      isAdminUser(user).then(result => {
+        setIsAdmin(result);
+        setCheckingAdmin(false);
+      }).catch(() => {
+        setIsAdmin(false);
+        setCheckingAdmin(false);
+      });
+    } else if (!user && !loading) {
+      setIsAdmin(false);
+      setCheckingAdmin(false);
+    }
+  }, [user, loading]);
 
   // Show loading while auth state is being determined
-  if (loading) {
+  if (loading || checkingAdmin) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <p className="text-sm text-muted-foreground">Verifying permissions...</p>
+        </div>
       </div>
     );
   }
@@ -32,7 +53,7 @@ export const ProtectedAdminRoute = ({ children }: ProtectedAdminRouteProps) => {
   }
 
   // If not admin, show access denied
-  if (!isAdminUserSync(user)) {
+  if (!isAdmin) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
         <Card className="max-w-md">
@@ -42,7 +63,7 @@ export const ProtectedAdminRoute = ({ children }: ProtectedAdminRouteProps) => {
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-muted-foreground">
-              You don't have permission to access this admin area.
+              You don't have permission to access this admin area. Only verified administrators can access this section.
             </p>
           </CardContent>
         </Card>

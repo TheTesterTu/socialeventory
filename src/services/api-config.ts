@@ -24,6 +24,22 @@ export const getAPIConfig = async (key: string): Promise<string | null> => {
   return data?.value || null;
 };
 
+export const getSecureAPIConfig = async (key: string): Promise<string | null> => {
+  // This function requires admin access and fetches private configurations
+  const { data, error } = await supabase
+    .from('api_configurations')
+    .select('value')
+    .eq('key', key)
+    .single();
+
+  if (error) {
+    console.error('Error fetching secure API configuration:', error);
+    return null;
+  }
+
+  return data?.value || null;
+};
+
 export const getAdminAPIConfigs = async (): Promise<APIConfig[]> => {
   const { data, error } = await supabase
     .from('api_configurations')
