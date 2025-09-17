@@ -76,7 +76,7 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
         className="max-w-6xl mx-auto space-y-8 container-padding"
       >
         {/* Hero Image */}
-        <div className="relative h-[400px] rounded-2xl overflow-hidden modern-shadow">
+        <div className="relative h-[400px] rounded-lg overflow-hidden shadow-lg">
           <img
             src={safeEvent.imageUrl}
             alt={safeEvent.title}
@@ -86,7 +86,7 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
               target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87';
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -101,17 +101,17 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
             />
 
             {/* Description */}
-            <div className="glass-card card-padding rounded-2xl">
-              <h3 className="text-lg font-semibold mb-3 text-primary">About This Event</h3>
-              <div className="prose prose-invert max-w-none">
-                <p className="text-foreground/90 leading-relaxed">{safeEvent.description}</p>
+            <div className="bg-card rounded-lg p-6 shadow-sm border">
+              <h3 className="text-lg font-semibold mb-3 text-foreground">About This Event</h3>
+              <div className="prose max-w-none">
+                <p className="text-muted-foreground leading-relaxed">{safeEvent.description}</p>
               </div>
             </div>
 
             {/* Tags */}
             {safeEvent.tags.length > 0 && (
-              <div className="glass-card card-padding rounded-2xl">
-                <h3 className="text-lg font-semibold mb-3 text-primary">Tags</h3>
+              <div className="bg-card rounded-lg p-6 shadow-sm border">
+                <h3 className="text-lg font-semibold mb-3 text-foreground">Tags</h3>
                 <div className="flex flex-wrap gap-2">
                   {safeEvent.tags.map((tag) => (
                     <span 
@@ -127,12 +127,12 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
             )}
 
             {/* Action Buttons */}
-            <div className="glass-card card-padding rounded-2xl">
+            <div className="bg-card rounded-lg p-6 shadow-sm border">
               <div className="flex flex-col sm:flex-row gap-3">
                 <UnifiedButton 
                   variant="primary"
                   size="lg"
-                  className="gap-2 flex-1 rounded-xl"
+                  className="gap-2 flex-1"
                   onClick={handleGetTickets}
                 >
                   <Ticket className="h-5 w-5" />
@@ -142,7 +142,7 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
                 <UnifiedButton 
                   variant="outline"
                   size="lg"
-                  className="gap-2 rounded-xl"
+                  className="gap-2"
                   onClick={handleShowOnMap}
                 >
                   <MapPin className="h-5 w-5" />
@@ -152,7 +152,7 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
                 <UnifiedButton 
                   variant="secondary"
                   size="lg"
-                  className="gap-2 rounded-xl"
+                  className="gap-2"
                   onClick={() => setIsChatModalOpen(true)}
                 >
                   💬 Join Discussion
@@ -163,7 +163,7 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
 
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="glass-card card-padding rounded-2xl">
+            <div className="bg-card rounded-lg p-6 shadow-sm border">
               <EventMetadata 
                 startDate={safeEvent.startDate}
                 endDate={safeEvent.endDate}
@@ -174,7 +174,7 @@ export const EventDetailsOptimized = memo(({ event }: EventDetailsOptimizedProps
               />
             </div>
 
-            <div className="glass-card card-padding rounded-2xl">
+            <div className="bg-card rounded-lg p-6 shadow-sm border">
               <EventSocialActions 
                 eventId={safeEvent.id} 
                 comments={comments?.length || 0}

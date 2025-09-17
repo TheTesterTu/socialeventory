@@ -141,7 +141,7 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
     verification: {
       status: (dbEvent.verification_status as any) || 'pending'
     },
-    imageUrl: safeString(dbEvent.image_url, 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'),
+    imageUrl: safeString(dbEvent.image_url, ''),
     likes: safeNumber(dbEvent.likes, 0),
     attendees: safeNumber(dbEvent.attendees, 0)
   };

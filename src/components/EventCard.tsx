@@ -54,13 +54,13 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
     >
       <Link to={`/event/${id}`} className="block h-full">
         <Card className={cn(
-          "overflow-hidden transition-all duration-300 backdrop-blur-sm h-full flex flex-col border group-hover:shadow-xl hover:shadow-primary/20",
-          "bg-white/95 backdrop-blur-sm border border-border/50 hover:border-primary/60 shadow-lg",
-          isFeatured && "ring-2 ring-primary/30 shadow-xl bg-gradient-to-br from-white via-white to-primary/5"
+          "overflow-hidden transition-all duration-300 h-full flex flex-col border-0 group-hover:shadow-xl hover:shadow-primary/20",
+          "bg-card shadow-md hover:shadow-lg",
+          isFeatured && "ring-2 ring-primary/20 shadow-xl"
         )}>
           <div className="relative">
             <OptimizedImage
-              src={imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
+              src={imageUrl}
               alt={title}
               className={cn("w-full object-cover transition-transform duration-300 group-hover:scale-105", isCompact ? 'h-32' : 'h-48')}
               aspectRatio="video"
@@ -68,17 +68,17 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
               fallback="https://images.unsplash.com/photo-1540575467063-178a50c2df87"
             />
             
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
             
-            <div className="absolute top-2 left-2 flex flex-wrap gap-1.5">
+            <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
               {category.slice(0, 1).map((cat) => (
-                <Badge key={cat} variant="secondary" className="text-xs bg-primary/20 text-white backdrop-blur-md border border-primary/30">
+                <Badge key={cat} variant="secondary" className="text-xs bg-black/60 text-white backdrop-blur-sm border-0">
                   {cat}
                 </Badge>
               ))}
             </div>
             
-            <div className="absolute top-2 right-2 flex items-center gap-2">
+            <div className="absolute top-3 right-3 flex items-center gap-2">
               <EventVerificationBadge status={verification.status} />
               <SaveEventButton eventId={id} size="icon" />
             </div>

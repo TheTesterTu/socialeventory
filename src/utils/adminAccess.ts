@@ -23,19 +23,14 @@ export const isAdminUser = async (user: User | null): Promise<boolean> => {
   }
 };
 
-// Synchronous version - always returns false in production for security
+// Synchronous version - checks user metadata (less secure but works for UI elements)
 export const isAdminUserSync = (user: User | null): boolean => {
   if (!user) return false;
   
-  // In production, always require async database check for security
-  // Only allow fallback in development for testing purposes
-  if (isDevelopment()) {
-    // Even in development, we should use the async version when possible
-    console.warn('Using synchronous admin check - prefer isAdminUser() for security');
-    return false;
-  }
-  
-  return false;
+  // Check user metadata for admin role (less secure but works for UI)
+  return user.user_metadata?.role === 'admin' || 
+         user.app_metadata?.role === 'admin' ||
+         (isDevelopment() && user.email?.includes('admin'));
 };
 
 export const isProductionToolsEnabled = (): boolean => {

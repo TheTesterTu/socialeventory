@@ -67,7 +67,7 @@ export const OptimizedImage = ({
       )}
       
       <img
-        src={imageSrc || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
+        src={imageSrc || fallback || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
         alt={alt}
         className={cn(
           'w-full h-full object-cover transition-opacity duration-300',
@@ -79,12 +79,6 @@ export const OptimizedImage = ({
         decoding="async"
       />
       
-      {/* Performance indicator for development */}
-      {import.meta.env.MODE === 'development' && isOptimized && (
-        <div className="absolute top-1 right-1 bg-green-500 text-white text-xs px-1 rounded">
-          WebP
-        </div>
-      )}
     </div>
   );
 };
