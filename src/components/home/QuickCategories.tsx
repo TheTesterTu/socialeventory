@@ -99,14 +99,8 @@ export const QuickCategories = () => {
                   transition-all duration-300 group glass-card
                 `}
               >
-                <div className={`
-                  p-2 md:p-3 rounded-full transition-all duration-300
-                  ${getCategoryBgColor(category.name)}/20 group-hover:${getCategoryBgColor(category.name)}/30
-                `}>
-                  <Icon className={`
-                    h-5 w-5 md:h-6 md:w-6 transition-colors duration-300
-                    ${getCategoryTextColor(category.name)} group-hover:text-white
-                  `} />
+                <div className="p-2 md:p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-all duration-300">
+                  <Icon className="h-5 w-5 md:h-6 md:w-6 text-primary group-hover:text-primary transition-colors duration-300" />
                 </div>
                 <div className="space-y-1">
                   <span className="font-medium text-sm md:text-base text-foreground">

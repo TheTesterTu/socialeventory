@@ -3,6 +3,7 @@ import { CalendarPlus, Search, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { SearchBar } from "@/components/SearchBar";
+import { VideoBackground } from "@/components/shared/VideoBackground";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -69,21 +70,21 @@ const DynamicStats = () => {
 
   return (
     <>
-      {stats.totalEvents > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-emerald-400/70 bg-emerald-500/30 backdrop-blur-sm shadow-lg">
-          <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+        {stats.totalEvents > 0 && (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-success/60 bg-success/20 backdrop-blur-md shadow-lg">
+          <span className="inline-block h-2 w-2 rounded-full bg-success"></span>
           <span className="text-sm font-medium text-white">{stats.totalEvents} upcoming</span>
         </div>
       )}
       {stats.thisWeekEvents > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary/70 bg-primary/30 backdrop-blur-sm shadow-lg">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary/60 bg-primary/20 backdrop-blur-md shadow-lg">
           <span className="inline-block h-2 w-2 rounded-full bg-primary"></span>
           <span className="text-sm font-medium text-white">{stats.thisWeekEvents} this week</span>
         </div>
       )}
       {stats.todayEvents > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-amber-400/70 bg-amber-500/30 backdrop-blur-sm shadow-lg">
-          <span className="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-warning/60 bg-warning/20 backdrop-blur-md shadow-lg">
+          <span className="inline-block h-2 w-2 rounded-full bg-warning"></span>
           <span className="text-sm font-medium text-white">{stats.todayEvents} today</span>
         </div>
       )}
@@ -103,17 +104,7 @@ export const HomeHero = () => {
   };
 
   return (
-    <div className="relative overflow-hidden min-h-screen w-full flex items-center">
-      {/* Full viewport background - properly responsive */}
-      <div className="absolute inset-0 w-full h-full">
-        <img
-          src="https://images.unsplash.com/photo-1557682250-33bd709cbe85?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
-          alt="Abstract geometric pattern"
-          className="w-full h-full object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 via-blue-600/30 to-black/80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-      </div>
+    <VideoBackground className="min-h-screen w-full flex items-center">
       
       <div className="relative z-10 w-full min-h-screen flex items-center justify-center">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
@@ -128,9 +119,9 @@ export const HomeHero = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium border-2 border-white/40 bg-black/50 backdrop-blur-sm shadow-lg"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium border-2 border-white/60 bg-black/70 backdrop-blur-sm shadow-2xl"
             >
-              <Sparkles className="h-4 w-4 text-cyan-400" />
+              <Sparkles className="h-4 w-4 text-primary-light" />
               <span>Discover epic events worldwide</span>
             </motion.div>
 
@@ -143,7 +134,7 @@ export const HomeHero = () => {
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white drop-shadow-2xl">
                 Find Your{" "}
-                <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary-light to-primary bg-clip-text text-transparent">
                   Next Epic Experience
                 </span>
               </h1>
@@ -159,7 +150,7 @@ export const HomeHero = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="w-full max-w-3xl mx-auto"
             >
-              <div className="p-2 sm:p-3 rounded-2xl border-2 border-primary/30 bg-white/98 backdrop-blur-sm shadow-2xl">
+              <div className="p-2 sm:p-3 rounded-2xl border-2 border-primary/40 bg-white/95 backdrop-blur-md shadow-2xl">
                 <SearchBar onSearch={handleSearch} />
               </div>
             </motion.div>
@@ -204,6 +195,6 @@ export const HomeHero = () => {
           </motion.div>
         </div>
       </div>
-    </div>
+    </VideoBackground>
   );
 };
