@@ -10,14 +10,39 @@ export const useEvents = () => {
   return useQuery({
     queryKey: ['events'],
     queryFn: async () => {
+      const now = new Date();
+      // Show events that haven't ended yet, plus recent past events (last 7 days for context)
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .order('created_at', { ascending: false });
+        .gte('end_date', weekAgo.toISOString())
+        .order('start_date', { ascending: true });
 
       if (error) throw error;
       
-      return data?.map(mapDatabaseEventToEvent) || [];
+      const mappedEvents = data?.map(event => {
+        const mappedEvent = mapDatabaseEventToEvent(event);
+        // Mark past events
+        const eventEndDate = new Date(mappedEvent.endDate);
+        if (eventEndDate < now) {
+          (mappedEvent as any).isPast = true;
+        }
+        return mappedEvent;
+      }) || [];
+
+      // Sort: future events first, then recent past events
+      return mappedEvents.sort((a, b) => {
+        const aIsPast = (a as any).isPast;
+        const bIsPast = (b as any).isPast;
+        
+        if (aIsPast && !bIsPast) return 1;
+        if (!aIsPast && bIsPast) return -1;
+        
+        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      });
     },
   });
 };
@@ -26,11 +51,14 @@ export const useFeaturedEvents = () => {
   return useQuery({
     queryKey: ['events', 'featured'],
     queryFn: async () => {
+      const now = new Date();
+      
       const { data, error } = await supabase
         .from('events')
         .select('*')
         .eq('is_featured', true)
-        .order('created_at', { ascending: false })
+        .gte('end_date', now.toISOString()) // Only show events that haven't ended
+        .order('start_date', { ascending: true })
         .limit(6);
 
       if (error) throw error;

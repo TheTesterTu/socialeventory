@@ -194,8 +194,8 @@ const EventMap = ({
       
       // Determine marker color based on event status
       const isPast = (event as any).isPast || new Date(event.endDate) < new Date();
-      const markerColor = isPast ? '#6B7280' : '#16a085'; // Gray for past, teal for active/future
-      const borderColor = isPast ? '#9CA3AF' : 'white';
+      const markerColor = isPast ? '#9CA3AF' : '#16a085'; // Gray for past, teal for active/future
+      const borderColor = isPast ? '#D1D5DB' : 'white';
       
       // Create improved marker element with status-based styling
       const el = document.createElement('div');
@@ -248,7 +248,7 @@ const EventMap = ({
         const address = eventData.location?.address || 'Location not specified';
         const venueName = eventData.location?.venue_name || '';
         const eventId = eventData.id || '';
-        const imageUrl = eventData.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87';
+        const imageUrl = eventData.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80';
         const isPast = (eventData as any).isPast || new Date(eventData.endDate) < new Date();
         const eventDate = new Date(eventData.startDate).toLocaleDateString('en-US', {
           month: 'short',
@@ -261,7 +261,8 @@ const EventMap = ({
         return `
           <div class="p-4 space-y-3 min-w-[280px] bg-white rounded-lg shadow-lg">
             <div class="space-y-3">
-              <img src="${imageUrl}" alt="${title}" class="w-full h-32 object-cover rounded-lg" />
+              <img src="${imageUrl}" alt="${title}" class="w-full h-32 object-cover rounded-lg" 
+                   onerror="this.src='https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80'" />
               <div class="space-y-2">
                 <div class="flex items-center gap-2">
                   <h3 class="font-bold text-lg text-gray-900 line-clamp-2 flex-1">${title}</h3>

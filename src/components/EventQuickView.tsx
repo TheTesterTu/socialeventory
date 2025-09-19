@@ -53,9 +53,13 @@ export const EventQuickView = ({ event, isOpen, onOpenChange }: EventQuickViewPr
         <div className="space-y-4">
           <div className="relative h-52 overflow-hidden">
             <img 
-              src={event.imageUrl} 
+              src={event.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80'} 
               alt={event.title} 
               className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80';
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
             <div className="absolute top-2 right-2 flex gap-2">
