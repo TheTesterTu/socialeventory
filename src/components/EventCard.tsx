@@ -111,6 +111,12 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
                 <span className="truncate">{format(new Date(startDate), "E, MMM d, yyyy")}</span>
+                {(() => {
+                  const isPast = new Date(event.endDate) < new Date();
+                  return isPast ? (
+                    <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full">Ended</span>
+                  ) : null;
+                })()}
               </div>
               
               <div className="flex items-center gap-2">

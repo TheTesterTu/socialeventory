@@ -45,7 +45,7 @@ const Nearby = () => {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/95 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg p-6"
+          className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg p-6"
         >
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div className="flex-1">
@@ -61,7 +61,7 @@ const Nearby = () => {
             <div className="flex flex-col sm:flex-row gap-2 lg:gap-3 w-full lg:w-auto">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="gap-2 bg-white/90 hover:bg-white border border-border/60 hover:border-primary/50 flex-1 lg:flex-none">
+                  <Button variant="outline" className="gap-2 bg-card/90 hover:bg-card border border-border/60 hover:border-primary/50 flex-1 lg:flex-none">
                     <Calendar className="h-4 w-4" />
                     <span className="truncate">{selectedDate ? format(selectedDate, 'MMM d') : 'Any date'}</span>
                   </Button>
@@ -79,7 +79,7 @@ const Nearby = () => {
               <Button 
                 variant={showPastEvents ? "default" : "outline"} 
                 onClick={() => setShowPastEvents(!showPastEvents)}
-                className="gap-2 bg-white/90 hover:bg-white border border-border/60 hover:border-primary/50 flex-1 lg:flex-none"
+                className="gap-2 bg-card/90 hover:bg-card border border-border/60 hover:border-primary/50 flex-1 lg:flex-none"
               >
                 {showPastEvents ? 'Hide Past' : 'Show Past'}
               </Button>
@@ -87,7 +87,7 @@ const Nearby = () => {
               <Button 
                 variant={showEventsList ? "default" : "outline"} 
                 onClick={() => setShowEventsList(!showEventsList)}
-                className="gap-2 bg-white/90 hover:bg-white border border-border/60 hover:border-primary/50 flex-1 lg:flex-none"
+                className="gap-2 bg-card/90 hover:bg-card border border-border/60 hover:border-primary/50 flex-1 lg:flex-none"
               >
                 <MapPin className="h-4 w-4" />
                 {showEventsList ? 'Show Map' : 'Show List'}
@@ -111,7 +111,7 @@ const Nearby = () => {
         )}
 
         {coordinates && (
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg p-4">
+          <div className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg p-4">
             <RadiusControl
               radius={radius}
               onRadiusChange={setRadius}
@@ -125,7 +125,7 @@ const Nearby = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/95 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg overflow-hidden"
+          className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg overflow-hidden"
         >
           {isLoading ? (
             <div className="p-4">

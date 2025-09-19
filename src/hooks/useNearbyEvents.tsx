@@ -28,15 +28,7 @@ export const useNearbyEvents = () => {
       const now = new Date();
       
       // Build date filter conditions
-      let dateFilter = '';
-      if (selectedDate) {
-        const dayStart = startOfDay(selectedDate);
-        const dayEnd = endOfDay(selectedDate);
-        dateFilter = `and start_date >= '${dayStart.toISOString()}' and start_date <= '${dayEnd.toISOString()}'`;
-      } else if (!showPastEvents) {
-        // Only show future/current events by default
-        dateFilter = `and end_date >= '${now.toISOString()}'`;
-      }
+      console.log('🔍 Date filter params:', { selectedDate, showPastEvents, now: now.toISOString() });
       
       // First, let's get all events with proper date filtering
       let query = supabase
@@ -47,12 +39,16 @@ export const useNearbyEvents = () => {
       if (selectedDate) {
         const dayStart = startOfDay(selectedDate);
         const dayEnd = endOfDay(selectedDate);
+        console.log('📅 Selected date filter:', { dayStart: dayStart.toISOString(), dayEnd: dayEnd.toISOString() });
         query = query
           .gte('start_date', dayStart.toISOString())
           .lte('start_date', dayEnd.toISOString());
       } else if (!showPastEvents) {
         // Only show events that haven't ended yet
+        console.log('⏰ Filtering out past events. Events must end after:', now.toISOString());
         query = query.gte('end_date', now.toISOString());
+      } else {
+        console.log('📜 Showing all events including past ones');
       }
       
       const { data: allEvents, error: allEventsError } = await query;
