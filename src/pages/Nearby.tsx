@@ -13,7 +13,7 @@ import { format } from "date-fns";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useNearbyEvents } from "@/hooks/useNearbyEvents";
 import { RadiusControl } from "@/components/nearby/RadiusControl";
-import { EventCard } from "@/components/EventCard";
+import { EventsNearbyList } from "@/components/nearby/EventsNearbyList";
 
 const Nearby = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -52,7 +52,7 @@ const Nearby = () => {
               <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Events Near You</h1>
               <p className="text-muted-foreground mt-1 text-sm lg:text-base">
                 {coordinates 
-                  ? `Showing events within ${radius}km of your location` 
+                  ? `Showing ${showPastEvents ? 'all' : 'upcoming'} events within ${radius}km of your location` 
                   : "Getting your location to show nearby events"
                 }
               </p>
@@ -81,7 +81,7 @@ const Nearby = () => {
                 onClick={() => setShowPastEvents(!showPastEvents)}
                 className="gap-2 bg-card/90 hover:bg-card border border-border/60 hover:border-primary/50 flex-1 lg:flex-none"
               >
-                {showPastEvents ? 'Hide Past' : 'Show Past'}
+                {showPastEvents ? 'Current Only' : 'Include Past'}
               </Button>
 
               <Button 
@@ -133,33 +133,7 @@ const Nearby = () => {
             </div>
           ) : showEventsList ? (
             <div className="p-4 lg:p-6">
-              {events.length === 0 ? (
-                <div className="text-center py-16">
-                  <MapPin className="h-16 w-16 text-muted-foreground/40 mx-auto mb-6" />
-                  <h3 className="text-xl font-semibold mb-3">No events found nearby</h3>
-                  <p className="text-muted-foreground max-w-md mx-auto">
-                    Try increasing the search radius or selecting a different date to discover more events in your area.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-foreground mb-4">
-                    Found {events.length} event{events.length !== 1 ? 's' : ''} nearby
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-                    {events.map((event, index) => (
-                      <motion.div
-                        key={event.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        <EventCard event={event} index={index} variant="compact" />
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <EventsNearbyList events={events} showPastEvents={showPastEvents} />
             </div>
           ) : (
             <div className="h-[600px]">

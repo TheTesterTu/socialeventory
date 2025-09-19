@@ -49,6 +49,10 @@ export const useNearbyEvents = () => {
         query = query.gte('end_date', now.toISOString());
       } else {
         console.log('📜 Showing all events including past ones');
+        // For past events, also include recent ones (last 30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        query = query.gte('end_date', thirtyDaysAgo.toISOString());
       }
       
       const { data: allEvents, error: allEventsError } = await query;

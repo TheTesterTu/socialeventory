@@ -119,6 +119,27 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
     }
   }
 
+  // Handle image URL with better fallbacks and validation
+  let imageUrl = safeString(dbEvent.image_url, '');
+  
+  // If no image or invalid image, use category-appropriate fallback
+  if (!imageUrl || imageUrl.trim() === '') {
+    const category = safeArray(dbEvent.category, ['Other'])[0]?.toLowerCase() || 'other';
+    const categoryImages = {
+      'music': 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80',
+      'technology': 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80',
+      'food': 'https://images.unsplash.com/photo-1555244162-803834f70033?w=800&q=80',
+      'art': 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&q=80',
+      'sports': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80',
+      'business': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
+      'conference': 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80',
+      'workshop': 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&q=80',
+      'meetup': 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&q=80',
+      'entertainment': 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80'
+    };
+    imageUrl = categoryImages[category] || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80';
+  }
+
   const mappedEvent: Event = {
     id: safeString(dbEvent.id),
     title: safeString(dbEvent.title, 'Untitled Event'),
@@ -141,7 +162,7 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
     verification: {
       status: (dbEvent.verification_status as any) || 'pending'
     },
-    imageUrl: safeString(dbEvent.image_url, 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'),
+    imageUrl,
     likes: safeNumber(dbEvent.likes, 0),
     attendees: safeNumber(dbEvent.attendees, 0)
   };
