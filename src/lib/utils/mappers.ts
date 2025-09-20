@@ -34,10 +34,7 @@ const safeArray = (value: unknown, fallback: any[] = []): any[] => {
  * Maps database event format to the application Event interface
  */
 export function mapDatabaseEventToEvent(dbEvent: any): Event {
-  console.log('🔄 Mapping database event:', dbEvent);
-  
   if (!dbEvent || typeof dbEvent !== 'object') {
-    console.error('❌ Invalid database event data:', dbEvent);
     throw new Error('Invalid database event data');
   }
 
@@ -72,9 +69,9 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
           }
         }
       }
-    } catch (error) {
-      console.warn('⚠️ Error parsing coordinates, using default:', error);
-    }
+      } catch (error) {
+        // Silent coordinate parsing failure, use defaults
+      }
   }
 
   // Handle accessibility with proper fallbacks
@@ -167,6 +164,5 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
     attendees: safeNumber(dbEvent.attendees, 0)
   };
 
-  console.log('✅ Successfully mapped event:', mappedEvent.id, mappedEvent.title);
   return mappedEvent;
 }

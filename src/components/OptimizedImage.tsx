@@ -1,84 +1,84 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { useImagePreloader } from '@/hooks/useImagePreloader';
-import { Skeleton } from '@/components/ui/skeleton';
 
 interface OptimizedImageProps {
   src: string;
   alt: string;
   className?: string;
-  priority?: 'high' | 'medium' | 'low';
   fallback?: string;
-  placeholder?: string;
-  aspectRatio?: 'square' | 'video' | 'auto';
-  enableWebP?: boolean;
-  onLoad?: () => void;
-  onError?: (error: string) => void;
+  aspectRatio?: 'square' | 'video' | 'portrait';
+  priority?: 'high' | 'medium' | 'low';
+  loading?: 'lazy' | 'eager';
+  width?: number;
+  height?: number;
 }
 
-export const OptimizedImage = ({
+export const OptimizedImage = React.memo(({
   src,
   alt,
   className,
+  fallback = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80',
+  aspectRatio,
   priority = 'medium',
-  fallback,
-  placeholder,
-  aspectRatio = 'auto',
-  enableWebP = true,
-  onLoad,
-  onError
+  loading = 'lazy',
+  width,
+  height
 }: OptimizedImageProps) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const { imageSrc, isLoading, error, isOptimized } = useImagePreloader(src, {
-    priority,
-    fallback,
-    placeholder,
-    enableWebP
-  });
+  const [imgSrc, setImgSrc] = useState(src || fallback);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
-  const handleImageLoad = () => {
-    setImageLoaded(true);
-    onLoad?.();
+  const handleLoad = () => {
+    setIsLoading(false);
   };
 
-  const handleImageError = () => {
-    if (error) {
-      onError?.(error);
+  const handleError = () => {
+    if (imgSrc !== fallback) {
+      setImgSrc(fallback);
+      setHasError(true);
+    } else {
+      setIsLoading(false);
+      setHasError(true);
     }
   };
 
-  const getAspectRatioClass = () => {
-    switch (aspectRatio) {
-      case 'square': return 'aspect-square';
-      case 'video': return 'aspect-video';
-      default: return '';
-    }
-  };
+  const aspectRatioClass = {
+    'square': 'aspect-square',
+    'video': 'aspect-video', 
+    'portrait': 'aspect-[3/4]'
+  }[aspectRatio || ''] || '';
 
   return (
     <div className={cn(
-      'relative overflow-hidden',
-      getAspectRatioClass(),
+      'relative overflow-hidden bg-muted',
+      aspectRatioClass,
       className
     )}>
-      {(isLoading || !imageLoaded) && (
-        <Skeleton className="absolute inset-0 w-full h-full" />
+      {isLoading && (
+        <div className="absolute inset-0 animate-pulse bg-muted" />
       )}
       
       <img
-        src={imageSrc || fallback || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'}
+        src={imgSrc}
         alt={alt}
         className={cn(
-          'w-full h-full object-cover transition-opacity duration-300',
-          imageLoaded ? 'opacity-100' : 'opacity-0'
+          'transition-opacity duration-300',
+          isLoading ? 'opacity-0' : 'opacity-100',
+          hasError ? 'opacity-75' : '',
+          className
         )}
-        onLoad={handleImageLoad}
-        onError={handleImageError}
-        loading={priority === 'high' ? 'eager' : 'lazy'}
-        decoding="async"
+        onLoad={handleLoad}
+        onError={handleError}
+        loading={loading}
+        width={width}
+        height={height}
+        style={{
+          objectFit: 'cover',
+          width: '100%',
+          height: '100%'
+        }}
       />
-      
     </div>
   );
-};
+});

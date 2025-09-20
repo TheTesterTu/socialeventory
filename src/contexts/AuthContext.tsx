@@ -65,11 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Store additional user data if needed
       // This would be used for storing permissions, preferences, etc.
       if (data) {
-        // You could update a more comprehensive user state here if needed
-        console.log("User profile fetched:", data);
+        // Profile data available for future use
       }
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      // Silent profile fetch error
     }
   };
 
@@ -164,7 +163,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(data.session.user);
       }
     } catch (error: any) {
-      console.error("Error refreshing session:", error);
       // Don't throw here to avoid breaking the app flow
     } finally {
       setLoading(false);

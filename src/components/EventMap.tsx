@@ -68,7 +68,6 @@ const EventMap = ({
       });
 
       map.current.on('load', () => {
-        console.log('Map loaded successfully');
         setMapLoaded(true);
       });
 
@@ -104,7 +103,7 @@ const EventMap = ({
   useEffect(() => {
     if (!mapLoaded || !map.current || !userLocation) return;
 
-    console.log('Adding user location marker at:', userLocation);
+    
 
     // Remove existing user marker
     if (userMarker.current) {
@@ -159,12 +158,7 @@ const EventMap = ({
 
   // Add event markers when events or map changes
   useEffect(() => {
-    if (!mapLoaded || !map.current) {
-      console.log('Map not ready for markers');
-      return;
-    }
-
-    console.log('Adding markers for events:', events);
+    if (!mapLoaded || !map.current) return;
 
     // Clear any existing event markers
     markers.current.forEach(marker => marker.remove());
@@ -178,17 +172,13 @@ const EventMap = ({
       let lat = event.location.coordinates[0];
       let lng = event.location.coordinates[1];
       
-      console.log(`Processing event "${event.title}" (${index}) with coordinates: lat=${lat}, lng=${lng}`);
-      
       // Validate coordinates
       if (isNaN(lat) || isNaN(lng) || !isFinite(lat) || !isFinite(lng)) {
-        console.warn(`Invalid coordinates for event ${event.id}: [${lat}, ${lng}]`);
         return;
       }
       
       // Skip events with zero coordinates (likely invalid)
       if (lat === 0 && lng === 0) {
-        console.warn(`Zero coordinates for event ${event.id}, skipping`);
         return;
       }
       
@@ -303,14 +293,11 @@ const EventMap = ({
         if (map.current) {
           marker.addTo(map.current);
           markers.current.push(marker);
-          console.log(`✅ Added marker for event "${event.title}" at [${lng}, ${lat}]`);
         }
       } catch (error) {
-        console.error(`❌ Error adding marker for event ${event.id}:`, error);
+        // Silent fail for invalid markers
       }
     });
-
-    console.log(`Total markers added: ${markers.current.length} out of ${events.length} events`);
 
     // Fit bounds to include all markers and user location if there are any events
     if (markers.current.length > 0 && map.current) {

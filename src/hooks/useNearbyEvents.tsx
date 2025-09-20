@@ -22,13 +22,8 @@ export const useNearbyEvents = () => {
       setIsLoading(true);
       setError(null);
       
-      console.log('Fetching nearby events with params:', { lat, lng, radius, selectedDate, showPastEvents });
-      
       const radiusMeters = radius * 1000; // Convert km to meters
       const now = new Date();
-      
-      // Build date filter conditions
-      console.log('🔍 Date filter params:', { selectedDate, showPastEvents, now: now.toISOString() });
       
       // First, let's get all events with proper date filtering
       let query = supabase
@@ -39,16 +34,13 @@ export const useNearbyEvents = () => {
       if (selectedDate) {
         const dayStart = startOfDay(selectedDate);
         const dayEnd = endOfDay(selectedDate);
-        console.log('📅 Selected date filter:', { dayStart: dayStart.toISOString(), dayEnd: dayEnd.toISOString() });
         query = query
           .gte('start_date', dayStart.toISOString())
           .lte('start_date', dayEnd.toISOString());
       } else if (!showPastEvents) {
         // Only show events that haven't ended yet
-        console.log('⏰ Filtering out past events. Events must end after:', now.toISOString());
         query = query.gte('end_date', now.toISOString());
       } else {
-        console.log('📜 Showing all events including past ones');
         // For past events, also include recent ones (last 30 days)
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -58,11 +50,8 @@ export const useNearbyEvents = () => {
       const { data: allEvents, error: allEventsError } = await query;
       
       if (allEventsError) {
-        console.error('Database error:', allEventsError);
         throw allEventsError;
       }
-      
-      console.log('Events from database with date filter:', allEvents);
       
       // Try the RPC function first for precise distance calculation
       const { data: rpcEvents, error: rpcError } = await supabase
@@ -78,7 +67,6 @@ export const useNearbyEvents = () => {
       let finalEventsData;
       
       if (rpcError || !rpcEvents || rpcEvents.length === 0) {
-        console.log('RPC failed or returned no results, using manual filtering');
         
         // Manual distance filtering
         finalEventsData = allEvents?.filter(event => {
@@ -147,8 +135,6 @@ export const useNearbyEvents = () => {
         });
       }
 
-      console.log('Final events data to process:', finalEventsData);
-
       // Map the events and add past/future status
       const formattedEvents: Event[] = (finalEventsData as any[] || []).map(event => {
         const mappedEvent = mapDatabaseEventToEvent(event);
@@ -165,22 +151,11 @@ export const useNearbyEvents = () => {
         const [lat, lng] = event.location.coordinates;
         const isValid = !isNaN(lat) && !isNaN(lng) && !(lat === 0 && lng === 0);
         
-        // Also check if coordinates are reasonable (not default fallback values)
-        const isReasonableCoords = !(lat === 37.7749 && lng === -122.4194);
-        
-        if (!isValid) {
-          console.log(`Event "${event.title}" has invalid coordinates [${lat}, ${lng}]`);
-        } else if (!isReasonableCoords) {
-          console.log(`Event "${event.title}" using default coordinates [${lat}, ${lng}] - might need better location data`);
-        }
-        
         return isValid;
       });
 
-      console.log('Final formatted events:', formattedEvents);
       setEvents(formattedEvents);
     } catch (error) {
-      console.error('Error fetching events:', error);
       const errorMessage = 'Failed to fetch nearby events. Please try again later.';
       setError(errorMessage);
       toast({

@@ -17,7 +17,7 @@ import {
   Shield
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProductionReadinessAudit } from "@/components/production/ProductionReadinessAudit";
+
 import { AdminOverview } from "@/components/admin/AdminOverview";
 import { EventApprovalCard } from "@/components/admin/EventApprovalCard";
 import { useProductionStats } from "@/hooks/useProductionStats";
@@ -58,9 +58,6 @@ const AdminDashboard = () => {
       pageTitle="Admin Dashboard"
       pageDescription="Manage your platform and monitor activity"
     >
-      <div className="mb-8">
-        <ProductionReadinessAudit />
-      </div>
 
       <div className="space-y-8">
         {/* Stats Grid */}

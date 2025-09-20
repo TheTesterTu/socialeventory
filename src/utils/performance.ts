@@ -1,35 +1,37 @@
+import React from 'react';
 
-// Simple performance utility for marking and measuring
-const marks = new Map<string, number>();
-const measures = new Map<string, number>();
-
-export const performance = {
-  mark: (name: string) => {
-    if (typeof window !== 'undefined' && window.performance) {
-      window.performance.mark(name);
-      marks.set(name, window.performance.now());
-    }
-  },
+// Optimized performance utilities for production
+export const debounce = <T extends (...args: any[]) => any>(
+  func: T,
+  delay: number
+): ((...args: Parameters<T>) => void) => {
+  let timeoutId: ReturnType<typeof setTimeout>;
   
-  measure: (name: string, startMark: string, endMark: string) => {
-    if (typeof window !== 'undefined' && window.performance) {
-      try {
-        window.performance.measure(name, startMark, endMark);
-        const measure = window.performance.getEntriesByName(name, 'measure')[0];
-        if (measure) {
-          measures.set(name, measure.duration);
-          console.log(`Performance: ${name} took ${measure.duration.toFixed(2)}ms`);
-        }
-      } catch (error) {
-        console.warn('Performance measurement failed:', error);
-      }
-    }
-  },
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
-  getMetrics: () => {
-    return {
-      marks,
-      measures
-    };
+export const throttle = <T extends (...args: any[]) => any>(
+  func: T,
+  limit: number
+): ((...args: Parameters<T>) => void) => {
+  let inThrottle: boolean;
+  
+  return (...args: Parameters<T>) => {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+};
+
+// Image optimization
+export const optimizeImageUrl = (url: string, width: number = 800, quality: number = 80): string => {
+  if (!url || url.includes('unsplash.com')) {
+    return `${url}?w=${width}&q=${quality}&auto=format&fit=crop`;
   }
+  return url;
 };
