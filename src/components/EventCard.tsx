@@ -70,6 +70,15 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
             
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
             
+            {/* Past event overlay */}
+            {(event as any).isPast && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <Badge variant="secondary" className="bg-background/90 text-foreground border border-border">
+                  Event Ended
+                </Badge>
+              </div>
+            )}
+            
             <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
               {category.slice(0, 1).map((cat) => (
                 <Badge key={cat} variant="secondary" className="text-xs bg-black/60 text-white backdrop-blur-sm border-0">
