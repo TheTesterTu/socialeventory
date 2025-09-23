@@ -140,7 +140,7 @@ export const RealDataLoader = () => {
       // Upload a test image to event-images bucket
       try {
         const testImageUrl = await uploadTestImage('event-images');
-        console.log('Test image uploaded:', testImageUrl);
+        // Test image uploaded successfully
       } catch (imageError) {
         console.warn('Image upload test failed:', imageError);
         // Continue anyway - images are not critical

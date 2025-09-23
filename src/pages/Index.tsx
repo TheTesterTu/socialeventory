@@ -1,24 +1,14 @@
 
-import { useEffect } from "react";
-import { AppLayoutWithBoundary } from "@/components/layout/AppLayoutWithBoundary";
 import { HomeHero } from "@/components/home/HomeHero";
 import { FeaturedEvents } from "@/components/home/FeaturedEvents";
 import { QuickCategories } from "@/components/home/QuickCategories";
 import { EventsNearYou } from "@/components/home/EventsNearYou";
 import { useRealtimeEvents } from "@/hooks/useRealtimeEvents";
-
 import { SEOHead } from "@/components/seo/SEOHead";
 import { motion } from "framer-motion";
-import { isDevelopment } from "@/utils/productionConfig";
 
 const Index = () => {
-  const { isConnected } = useRealtimeEvents();
-
-  useEffect(() => {
-    if (isConnected && isDevelopment()) {
-      console.log('🔴 Real-time connection established on Index page');
-    }
-  }, [isConnected]);
+  useRealtimeEvents();
 
   return (
     <div className="min-h-screen bg-background">

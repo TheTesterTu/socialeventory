@@ -24,109 +24,74 @@ export const useUnifiedEvents = ({
   return useQuery({
     queryKey: ['unified-events', { searchQuery, category, featured, limit, sortBy, sortOrder }],
     queryFn: async (): Promise<Event[]> => {
-      console.log('🔄 Fetching unified events with params:', { searchQuery, category, featured, limit, sortBy, sortOrder });
-      
-      try {
-        let query = supabase
-          .from('events')
-          .select('*');
+      let query = supabase
+        .from('events')
+        .select('*');
 
-        // Apply featured filter
-        if (featured) {
-          query = query.eq('is_featured', true);
-        }
+      // Filter out past events (older than 7 days ago) for better performance
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      query = query.gte('start_date', sevenDaysAgo.toISOString());
 
-        // Apply category filter
-        if (category && category.length > 0) {
-          query = query.overlaps('category', category);
-        }
-
-        // Apply search filter
-        if (searchQuery && searchQuery.trim()) {
-          query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
-        }
-
-        // Apply sorting
-        query = query.order(sortBy, { ascending: sortOrder === 'asc' });
-
-        // Apply limit
-        if (limit) {
-          query = query.limit(limit);
-        }
-
-        console.log('🔍 Executing Supabase query...');
-        const { data, error } = await query;
-
-        if (error) {
-          console.error('❌ Supabase query error:', error);
-          throw error;
-        }
-
-        if (!data || data.length === 0) {
-          console.log('⚠️ No events found in database');
-          return [];
-        }
-
-        console.log(`✅ Found ${data.length} events from database:`, data);
-        
-        // Map database events to Event interface
-        const mappedEvents = data.map((dbEvent, index) => {
-          try {
-            console.log(`🔄 Mapping event ${index + 1}:`, dbEvent);
-            return mapDatabaseEventToEvent(dbEvent);
-          } catch (mappingError) {
-            console.error(`❌ Error mapping event ${dbEvent.id}:`, mappingError);
-            // Return a safe fallback event
-            return {
-              id: dbEvent.id || `fallback-${index}`,
-              title: dbEvent.title || 'Untitled Event',
-              description: dbEvent.description || 'No description available',
-              startDate: dbEvent.start_date || new Date().toISOString(),
-              endDate: dbEvent.end_date || new Date().toISOString(),
-              location: {
-                coordinates: [37.7749, -122.4194] as [number, number],
-                address: dbEvent.location || 'Location not specified',
-                venue_name: dbEvent.venue_name || ''
-              },
-              category: Array.isArray(dbEvent.category) ? dbEvent.category : ['Other'],
-              tags: Array.isArray(dbEvent.tags) ? dbEvent.tags : [],
-              accessibility: {
-                languages: ['en'],
-                wheelchairAccessible: false,
-                familyFriendly: true
-              },
-              pricing: {
-                isFree: true,
-                currency: 'USD'
-              },
-              creator: {
-                id: dbEvent.created_by || 'unknown',
-                type: 'user' as const
-              },
-              verification: {
-                status: 'pending' as const
-              },
-              imageUrl: dbEvent.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87',
-              likes: dbEvent.likes || 0,
-              attendees: dbEvent.attendees || 0
-            };
-          }
-        });
-        
-        console.log('✅ Successfully mapped events:', mappedEvents.length);
-        return mappedEvents;
-      } catch (error) {
-        console.error('❌ Error in useUnifiedEvents:', error);
-        throw error;
+      if (featured) {
+        query = query.eq('is_featured', true);
       }
+
+      if (category && category.length > 0) {
+        query = query.overlaps('category', category);
+      }
+
+      if (searchQuery && searchQuery.trim()) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
+      }
+
+      query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+
+      if (limit) {
+        query = query.limit(limit);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      if (!data || data.length === 0) return [];
+      
+      return data.map(dbEvent => {
+        try {
+          return mapDatabaseEventToEvent(dbEvent);
+        } catch {
+          return {
+            id: dbEvent.id || Math.random().toString(),
+            title: dbEvent.title || 'Untitled Event',
+            description: dbEvent.description || '',
+            startDate: dbEvent.start_date || new Date().toISOString(),
+            endDate: dbEvent.end_date || new Date().toISOString(),
+            location: {
+              coordinates: [37.7749, -122.4194] as [number, number],
+              address: dbEvent.location || 'Location not specified',
+              venue_name: dbEvent.venue_name || ''
+            },
+            category: Array.isArray(dbEvent.category) ? dbEvent.category : ['Other'],
+            tags: Array.isArray(dbEvent.tags) ? dbEvent.tags : [],
+            accessibility: {
+              languages: ['en'],
+              wheelchairAccessible: false,
+              familyFriendly: true
+            },
+            pricing: { isFree: true, currency: 'USD' },
+            creator: { id: dbEvent.created_by || 'unknown', type: 'user' as const },
+            verification: { status: 'pending' as const },
+            imageUrl: dbEvent.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87',
+            likes: dbEvent.likes || 0,
+            attendees: dbEvent.attendees || 0
+          };
+        }
+      });
     },
-    staleTime: 1000 * 60 * 2, // 2 minutes
-    gcTime: 1000 * 60 * 10, // 10 minutes
-    retry: (failureCount, error) => {
-      console.log('🔄 Retry attempt:', failureCount, 'Error:', error);
-      return failureCount < 2;
-    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes
+    retry: 2,
     refetchOnWindowFocus: false,
-    refetchOnReconnect: true
+    refetchOnReconnect: false
   });
 };

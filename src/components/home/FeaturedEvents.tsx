@@ -5,7 +5,6 @@ import { useUnifiedEvents } from "@/hooks/useUnifiedEvents";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
-import { devLog } from "@/utils/productionConfig";
 
 export const FeaturedEvents = () => {
   const { data: events = [], isLoading, error } = useUnifiedEvents({
@@ -14,8 +13,6 @@ export const FeaturedEvents = () => {
     sortBy: 'start_date',
     sortOrder: 'asc'
   });
-
-  devLog('🔄 FeaturedEvents - Loading:', isLoading, 'Events:', events.length, 'Error:', error);
 
   if (isLoading) {
     return (
@@ -33,7 +30,6 @@ export const FeaturedEvents = () => {
   }
 
   if (error) {
-    console.error('❌ FeaturedEvents error:', error);
     return (
       <section className="space-y-6">
         <div className="flex items-center justify-between">
@@ -41,14 +37,13 @@ export const FeaturedEvents = () => {
         </div>
         <div className="glass-panel p-8 rounded-2xl text-center">
           <p className="text-destructive mb-2">Error loading featured events</p>
-          <p className="text-muted-foreground text-sm">{error?.message || 'Please try again later'}</p>
+          <p className="text-muted-foreground text-sm">Please try again later</p>
         </div>
       </section>
     );
   }
 
   if (events.length === 0) {
-    devLog('⚠️ No featured events found');
     return (
       <section className="space-y-6">
         <div className="flex items-center justify-between">
@@ -61,8 +56,6 @@ export const FeaturedEvents = () => {
       </section>
     );
   }
-
-  devLog('✅ Rendering', events.length, 'featured events');
 
   return (
     <motion.section

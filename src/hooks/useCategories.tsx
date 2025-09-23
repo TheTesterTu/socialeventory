@@ -16,24 +16,17 @@ export const useCategories = () => {
   return useQuery({
     queryKey: ['categories'],
     queryFn: async (): Promise<Category[]> => {
-      console.log('🔄 Fetching categories from Supabase...');
-      
       const { data, error } = await supabase
         .from('categories')
         .select('*')
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
-      if (error) {
-        console.error('❌ Error fetching categories:', error);
-        throw error;
-      }
-
-      console.log('✅ Categories fetched:', data);
+      if (error) throw error;
       return data || [];
     },
-    staleTime: 1000 * 60 * 10, // 10 minutes
-    gcTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 1000 * 60 * 30, // 30 minutes
+    gcTime: 1000 * 60 * 60, // 1 hour
   });
 };
 

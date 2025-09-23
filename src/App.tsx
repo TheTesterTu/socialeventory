@@ -15,7 +15,6 @@ import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
-import Search from "./pages/Search";
 import SearchPage from "./pages/SearchPage";
 import Nearby from "./pages/Nearby";
 import Settings from "./pages/Settings";
@@ -73,8 +72,7 @@ function App() {
                       <Route path="/profile/edit" element={<ProfileEdit />} />
                       <Route path="/auth" element={<Auth />} />
                       <Route path="/reset-password" element={<ResetPassword />} />
-                      <Route path="/search" element={<Search />} />
-                      <Route path="/search-page" element={<SearchPage />} />
+                      <Route path="/search" element={<SearchPage />} />
                       <Route path="/nearby" element={<Nearby />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/about" element={<About />} />

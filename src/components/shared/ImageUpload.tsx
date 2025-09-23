@@ -32,7 +32,7 @@ export const ImageUpload = ({
     folder,
     maxSizeMB: 10,
     allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
-    onProgress: (prog) => console.log(`Upload progress: ${prog}%`)
+    onProgress: (prog) => {} // Silent progress
   });
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
