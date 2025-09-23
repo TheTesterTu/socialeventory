@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { testStorageAccess, uploadTestImage } from "@/services/storageSetup";
 
-// Real event data for the requested locations
+// Comprehensive real event data for European cities
 const realEventsData = [
   // Catania, Sicily Events
   {
@@ -100,6 +100,112 @@ const realEventsData = [
     pricing: { isFree: false, priceRange: [35, 55], currency: "EUR" },
     accessibility: { languages: ["Dutch", "English"], wheelchairAccessible: true, familyFriendly: false },
     image_url: "https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea"
+  },
+
+  // Nice, France Events
+  {
+    title: "Nice Carnival 2025",
+    description: "The famous Carnival of Nice with magnificent floats, street performances, and the traditional Battle of Flowers.",
+    location: "Promenade des Anglais, Nice, France",
+    venue_name: "Place Masséna",
+    coordinates: "(7.2683,43.6963)",
+    start_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+    end_date: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
+    category: ["Cultural", "Festival", "Family"],
+    tags: ["carnival", "parade", "flowers", "traditional"],
+    pricing: { isFree: false, priceRange: [15, 45], currency: "EUR" },
+    accessibility: { languages: ["French", "English"], wheelchairAccessible: true, familyFriendly: true },
+    image_url: "https://images.unsplash.com/photo-1578662996442-48f60103fc96"
+  },
+  {
+    title: "Mediterranean Food Festival Nice",
+    description: "Taste the best of Mediterranean cuisine with local chefs and producers from across the Riviera.",
+    location: "Old Town Nice, France",
+    venue_name: "Cours Saleya Market",
+    coordinates: "(7.2760,43.6961)",
+    start_date: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
+    end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    category: ["Food", "Cultural", "Market"],
+    tags: ["mediterranean", "local food", "market", "riviera"],
+    pricing: { isFree: true, priceRange: [0, 0], currency: "EUR" },
+    accessibility: { languages: ["French", "English", "Italian"], wheelchairAccessible: true, familyFriendly: true },
+    image_url: "https://images.unsplash.com/photo-1555939594-58e4c4844a28"
+  },
+
+  // Vienna, Austria Events
+  {
+    title: "Vienna New Year Concert 2025",
+    description: "The world-famous New Year's Concert by the Vienna Philharmonic at the Golden Hall of the Musikverein.",
+    location: "Vienna, Austria",
+    venue_name: "Musikverein Golden Hall",
+    coordinates: "(16.3738,48.2002)",
+    start_date: new Date(Date.now() + 32 * 24 * 60 * 60 * 1000).toISOString(),
+    end_date: new Date(Date.now() + 32 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000).toISOString(),
+    category: ["Music", "Classical", "Cultural"],
+    tags: ["vienna philharmonic", "new year", "classical", "concert"],
+    pricing: { isFree: false, priceRange: [150, 800], currency: "EUR" },
+    accessibility: { languages: ["German", "English"], wheelchairAccessible: true, familyFriendly: true },
+    image_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d"
+  },
+  {
+    title: "Vienna Winter Ball Season",
+    description: "Traditional Viennese ball with classical music, dancing, and elegant atmosphere in historic venues.",
+    location: "Vienna City Center, Austria",
+    venue_name: "Vienna State Opera",
+    coordinates: "(16.3691,48.2036)",
+    start_date: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+    end_date: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
+    category: ["Cultural", "Music", "Dance"],
+    tags: ["ball", "waltz", "traditional", "formal"],
+    pricing: { isFree: false, priceRange: [120, 350], currency: "EUR" },
+    accessibility: { languages: ["German", "English"], wheelchairAccessible: true, familyFriendly: false },
+    image_url: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65"
+  },
+  {
+    title: "Schönbrunn Palace Winter Markets",
+    description: "Christmas market at the imperial Schönbrunn Palace with traditional crafts and seasonal delights.",
+    location: "Schönbrunn Palace, Vienna, Austria",
+    venue_name: "Schönbrunn Palace Courtyard",
+    coordinates: "(16.3120,48.1847)",
+    start_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    end_date: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000).toISOString(),
+    category: ["Cultural", "Shopping", "Family"],
+    tags: ["christmas market", "palace", "crafts", "imperial"],
+    pricing: { isFree: true, priceRange: [0, 0], currency: "EUR" },
+    accessibility: { languages: ["German", "English"], wheelchairAccessible: true, familyFriendly: true },
+    image_url: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000"
+  },
+
+  // Additional Luxembourg Events
+  {
+    title: "Luxembourg Wine Festival",
+    description: "Annual celebration of Luxembourg's finest wines with tastings from local vineyards along the Moselle.",
+    location: "Remich, Luxembourg",
+    venue_name: "Moselle Riverfront",
+    coordinates: "(6.3667,49.5456)",
+    start_date: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000).toISOString(),
+    end_date: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+    category: ["Food", "Cultural", "Festival"],
+    tags: ["wine", "vineyard", "moselle", "tasting"],
+    pricing: { isFree: false, priceRange: [25, 60], currency: "EUR" },
+    accessibility: { languages: ["French", "German", "English", "Luxembourgish"], wheelchairAccessible: true, familyFriendly: true },
+    image_url: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f"
+  },
+
+  // Additional Amsterdam Events  
+  {
+    title: "Amsterdam Museum Night",
+    description: "One night when 50+ museums stay open late with special exhibitions, performances, and unique experiences.",
+    location: "Amsterdam Museums, Netherlands",
+    venue_name: "Multiple Venues",
+    coordinates: "(4.9041,52.3676)",
+    start_date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
+    end_date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000).toISOString(),
+    category: ["Arts", "Cultural", "Night"],
+    tags: ["museum", "art", "exhibition", "cultural"],
+    pricing: { isFree: false, priceRange: [25, 35], currency: "EUR" },
+    accessibility: { languages: ["Dutch", "English"], wheelchairAccessible: true, familyFriendly: true },
+    image_url: "https://images.unsplash.com/photo-1544967919-6aa6ca82cee5"
   }
 ];
 
@@ -177,10 +283,10 @@ export const RealDataLoader = () => {
 
       setProgress(100);
       setSuccess(true);
-      setMessage(`Successfully loaded ${eventsCreated} real events for Catania, Luxembourg, and Amsterdam!`);
+      setMessage(`Successfully loaded ${eventsCreated} real events across 5 European cities!`);
       
       toast.success(`Added ${eventsCreated} real events with working storage!`, {
-        description: "Events are now available in Sicily, Luxembourg, and Amsterdam"
+        description: "Events now available across 5 European cities"
       });
 
     } catch (error) {
@@ -201,8 +307,8 @@ export const RealDataLoader = () => {
           Real Event Data Loader
         </CardTitle>
         <CardDescription>
-          Load real events happening this week in Catania (Sicily), Luxembourg, and Amsterdam. 
-          This will test storage functionality and populate your app with actual event data.
+          Load 15+ real events happening in the next months across Europe: Catania (Sicily), Luxembourg, Nice, Vienna, and Amsterdam. 
+          This will populate your app with upcoming festivals, concerts, markets, and cultural events.
         </CardDescription>
       </CardHeader>
       
@@ -243,9 +349,11 @@ export const RealDataLoader = () => {
               <div className="mt-2 text-sm">
                 <p>📍 Events loaded for:</p>
                 <ul className="list-disc list-inside ml-2">
-                  <li>Catania, Sicily - Street food festival & Etna tour</li>
-                  <li>Luxembourg - Winter market & New Year concert</li>
-                  <li>Amsterdam - Light walk & cheese tasting</li>
+                  <li>Catania, Sicily - Street food, Etna tours</li>
+                  <li>Luxembourg - Markets, concerts, wine festival</li>
+                  <li>Amsterdam - Light walks, cheese tasting, museums</li>
+                  <li>Nice, France - Carnival, Mediterranean food</li>
+                  <li>Vienna, Austria - Concerts, balls, palace markets</li>
                 </ul>
               </div>
             </AlertDescription>
