@@ -56,8 +56,9 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
       } else if (typeof dbEvent.coordinates === 'object' && dbEvent.coordinates !== null) {
         // Handle different coordinate object formats
         if ('x' in dbEvent.coordinates && 'y' in dbEvent.coordinates) {
-          const lat = safeNumber(dbEvent.coordinates.x);
-          const lng = safeNumber(dbEvent.coordinates.y);
+          // PostgreSQL POINT format: x=longitude, y=latitude
+          const lng = safeNumber(dbEvent.coordinates.x);
+          const lat = safeNumber(dbEvent.coordinates.y);
           if (lat !== 0 || lng !== 0) {
             coordinates = [lat, lng];
           }

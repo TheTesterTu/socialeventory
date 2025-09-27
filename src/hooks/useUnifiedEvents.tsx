@@ -22,16 +22,16 @@ export const useUnifiedEvents = ({
   sortOrder = 'desc'
 }: UseUnifiedEventsParams = {}) => {
   return useQuery({
-    queryKey: ['unified-events', { searchQuery, category, featured, limit, sortBy, sortOrder }],
+    queryKey: ['unified-events-v2', { searchQuery, category, featured, limit, sortBy, sortOrder }],
     queryFn: async (): Promise<Event[]> => {
       let query = supabase
         .from('events')
         .select('*');
 
-      // Filter out past events (older than 7 days ago) for better performance
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      query = query.gte('start_date', sevenDaysAgo.toISOString());
+      // Filter out past events (older than 1 day ago) for better performance
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      query = query.gte('start_date', yesterday.toISOString());
 
       if (featured) {
         query = query.eq('is_featured', true);
@@ -88,10 +88,10 @@ export const useUnifiedEvents = ({
         }
       });
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 30, // 30 minutes
-    retry: 2,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false
+    staleTime: 0, // Always fetch fresh data for debugging
+    gcTime: 1000 * 60 * 1, // 1 minute
+    retry: 1,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true
   });
 };

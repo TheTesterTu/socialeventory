@@ -213,7 +213,7 @@ serve(async (req) => {
       JSON.stringify({ 
         success: false, 
         message: "Error inserting events",
-        error: error.message
+        error: error instanceof Error ? error.message : 'Unknown error'
       }),
       {
         status: 500,
