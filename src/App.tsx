@@ -30,7 +30,7 @@ import Organizers from "./pages/Organizers";
 import NotFound from "./pages/NotFound";
 import NotificationsPage from "./pages/NotificationsPage";
 import AdminDashboard from "./pages/AdminDashboard";
-import ProductionStatus from "./pages/ProductionStatus";
+
 import { ProtectedAdminRoute } from "@/components/ProtectedAdminRoute";
 import { PERFORMANCE_CONFIG } from "@/utils/productionConfig";
 
@@ -85,7 +85,7 @@ function App() {
                       <Route path="/organizers/:id" element={<OrganizerProfile />} />
                       <Route path="/notifications" element={<NotificationsPage />} />
                       <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
-                      <Route path="/production-status" element={<ProtectedAdminRoute><ProductionStatus /></ProtectedAdminRoute>} />
+                      
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                     <Toaster />

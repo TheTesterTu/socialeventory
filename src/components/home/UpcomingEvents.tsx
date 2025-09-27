@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { EventCardGlass } from "../EventCardGlass";
+import { EventCard } from "../EventCard";
 import { useUnifiedEvents } from "@/hooks/useUnifiedEvents";
 import { ArrowRight, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -80,10 +80,10 @@ export const UpcomingEvents = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <EventCardGlass 
+            <EventCard 
               event={event} 
-              showSocialActions={false}
-              className="hover:scale-[1.02] transition-transform"
+              index={index}
+              variant="default"
             />
           </motion.div>
         ))}

@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { testStorageAccess, uploadTestImage } from "@/services/storageSetup";
+
 
 // Comprehensive real event data for European cities
 const realEventsData = [
@@ -225,32 +225,9 @@ export const RealDataLoader = () => {
       setProgress(0);
       setEventsCreated(0);
 
-      // Step 1: Test storage access
-      setMessage("Testing storage access...");
-      setProgress(10);
-      
-      const storageResult = await testStorageAccess();
-      setStorageTest(storageResult);
-      
-      if (!storageResult.success) {
-        throw new Error("Storage access test failed - cannot proceed with image uploads");
-      }
-      
+      // Step 1: Prepare to load data
+      setMessage("Preparing to load real event data...");
       setProgress(20);
-      setMessage("Storage access verified! Starting data upload...");
-
-      // Step 2: Upload test images for some events
-      setProgress(30);
-      setMessage("Uploading test images...");
-      
-      // Upload a test image to event-images bucket
-      try {
-        const testImageUrl = await uploadTestImage('event-images');
-        // Test image uploaded successfully
-      } catch (imageError) {
-        console.warn('Image upload test failed:', imageError);
-        // Continue anyway - images are not critical
-      }
 
       setProgress(50);
       

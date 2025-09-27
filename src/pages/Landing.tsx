@@ -1,4 +1,4 @@
-import { OptimizedAppLayout } from "@/components/layout/OptimizedAppLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { HomeHero } from "@/components/home/HomeHero";
@@ -16,7 +16,7 @@ const Landing = () => {
   const { data: blogPosts = [] } = useBlogPosts();
 
   return (
-    <OptimizedAppLayout 
+    <AppLayout 
       pageTitle="SocialEventory - Discover Amazing Events"
       pageDescription="Find and share amazing events in your community. Connect with people who share your interests through SocialEventory."
     >
@@ -47,7 +47,7 @@ const Landing = () => {
           <FeaturedBlog posts={blogPosts} />
         </div>
       </ErrorBoundary>
-    </OptimizedAppLayout>
+    </AppLayout>
   );
 };
 

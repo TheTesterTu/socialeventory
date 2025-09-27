@@ -2,10 +2,6 @@
 export const analytics = {
   track: (event: string, properties?: Record<string, any>) => {
     if (typeof window !== 'undefined') {
-      // Only log in development mode
-      if (import.meta.env.DEV) {
-        console.log('Analytics:', event, properties);
-      }
       
       // Store analytics data for future integration
       try {
@@ -32,9 +28,6 @@ export const analytics = {
 
   page: (path: string, title?: string) => {
     if (typeof window !== 'undefined') {
-      if (import.meta.env.DEV) {
-        console.log('Page view:', path, title);
-      }
       
       analytics.track('page_view', {
         path,
@@ -46,9 +39,6 @@ export const analytics = {
 
   identify: (userId: string, traits?: Record<string, any>) => {
     if (typeof window !== 'undefined') {
-      if (import.meta.env.DEV) {
-        console.log('Identify user:', userId, traits);
-      }
       
       analytics.track('user_identify', {
         userId,

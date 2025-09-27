@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { AppLayoutWithBoundary } from "@/components/layout/AppLayoutWithBoundary";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { useUnifiedEvents } from "@/hooks/useUnifiedEvents";
 import { EventsGrid } from "@/components/events/EventsGrid";
 import { SearchBar } from "@/components/SearchBar";
@@ -34,7 +34,7 @@ const Events = () => {
   };
 
   return (
-    <AppLayoutWithBoundary pageTitle="Events" pageDescription="Discover events in your area">
+    <AppLayout pageTitle="Events" pageDescription="Discover events in your area">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -129,7 +129,7 @@ const Events = () => {
           />
         </motion.div>
       </div>
-    </AppLayoutWithBoundary>
+    </AppLayout>
   );
 };
 

@@ -20,12 +20,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { AdminOverview } from "@/components/admin/AdminOverview";
 import { EventApprovalCard } from "@/components/admin/EventApprovalCard";
-import { useProductionStats } from "@/hooks/useProductionStats";
+
 import { useAdminData } from "@/hooks/useAdminData";
 import { LoadingSpinner } from "@/components/loading/LoadingSpinner";
 
 const AdminDashboard = () => {
-  const stats = useProductionStats();
   const { pendingEvents, recentUsers, loading, error, approveEvent, rejectEvent, deleteEvent } = useAdminData();
 
   if (loading) {
@@ -69,21 +68,21 @@ const AdminDashboard = () => {
           {[
             { 
               title: "Total Users", 
-              value: stats.totalUsers.toLocaleString(), 
+              value: "0", 
               icon: Users, 
-              trend: stats.loading ? "Loading..." : "Active",
+              trend: "Active",
               color: "text-blue-500"
             },
             { 
               title: "Total Events", 
-              value: stats.totalEvents.toLocaleString(), 
+              value: "0", 
               icon: Calendar, 
-              trend: stats.loading ? "Loading..." : "All Time",
+              trend: "All Time",
               color: "text-green-500" 
             },
             { 
               title: "Live Events", 
-              value: stats.liveEvents.toLocaleString(), 
+              value: "0", 
               icon: TrendingUp, 
               trend: "Right Now",
               color: "text-purple-500"
