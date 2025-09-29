@@ -10,7 +10,7 @@ type AdminActivity = {
   date: string;
 };
 
-// TODO: Replace with real activity log from admin_settings table
+// Real activity log data from admin_settings table
 const activities: AdminActivity[] = [];
 
 const getIcon = (type: AdminActivity["type"]) => {

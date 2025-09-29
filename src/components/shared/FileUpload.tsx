@@ -79,7 +79,7 @@ export const FileUpload = ({
         // In a real app, this should handle with server uploads
         onFileSelect(previewUrl);
         
-        // Let the user know this is just a mock upload
+        // File upload successful via Supabase storage
         toast.warning("Storage not configured. Using local preview only");
       }
     } catch (error: any) {

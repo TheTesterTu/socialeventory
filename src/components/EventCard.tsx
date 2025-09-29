@@ -142,10 +142,16 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
             </div>
 
             <div className="pt-3 mt-3 flex justify-between items-center border-t border-border/50">
-              <div className="flex items-center gap-2 text-sm">
-                <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium text-foreground">{attendees}</span>
-                <span className="text-muted-foreground truncate">attending</span>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="font-medium text-foreground">{attendees}</span>
+                  <span className="text-muted-foreground">attending</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="font-medium text-foreground">{event.likes || 0}</span>
+                  <span className="text-muted-foreground">likes</span>
+                </div>
               </div>
               
               {pricing && (

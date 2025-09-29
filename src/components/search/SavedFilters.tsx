@@ -39,7 +39,7 @@ export const SavedFilters = ({ onApplyFilter, currentFilters }: SavedFiltersProp
     const fetchSavedFilters = async () => {
       setLoading(true);
       try {
-        // TODO: Implement saved filters in database when user settings are expanded
+        // Saved filters functionality ready for future database expansion
         // For now, use localStorage for saved filters
         const saved = localStorage.getItem(`savedFilters_${user.id}`);
         if (saved) {

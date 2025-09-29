@@ -88,10 +88,10 @@ export const useUnifiedEvents = ({
         }
       });
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 1000, // 30 seconds - fresh data for interactions
+    gcTime: 2 * 60 * 1000, // 2 minutes
     retry: 1,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     refetchOnReconnect: true
   });
 };

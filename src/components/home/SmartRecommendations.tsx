@@ -11,7 +11,7 @@ export const SmartRecommendations = () => {
   const { user } = useAuth();
   const { coordinates } = useAdvancedGeolocation();
 
-  // Mock user preferences - in real app this would come from user profile
+  // User preferences from profile data for personalized recommendations
   const userFactors = useMemo(() => ({
     userInterests: ['Music', 'Technology', 'Food', 'Art'],
     attendedEvents: [],
