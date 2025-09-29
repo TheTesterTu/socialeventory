@@ -20,7 +20,7 @@ const Events = () => {
     category: selectedCategories.length > 0 ? selectedCategories : undefined,
   });
 
-  console.log('Events page - loaded events:', events?.length || 0, 'loading:', isLoading, 'error:', error);
+  
 
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev => 

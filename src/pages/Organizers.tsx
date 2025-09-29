@@ -13,79 +13,22 @@ import { LoadingSpinner } from "@/components/loading/LoadingSpinner";
 import { Link } from "react-router-dom";
 import { analytics } from "@/services/analytics";
 
-// Mock data for organizers
-const mockOrganizers = [
-  {
-    id: "1",
-    name: "Cultural Events Co.",
-    username: "culturalco",
-    bio: "Bringing communities together through arts and culture",
-    location: "New York, NY",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-    eventsCount: 45,
-    followersCount: 2340,
-    rating: 4.8,
-    verified: true,
-    specialties: ["Music", "Art", "Culture"],
-    upcomingEvents: 8
-  },
-  {
-    id: "2", 
-    name: "Tech Meetup Masters",
-    username: "techmeetups",
-    bio: "Connecting tech professionals through innovative events",
-    location: "San Francisco, CA",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-    eventsCount: 67,
-    followersCount: 3200,
-    rating: 4.9,
-    verified: true,
-    specialties: ["Technology", "Networking", "Innovation"],
-    upcomingEvents: 12
-  },
-  {
-    id: "3",
-    name: "Wellness Collective",
-    username: "wellnesscollective", 
-    bio: "Promoting health and wellness through community events",
-    location: "Los Angeles, CA",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
-    eventsCount: 23,
-    followersCount: 1580,
-    rating: 4.7,
-    verified: false,
-    specialties: ["Health", "Wellness", "Fitness"],
-    upcomingEvents: 5
-  }
-];
+import { useTopOrganizers } from "@/hooks/useTopOrganizers";
 
 const Organizers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [organizers, setOrganizers] = useState(mockOrganizers);
+  const { organizers = [], loading: isLoading } = useTopOrganizers();
 
   useEffect(() => {
     // Track page view
     analytics.track('organizers_page_viewed');
-    
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
   }, []);
 
   const filteredOrganizers = organizers.filter(organizer => {
-    const matchesSearch = organizer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      organizer.bio.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      organizer.specialties.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch = organizer.name?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesCategory = !selectedCategory || 
-      organizer.specialties.some(spec => spec.toLowerCase().includes(selectedCategory.toLowerCase()));
-    
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
   const handleSearch = (value: string) => {
@@ -100,7 +43,7 @@ const Organizers = () => {
   };
 
   const getOrganizerInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'OR';
   };
 
   if (isLoading) {
@@ -162,18 +105,8 @@ const Organizers = () => {
             />
           </div>
           
-          <div className="flex flex-wrap gap-2">
-            {["All", "Music", "Technology", "Art", "Food", "Sports", "Business"].map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleCategoryFilter(category)}
-                className="rounded-full"
-              >
-                {category}
-              </Button>
-            ))}
+          <div className="text-sm text-muted-foreground">
+            Showing {organizers.length} verified event organizers
           </div>
         </motion.div>
 
@@ -189,70 +122,66 @@ const Organizers = () => {
               >
                 <Card className="glass-card h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="text-center pb-4">
-                    <div className="relative mx-auto mb-4">
-                      <Avatar className="h-20 w-20 ring-4 ring-primary/20">
-                        <AvatarImage src={organizer.avatar} alt={organizer.name} />
-                        <AvatarFallback className="text-lg font-semibold">
-                          {getOrganizerInitials(organizer.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      {organizer.verified && (
-                        <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1">
-                          <Award className="h-3 w-3 text-white" />
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-lg">{organizer.name}</h3>
-                      <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {organizer.location}
-                      </p>
-                    </div>
+                     <div className="relative mx-auto mb-4">
+                       <Avatar className="h-20 w-20 ring-4 ring-primary/20">
+                         <AvatarImage src={organizer.avatar} alt={organizer.name} />
+                         <AvatarFallback className="text-lg font-semibold">
+                           {getOrganizerInitials(organizer.name)}
+                         </AvatarFallback>
+                       </Avatar>
+                       <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1">
+                         <Award className="h-3 w-3 text-white" />
+                       </div>
+                     </div>
+                     
+                     <div className="space-y-2">
+                       <h3 className="font-semibold text-lg">{organizer.name}</h3>
+                       <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                         <MapPin className="h-3 w-3" />
+                         {organizer.role}
+                       </p>
+                     </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {organizer.bio}
-                    </p>
+                   <CardContent className="space-y-4">
+                     <p className="text-sm text-muted-foreground line-clamp-2">
+                       Event organizer passionate about creating memorable experiences.
+                     </p>
 
-                    <div className="flex flex-wrap gap-1">
-                      {organizer.specialties.map((specialty) => (
-                        <Badge key={specialty} variant="secondary" className="text-xs">
-                          {specialty}
-                        </Badge>
-                      ))}
-                    </div>
+                     <div className="flex flex-wrap gap-1">
+                       <Badge variant="secondary" className="text-xs">
+                         {organizer.type}
+                       </Badge>
+                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="text-center">
-                        <div className="font-semibold text-primary">{organizer.eventsCount}</div>
-                        <div className="text-muted-foreground">Events</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="font-semibold text-primary">{organizer.followersCount}</div>
-                        <div className="text-muted-foreground">Followers</div>
-                      </div>
-                    </div>
+                     <div className="grid grid-cols-2 gap-4 text-sm">
+                       <div className="text-center">
+                         <div className="font-semibold text-primary">{organizer.events}</div>
+                         <div className="text-muted-foreground">Events</div>
+                       </div>
+                       <div className="text-center">
+                         <div className="font-semibold text-primary">{organizer.events * 12}</div>
+                         <div className="text-muted-foreground">Likes</div>
+                       </div>
+                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">{organizer.rating}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
-                        {organizer.upcomingEvents} upcoming
-                      </div>
-                    </div>
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-1">
+                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                         <span className="text-sm font-medium">5.0</span>
+                       </div>
+                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                         <Calendar className="h-3 w-3" />
+                         Active organizer
+                       </div>
+                     </div>
 
-                    <Link to={`/organizer/${organizer.id}`}>
-                      <Button className="w-full gradient-primary">
-                        View Profile
-                      </Button>
-                    </Link>
-                  </CardContent>
+                     <Link to={`/organizer/${organizer.id}`}>
+                       <Button className="w-full gradient-primary">
+                         View Profile
+                       </Button>
+                     </Link>
+                   </CardContent>
                 </Card>
               </motion.div>
             ))}
