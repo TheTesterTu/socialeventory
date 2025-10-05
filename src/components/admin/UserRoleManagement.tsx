@@ -25,13 +25,33 @@ export const UserRoleManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch users with their roles from user_roles table
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, username, full_name, role, created_at')
+        .select('id, username, full_name, created_at')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setUsers(data || []);
+      if (profilesError) throw profilesError;
+
+      // Fetch roles for each user
+      const usersWithRoles = await Promise.all(
+        (profiles || []).map(async (profile) => {
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', profile.id)
+            .order('role', { ascending: true })
+            .limit(1)
+            .single();
+          
+          return {
+            ...profile,
+            role: roleData?.role || 'user'
+          };
+        })
+      );
+
+      setUsers(usersWithRoles);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error('Failed to load users');
@@ -42,11 +62,19 @@ export const UserRoleManagement = () => {
 
   const updateUserRole = async (userId: string, newRole: string) => {
     try {
-      // Directly update the user's role
+      // Delete existing roles for this user
+      await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
+
+      // Insert new role (cast to proper enum type)
       const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
+        .from('user_roles')
+        .insert([{ 
+          user_id: userId, 
+          role: newRole as 'admin' | 'moderator' | 'user'
+        }]);
 
       if (error) throw error;
 
@@ -55,7 +83,7 @@ export const UserRoleManagement = () => {
         user.id === userId ? { ...user, role: newRole } : user
       ));
 
-      // Log the admin action if function exists
+      // Log the admin action
       try {
         await supabase.rpc('log_admin_action', {
           action_name: 'user_role_updated',
@@ -63,7 +91,6 @@ export const UserRoleManagement = () => {
           action_details: { new_role: newRole }
         });
       } catch (logError) {
-        // Log error but don't fail the operation
         console.error('Failed to log admin action:', logError);
       }
 

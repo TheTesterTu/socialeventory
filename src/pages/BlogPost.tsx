@@ -7,10 +7,11 @@ import { ArrowLeft, Calendar, Clock, Share2, Bookmark, ThumbsUp } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BlogList } from "@/components/blog/BlogList";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import NotFound from "@/pages/NotFound";
 import { useBlogPost, useBlogPosts } from "@/hooks/useBlogPosts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { sanitizeHtml } from "@/lib/utils/sanitize";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -62,6 +63,9 @@ const BlogPost = () => {
   
   const publishedDate = new Date(post.publishedAt);
   const formattedDate = format(publishedDate, 'MMMM dd, yyyy');
+  
+  // Sanitize blog content to prevent XSS attacks
+  const sanitizedContent = useMemo(() => sanitizeHtml(post.content), [post.content]);
   
   return (
     <AppLayout>
@@ -126,7 +130,7 @@ const BlogPost = () => {
           </div>
           
           <div className="prose prose-lg dark:prose-invert max-w-none mb-10 prose-headings:text-primary prose-a:text-primary prose-strong:text-primary" 
-            dangerouslySetInnerHTML={{ __html: post.content }} 
+            dangerouslySetInnerHTML={{ __html: sanitizedContent }} 
           />
           
           <div className="flex flex-wrap items-center justify-between pt-6 border-t border-primary/20">

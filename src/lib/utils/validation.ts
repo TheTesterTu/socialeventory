@@ -6,8 +6,13 @@ export const emailSchema = z.string().email('Please enter a valid email address'
 
 export const passwordSchema = z
   .string()
-  .min(8, 'Password must be at least 8 characters')
-  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number');
+  .min(12, 'Password must be at least 12 characters')
+  .max(128, 'Password must be less than 128 characters')
+  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9])/, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
+  .refine((password) => {
+    const commonPasswords = ['password', '123456', 'qwerty', 'admin', 'letmein', 'welcome'];
+    return !commonPasswords.some(common => password.toLowerCase().includes(common));
+  }, 'Password contains common patterns and is not secure');
 
 export const usernameSchema = z
   .string()
