@@ -21,17 +21,25 @@ export const useTopOrganizers = (limit: number = 4) => {
         setLoading(true);
         setError(null);
 
-        // Get users with events count
+        // Get users with their roles from user_roles table
+        const { data: userRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id, role')
+          .in('role', ['admin', 'moderator']);
+
+        if (rolesError) throw rolesError;
+
+        const userIds = userRoles?.map(r => r.user_id) || [];
+
+        if (userIds.length === 0) {
+          setOrganizers([]);
+          return;
+        }
+
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
-          .select(`
-            id,
-            username,
-            full_name,
-            avatar_url,
-            role
-          `)
-          .not('role', 'is', null);
+          .select('id, username, full_name, avatar_url')
+          .in('id', userIds);
 
         if (profilesError) throw profilesError;
 
@@ -44,13 +52,15 @@ export const useTopOrganizers = (limit: number = 4) => {
                 .select('*', { count: 'exact', head: true })
                 .eq('created_by', profile.id);
 
+              const userRole = userRoles?.find(r => r.user_id === profile.id)?.role || 'user';
+
               return {
                 id: profile.id,
                 name: profile.full_name || profile.username || 'Anonymous',
                 avatar: profile.avatar_url,
                 events: count || 0,
-                role: profile.role === 'admin' ? 'Administrator' : 'Event Organizer',
-                type: profile.role === 'admin' ? 'Featured' : count && count > 5 ? 'Popular' : 'Rising'
+                role: userRole === 'admin' ? 'Administrator' : 'Event Organizer',
+                type: userRole === 'admin' ? 'Featured' : count && count > 5 ? 'Popular' : 'Rising'
               };
             })
           );

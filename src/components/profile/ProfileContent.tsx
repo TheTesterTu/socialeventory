@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Event } from "@/lib/types";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Separator } from "@/components/ui/separator";
+import { useUserOrganizations } from "@/hooks/useUserOrganizations";
 
 interface ProfileContentProps {
   events: Event[];
@@ -25,6 +26,7 @@ export const ProfileContent = ({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
   const isMobile = useIsMobile();
+  const { organizations } = useUserOrganizations();
   
   return (
     <div className="space-y-2">
@@ -48,24 +50,7 @@ export const ProfileContent = ({
           <div>
             <OrganizationsList
               title="Your Organizations"
-              organizations={[
-                {
-                  id: "1",
-                  name: "Tech Meetups SF",
-                  imageUrl: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&h=600&fit=crop",
-                  description: "Organizing tech meetups in San Francisco",
-                  events: 12,
-                  followers: 350
-                },
-                {
-                  id: "2",
-                  name: "Bay Area Hiking Club",
-                  imageUrl: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&h=600&fit=crop",
-                  description: "Weekend hikes and outdoor adventures",
-                  events: 8,
-                  followers: 420
-                }
-              ]}
+              organizations={organizations}
             />
           </div>
         </TabsContent>
