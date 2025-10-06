@@ -135,10 +135,11 @@ export const useEventInteractions = (eventId: string) => {
 
   // Attend/Unattend mutation
   const attendMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (currentStatus: boolean) => {
       if (!user) throw new Error('Authentication required');
       
-      if (isAttending) {
+      // Use the passed currentStatus instead of state to avoid race condition
+      if (currentStatus) {
         const { error } = await supabase
           .from('event_attendees')
           .delete()
@@ -198,7 +199,8 @@ export const useEventInteractions = (eventId: string) => {
       toast.error('Please sign in to attend events');
       return;
     }
-    attendMutation.mutate();
+    // Pass current attending status to avoid race condition with optimistic update
+    attendMutation.mutate(isAttending);
   };
 
   return {

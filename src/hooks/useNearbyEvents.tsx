@@ -25,7 +25,7 @@ export const useNearbyEvents = () => {
       const radiusMeters = radius * 1000; // Convert km to meters
       const now = new Date();
       
-      console.log('[NearbyEvents] Fetching with params:', {
+      console.log('🗺️ [NearbyEvents] Fetching with params:', {
         lat,
         lng,
         radius,
@@ -64,7 +64,14 @@ export const useNearbyEvents = () => {
         throw allEventsError;
       }
 
-      console.log('[NearbyEvents] Fetched events from DB:', allEvents?.length || 0);
+      console.log('📊 [NearbyEvents] Fetched events from DB:', allEvents?.length || 0);
+      if (allEvents && allEvents.length > 0) {
+        console.log('📍 Sample event coordinates:', allEvents.slice(0, 3).map(e => ({
+          title: e.title,
+          coordinates: e.coordinates,
+          location: e.location
+        })));
+      }
       
       // Try the RPC function first for precise distance calculation
       const { data: rpcEvents, error: rpcError } = await supabase
@@ -177,8 +184,16 @@ export const useNearbyEvents = () => {
         return isValid;
       });
 
-      console.log('[NearbyEvents] Final formatted events:', formattedEvents.length);
-      console.log('[NearbyEvents] Sample event:', formattedEvents[0]);
+      console.log('✅ [NearbyEvents] Final formatted events:', formattedEvents.length);
+      if (formattedEvents.length > 0) {
+        console.log('📍 Final events with coordinates:', formattedEvents.map(e => ({
+          title: e.title,
+          coords: e.location.coordinates,
+          isPast: (e as any).isPast
+        })));
+      } else {
+        console.warn('⚠️ No events passed final formatting - check coordinate validation');
+      }
 
       setEvents(formattedEvents);
     } catch (error) {
