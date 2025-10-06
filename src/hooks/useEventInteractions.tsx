@@ -165,6 +165,7 @@ export const useEventInteractions = (eventId: string) => {
       return { previousAttendingStatus: isAttending, previousCount: attendeesCount };
     },
     onSuccess: (data) => {
+      // The data.attending reflects the NEW status after the mutation
       if (data.attending) {
         toast.success("You are now attending this event!");
       } else {

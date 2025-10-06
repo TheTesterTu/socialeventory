@@ -89,22 +89,25 @@ export const useNearbyEvents = () => {
           let eventLat: number;
           let eventLng: number;
           
+          // PostGIS point format is (lng, lat) but we need (lat, lng) for calculations
           if (typeof event.coordinates === 'string') {
             const match = event.coordinates.match(/\(([^,]+),([^)]+)\)/);
             if (match) {
-              eventLat = parseFloat(match[1]);
-              eventLng = parseFloat(match[2]);
+              eventLng = parseFloat(match[1]); // First value is longitude
+              eventLat = parseFloat(match[2]); // Second value is latitude
             } else {
               return false;
             }
           } else if (typeof event.coordinates === 'object' && event.coordinates !== null) {
             const coords = event.coordinates as any;
             if ('x' in coords && 'y' in coords) {
-              eventLat = coords.x;
-              eventLng = coords.y;
+              // PostGIS point: x = longitude, y = latitude
+              eventLng = coords.x;
+              eventLat = coords.y;
             } else if (Array.isArray(coords) && coords.length >= 2) {
-              eventLat = coords[0];
-              eventLng = coords[1];
+              // Array format: [lng, lat]
+              eventLng = coords[0];
+              eventLat = coords[1];
             } else {
               return false;
             }

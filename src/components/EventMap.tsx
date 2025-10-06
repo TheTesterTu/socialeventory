@@ -79,10 +79,10 @@ const EventMap = ({
       // Use user location as center if available, otherwise default to a central location
       const defaultCenter: [number, number] = userLocation || [12.4964, 41.9028]; // Rome, Italy as default
       
-      // Choose map style based on theme
+      // Choose modern map style based on theme with 3D terrain
       const mapStyle = theme === 'dark' 
-        ? 'mapbox://styles/mapbox/dark-v11' 
-        : 'mapbox://styles/mapbox/light-v11';
+        ? 'mapbox://styles/mapbox/navigation-night-v1' 
+        : 'mapbox://styles/mapbox/streets-v12';
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
