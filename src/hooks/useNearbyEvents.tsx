@@ -25,6 +25,16 @@ export const useNearbyEvents = () => {
       const radiusMeters = radius * 1000; // Convert km to meters
       const now = new Date();
       
+      console.log('[NearbyEvents] Fetching with params:', {
+        lat,
+        lng,
+        radius,
+        radiusMeters,
+        selectedDate: selectedDate?.toISOString(),
+        showPastEvents,
+        now: now.toISOString()
+      });
+      
       // First, let's get all events with proper date filtering
       let query = supabase
         .from('events')
@@ -50,8 +60,11 @@ export const useNearbyEvents = () => {
       const { data: allEvents, error: allEventsError } = await query;
       
       if (allEventsError) {
+        console.error('[NearbyEvents] Error fetching events:', allEventsError);
         throw allEventsError;
       }
+
+      console.log('[NearbyEvents] Fetched events from DB:', allEvents?.length || 0);
       
       // Try the RPC function first for precise distance calculation
       const { data: rpcEvents, error: rpcError } = await supabase
@@ -67,6 +80,7 @@ export const useNearbyEvents = () => {
       let finalEventsData;
       
       if (rpcError || !rpcEvents || rpcEvents.length === 0) {
+        console.log('[NearbyEvents] RPC failed or empty, using manual filtering. RPC error:', rpcError?.message);
         
         // Manual distance filtering
         finalEventsData = allEvents?.filter(event => {
@@ -111,7 +125,11 @@ export const useNearbyEvents = () => {
           
           return distance <= radius;
         }) || [];
+        
+        console.log('[NearbyEvents] Manual filtering resulted in:', finalEventsData.length, 'events');
       } else {
+        console.log('[NearbyEvents] Using RPC results:', rpcEvents.length);
+        
         // Use RPC results but still apply date filtering
         finalEventsData = rpcEvents.filter((event: any) => {
           if (selectedDate) {
@@ -133,6 +151,8 @@ export const useNearbyEvents = () => {
           }
           return true;
         });
+        
+        console.log('[NearbyEvents] After date filtering:', finalEventsData.length, 'events');
       }
 
       // Map the events and add past/future status
@@ -153,6 +173,9 @@ export const useNearbyEvents = () => {
         
         return isValid;
       });
+
+      console.log('[NearbyEvents] Final formatted events:', formattedEvents.length);
+      console.log('[NearbyEvents] Sample event:', formattedEvents[0]);
 
       setEvents(formattedEvents);
     } catch (error) {
