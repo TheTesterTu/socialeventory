@@ -643,6 +643,14 @@ export type Database = {
           venue_name: string
         }[]
       }
+      get_public_profile: {
+        Args: { profile_id: string }
+        Returns: {
+          avatar_url: string
+          id: string
+          username: string
+        }[]
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: string
