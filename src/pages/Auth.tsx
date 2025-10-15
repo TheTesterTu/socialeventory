@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Mail, Lock, User, UserCircle, Loader2, ArrowLeft, Github, Facebook } from "lucide-react";
+import { Mail, Lock, User, UserCircle, Loader2, ArrowLeft, Github, Chrome } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { emailSchema, usernameSchema } from "@/lib/utils/validation";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -46,13 +47,32 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    try {
+      emailSchema.parse(email);
+      usernameSchema.parse(username);
+      
+      if (!fullName.trim()) {
+        toast.error("Please enter your full name");
+        return;
+      }
+      
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters long");
+        return;
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Please check your inputs");
+      return;
+    }
+    
     setLoading(true);
     
     try {
       await signUp(email, password, username, fullName);
-      // Don't navigate here, let the AuthContext handle it when user state changes
     } catch (error) {
-      // Error is already handled in the signUp function
+      // Error already handled in signUp
     } finally {
       setLoading(false);
     }
@@ -60,13 +80,26 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    try {
+      emailSchema.parse(email);
+      
+      if (!password) {
+        toast.error("Please enter your password");
+        return;
+      }
+    } catch (error: any) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    
     setLoading(true);
     
     try {
       await signIn(email, password);
-      // Don't navigate here, let the AuthContext handle it when user state changes
     } catch (error) {
-      // Error is already handled in the signIn function
+      // Error already handled in signIn
     } finally {
       setLoading(false);
     }
@@ -74,14 +107,24 @@ const Auth = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    try {
+      emailSchema.parse(email);
+    } catch (error: any) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    
     setLoading(true);
     
     try {
       await resetPassword(email);
       setForgotPassword(false);
       setActiveTab("signin");
+      setEmail(""); // Clear email field
     } catch (error) {
-      // Error is already handled in the resetPassword function
+      // Error already handled in resetPassword
     } finally {
       setLoading(false);
     }
@@ -235,15 +278,18 @@ const Auth = () => {
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    <Button variant="outline" type="button" disabled className="w-full">
+                    <Button variant="outline" type="button" disabled className="w-full opacity-50 cursor-not-allowed">
                       <Github className="mr-2 h-4 w-4" />
                       GitHub
                     </Button>
-                    <Button variant="outline" type="button" disabled className="w-full">
-                      <Facebook className="mr-2 h-4 w-4" />
-                      Facebook
+                    <Button variant="outline" type="button" disabled className="w-full opacity-50 cursor-not-allowed">
+                      <Chrome className="mr-2 h-4 w-4" />
+                      Google
                     </Button>
                   </div>
+                  <p className="text-xs text-muted-foreground text-center mt-2">
+                    Social login coming soon
+                  </p>
                 </form>
               </TabsContent>
               
@@ -301,13 +347,17 @@ const Auth = () => {
                       <Input
                         id="signup-password"
                         type="password"
-                        placeholder="Choose a password"
+                        placeholder="Min. 6 characters"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10"
                         required
+                        minLength={6}
                       />
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      Password must be at least 6 characters
+                    </p>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (

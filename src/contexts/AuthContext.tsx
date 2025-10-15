@@ -1,9 +1,10 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Session } from "@supabase/supabase-js";
+import { User, Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { emailSchema, passwordSchema } from "@/lib/utils/validation";
 
 interface AuthContextType {
   user: User | null;
@@ -74,21 +75,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Validate email
+      emailSchema.parse(email);
+      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
-      toast.success("Successfully signed in!");
+      
+      if (error) {
+        // Handle specific error cases
+        if (error.message.includes("Invalid login credentials")) {
+          throw new Error("Invalid email or password. Please check your credentials and try again.");
+        }
+        if (error.message.includes("Email not confirmed")) {
+          throw new Error("Please verify your email address before signing in. Check your inbox for the confirmation link.");
+        }
+        throw error;
+      }
+      
+      toast.success("Welcome back!");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in");
+      const message = error.message || "Failed to sign in. Please try again.";
+      toast.error(message);
       throw error;
     }
   };
 
   const signUp = async (email: string, password: string, username: string, fullName: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      // Validate inputs
+      emailSchema.parse(email);
+      passwordSchema.parse(password);
+      
+      if (!username || username.length < 3) {
+        throw new Error("Username must be at least 3 characters long");
+      }
+      
+      if (!fullName || fullName.length < 2) {
+        throw new Error("Full name is required");
+      }
+      
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -99,10 +127,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         },
       });
-      if (error) throw error;
-      toast.success("Successfully signed up! Please check your email for verification.");
+      
+      if (error) {
+        // Handle specific error cases
+        if (error.message.includes("User already registered")) {
+          throw new Error("An account with this email already exists. Please sign in instead.");
+        }
+        if (error.message.includes("Password should be")) {
+          throw new Error("Password must be at least 6 characters long");
+        }
+        throw error;
+      }
+      
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        toast.success("Account created! Please check your email to verify your account before signing in.", {
+          duration: 6000,
+        });
+      } else {
+        toast.success("Welcome to SocialEventory! Your account has been created.");
+      }
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign up");
+      const message = error.message || "Failed to create account. Please try again.";
+      toast.error(message);
       throw error;
     }
   };
@@ -130,24 +177,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const resetPassword = async (email: string) => {
     try {
+      // Validate email
+      emailSchema.parse(email);
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
+      
       if (error) throw error;
-      toast.success("Password reset instructions sent to your email!");
+      
+      toast.success("Password reset instructions have been sent to your email. Please check your inbox.");
     } catch (error: any) {
-      toast.error(error.message || "Failed to reset password");
+      const message = error.message || "Failed to send password reset email. Please try again.";
+      toast.error(message);
       throw error;
     }
   };
   
   const updatePassword = async (password: string) => {
     try {
+      // Validate password strength
+      passwordSchema.parse(password);
+      
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-      toast.success("Password updated successfully!");
+      
+      toast.success("Your password has been updated successfully!");
     } catch (error: any) {
-      toast.error(error.message || "Failed to update password");
+      const message = error.message || "Failed to update password. Please try again.";
+      toast.error(message);
       throw error;
     }
   };
