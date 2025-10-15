@@ -13,10 +13,11 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { isAdminUser } from "@/utils/adminAccess";
+import { useSecureAdmin } from "@/hooks/useSecureAdmin";
 
 export const TopBarUserMenu = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useSecureAdmin();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -135,7 +136,7 @@ export const TopBarUserMenu = () => {
           <span className="text-gray-900 font-medium">Settings</span>
         </DropdownMenuItem>
         
-        {isAdminUser(user) && (
+        {isAdmin && (
           <>
             <DropdownMenuSeparator className="my-2 bg-gray-200" />
             <DropdownMenuItem 

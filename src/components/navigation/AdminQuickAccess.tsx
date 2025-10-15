@@ -2,18 +2,17 @@ import { useState } from 'react';
 import { Shield, Settings, Users, Calendar, BarChart, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { isAdminUserSync } from '@/utils/adminAccess';
+import { useSecureAdmin } from '@/hooks/useSecureAdmin';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const AdminQuickAccess = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { isAdmin, loading } = useSecureAdmin();
 
   // Only show for admin users
-  if (!user || !isAdminUserSync(user)) {
+  if (loading || !isAdmin) {
     return null;
   }
 

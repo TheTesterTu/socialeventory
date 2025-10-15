@@ -5,8 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 const FB_API_VERSION = 'v18.0';
 const FB_BASE_URL = `https://graph.facebook.com/${FB_API_VERSION}`;
 
+// SECURITY NOTE: Facebook access tokens should be stored in Supabase Edge Function secrets
+// and fetched via an edge function, not stored in the database or client code
 export async function fetchFacebookEvents(location: string, radius: number = 1000): Promise<Event[]> {
+  console.warn('Facebook integration requires secure token storage via Edge Functions');
   try {
+    // This should be replaced with a call to a Supabase Edge Function that securely handles tokens
     const response = await fetch(
       `${FB_BASE_URL}/search?type=event&q=${location}&distance=${radius}&access_token=${process.env.FACEBOOK_ACCESS_TOKEN}`
     );

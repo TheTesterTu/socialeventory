@@ -2,7 +2,7 @@
 import { Check, Clock } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { useAuth } from '@/contexts/AuthContext';
-import { isAdminUserSync } from '@/utils/adminAccess';
+import { useSecureAdmin } from '@/hooks/useSecureAdmin';
 
 interface EventVerificationBadgeProps {
   status: 'pending' | 'verified' | 'featured';
@@ -15,12 +15,12 @@ export const EventVerificationBadge = ({
   size = 'default', 
   showForAdmin = true 
 }: EventVerificationBadgeProps) => {
-  const { user } = useAuth();
-  const isAdmin = showForAdmin && user && isAdminUserSync(user);
+  const { isAdmin } = useSecureAdmin();
+  const shouldShowAdmin = showForAdmin && isAdmin;
   
   // Only show pending status for admins
   if (status === 'pending') {
-    if (!isAdmin) return null;
+    if (!shouldShowAdmin) return null;
     
     return (
       <Badge variant="outline" className="text-xs bg-warning/10 text-warning border-warning/20">

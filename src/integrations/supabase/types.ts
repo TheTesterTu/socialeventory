@@ -392,7 +392,6 @@ export type Database = {
       }
       facebook_integration: {
         Row: {
-          access_token: string | null
           created_at: string
           id: string
           page_id: string | null
@@ -400,7 +399,6 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          access_token?: string | null
           created_at?: string
           id?: string
           page_id?: string | null
@@ -408,7 +406,6 @@ export type Database = {
           user_id: string
         }
         Update: {
-          access_token?: string | null
           created_at?: string
           id?: string
           page_id?: string | null
@@ -647,6 +644,15 @@ export type Database = {
         Args: { profile_id: string }
         Returns: {
           avatar_url: string
+          id: string
+          username: string
+        }[]
+      }
+      get_public_profile_info: {
+        Args: { profile_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
           id: string
           username: string
         }[]
