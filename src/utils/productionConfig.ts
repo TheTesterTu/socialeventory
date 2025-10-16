@@ -18,11 +18,8 @@ export const devLog = (...args: any[]) => {
 export const errorLog = (error: any, context?: string) => {
   if (isDevelopment()) {
     console.error(context ? `[${context}]` : '', error);
-  } else {
-    // In production, you might want to send to error reporting service
-    // For now, we'll just log minimal info
-    console.error('An error occurred:', context || 'Unknown context');
   }
+  // In production, errors are silent on client - use Supabase error monitoring
 };
 
 // Feature flags for production readiness
@@ -33,6 +30,7 @@ export const FEATURE_FLAGS = {
   STRICT_AUTH_CHECKS: true,
   ENABLE_ERROR_BOUNDARIES: true,
   ENABLE_ANALYTICS: isProduction(),
+  ENABLE_CONSOLE_LOGS: isDevelopment(), // Disable all console logs in production
 } as const;
 
 // Production optimization settings

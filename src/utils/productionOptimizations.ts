@@ -59,7 +59,7 @@ export const cleanupCache = (queryClient: any) => {
 
 // Performance monitoring (lightweight)
 export const logPerformance = (operation: string, startTime: number) => {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.MODE === 'development') {
     const duration = Date.now() - startTime;
     if (duration > 1000) { // Only log slow operations
       console.warn(`Slow operation: ${operation} took ${duration}ms`);
