@@ -313,7 +313,7 @@ export type Database = {
           address_details: Json | null
           attendees: number | null
           category: string[] | null
-          coordinates: unknown | null
+          coordinates: unknown
           created_at: string
           created_by: string | null
           cultural_context: string | null
@@ -337,7 +337,7 @@ export type Database = {
           address_details?: Json | null
           attendees?: number | null
           category?: string[] | null
-          coordinates?: unknown | null
+          coordinates?: unknown
           created_at?: string
           created_by?: string | null
           cultural_context?: string | null
@@ -361,7 +361,7 @@ export type Database = {
           address_details?: Json | null
           attendees?: number | null
           category?: string[] | null
-          coordinates?: unknown | null
+          coordinates?: unknown
           created_at?: string
           created_by?: string | null
           cultural_context?: string | null
@@ -615,10 +615,7 @@ export type Database = {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
       }
-      can_create_events: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
+      can_create_events: { Args: { user_id: string }; Returns: boolean }
       find_nearby_events: {
         Args: {
           accessibility_filter?: Json
@@ -657,10 +654,7 @@ export type Database = {
           username: string
         }[]
       }
-      get_user_role: {
-        Args: { user_id: string }
-        Returns: string
-      }
+      get_user_role: { Args: { user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -668,10 +662,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { user_id: string }; Returns: boolean }
       log_admin_action: {
         Args: {
           action_details?: Json
