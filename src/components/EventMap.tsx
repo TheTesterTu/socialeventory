@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Button } from './ui/button';
 import { Search, Filter, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from 'next-themes';
 
 interface EventMapProps {
   events: Event[];
