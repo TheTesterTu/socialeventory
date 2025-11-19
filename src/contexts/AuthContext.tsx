@@ -164,8 +164,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setSession(null);
       
-      // Navigate to auth page
-      navigate("/auth");
+      // Navigate to home with replace to clear history
+      navigate("/", { replace: true });
       toast.success("Successfully signed out!");
     } catch (error: any) {
       toast.error(error.message || "Failed to sign out");
