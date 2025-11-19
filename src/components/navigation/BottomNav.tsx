@@ -1,5 +1,5 @@
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Home, Search, MapPin, Calendar, User, LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,6 @@ interface NavItem {
 
 export const BottomNav = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   
   const navigation: NavItem[] = [
     { name: "Home", href: "/", icon: Home },
@@ -39,15 +38,15 @@ export const BottomNav = () => {
             const IconComponent = item.icon;
             
             return (
-              <button
+              <Link
                 key={item.href}
+                to={item.href}
                 className={cn(
                   "flex flex-1 flex-col items-center justify-center py-3 text-xs transition-all duration-200 relative",
                   active
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                onClick={() => navigate(item.href)}
                 aria-label={item.name}
               >
                 <div
@@ -72,7 +71,7 @@ export const BottomNav = () => {
                 )}>
                   {item.name}
                 </span>
-              </button>
+              </Link>
             );
           })}
         </div>

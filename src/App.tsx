@@ -87,6 +87,7 @@ function App() {
                       <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
                       
                       <Route path="*" element={<NotFound />} />
+                      {/* 404 catch-all */}
                     </Routes>
                     <Toaster />
                   </div>
