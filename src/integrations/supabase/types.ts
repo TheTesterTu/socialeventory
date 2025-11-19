@@ -654,6 +654,15 @@ export type Database = {
           username: string
         }[]
       }
+      get_safe_public_profile: {
+        Args: { profile_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+          username: string
+        }[]
+      }
       get_user_role: { Args: { user_id: string }; Returns: string }
       has_role: {
         Args: {

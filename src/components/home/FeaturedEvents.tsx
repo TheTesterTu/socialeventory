@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { EventCard } from "../EventCard";
+import { ModernEventCard } from "./ModernEventCard";
 import { useUnifiedEvents } from "@/hooks/useUnifiedEvents";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -76,14 +76,7 @@ export const FeaturedEvents = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {events.map((event, index) => (
-          <motion.div
-            key={event.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-          >
-            <EventCard event={event} index={index} />
-          </motion.div>
+          <ModernEventCard key={event.id} event={event} index={index} />
         ))}
       </div>
     </motion.section>
