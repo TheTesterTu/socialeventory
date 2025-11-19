@@ -35,15 +35,16 @@ const Auth = () => {
     }
   }, [mode]);
   
-  // Get the path to redirect to after login
-  const from = location.state?.from || "/events";
+  // Get the path to redirect to after login (avoid redirecting to auth-related pages)
+  const from = location.state?.from;
+  const redirectPath = from && from !== "/auth" && from !== "/reset-password" ? from : "/events";
   
-  // If user is already logged in, redirect them
+  // If user is already logged in, redirect them immediately
   useEffect(() => {
-    if (user) {
-      navigate(from, { replace: true });
+    if (user && !authLoading) {
+      navigate(redirectPath, { replace: true });
     }
-  }, [user, navigate, from]);
+  }, [user, authLoading, navigate, redirectPath]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +72,7 @@ const Auth = () => {
     
     try {
       await signUp(email, password, username, fullName);
+      // Auth state change will trigger redirect via useEffect
     } catch (error) {
       // Error already handled in signUp
     } finally {
@@ -98,6 +100,7 @@ const Auth = () => {
     
     try {
       await signIn(email, password);
+      // Auth state change will trigger redirect via useEffect
     } catch (error) {
       // Error already handled in signIn
     } finally {
