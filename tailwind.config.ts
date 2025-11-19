@@ -132,11 +132,11 @@ const config: Config = {
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.3s ease-out",
-        "slide-in": "slide-in 0.3s ease-out",
-        "scale-in": "scale-in 0.2s ease-out",
+        "accordion-down": "accordion-down 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+        "accordion-up": "accordion-up 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+        "fade-in": "fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+        "slide-in": "slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+        "scale-in": "scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
         "float": "float 3s ease-in-out infinite",
       },
       backgroundImage: {
