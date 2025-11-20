@@ -6,8 +6,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
 import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { PageLoader } from "@/components/loading/PageLoader";
+import { preloadCriticalRoutes } from "@/utils/routePreloader";
 
 // Lazy load all page components for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -55,6 +56,11 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  // Preload critical routes on mount
+  useEffect(() => {
+    preloadCriticalRoutes();
+  }, []);
+
   return (
     <ErrorBoundary>
       <HelmetProvider>
