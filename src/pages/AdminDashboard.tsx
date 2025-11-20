@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { AdminOverview } from "@/components/admin/AdminOverview";
 import { EventApprovalCard } from "@/components/admin/EventApprovalCard";
+import { PerformanceMonitor } from "@/components/admin/PerformanceMonitor";
 
 import { useAdminData } from "@/hooks/useAdminData";
 import { LoadingSpinner } from "@/components/loading/LoadingSpinner";
@@ -128,6 +129,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="events">Events Management</TabsTrigger>
               <TabsTrigger value="users">Users Management</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="performance">Performance</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
 
@@ -307,6 +309,10 @@ const AdminDashboard = () => {
                   </CardContent>
                 </Card>
               </div>
+            </TabsContent>
+
+            <TabsContent value="performance" className="space-y-6">
+              <PerformanceMonitor />
             </TabsContent>
           </Tabs>
         </motion.div>
