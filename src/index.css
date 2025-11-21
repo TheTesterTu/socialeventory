@@ -13,11 +13,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
     
-    /* Enhanced primary colors with better contrast */
-    --primary: 200 100% 45%;
-    --primary-light: 200 100% 55%;
-    --primary-dark: 200 100% 35%;
+    /* Modern 2025 color system - vibrant and sophisticated */
+    --primary: 210 100% 50%;
+    --primary-light: 210 100% 60%;
+    --primary-dark: 210 100% 40%;
     --primary-foreground: 0 0% 100%;
+    
+    /* Gradient stops for modern effects */
+    --gradient-start: 210 100% 50%;
+    --gradient-middle: 250 80% 55%;
+    --gradient-end: 290 70% 60%;
     
     --secondary: 210 40% 96%;
     --secondary-foreground: 222.2 84% 4.9%;
@@ -122,24 +127,48 @@
 }
 
 @layer components {
+  /* Modern 2025 text effects */
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent;
   }
   
+  .text-gradient-subtle {
+    @apply bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent;
+  }
+  
+  /* Enhanced gradient buttons */
   .gradient-primary {
-    @apply bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary;
+    @apply bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:from-primary-dark hover:via-purple-600 hover:to-pink-600 transition-all duration-500;
   }
   
+  .gradient-secondary {
+    @apply bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900;
+  }
+  
+  /* Modern glassmorphism effects */
   .glass-panel {
-    @apply bg-white/10 backdrop-blur-md border border-white/20;
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
   }
   
   .glass-card {
-    @apply bg-white/95 backdrop-blur-sm border border-border/20 shadow-lg;
+    @apply bg-white/80 backdrop-blur-md border border-white/40 shadow-xl hover:shadow-2xl transition-all duration-300;
+  }
+  
+  .glass-card-dark {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl;
   }
   
   .glass-input {
-    @apply bg-white/90 backdrop-blur-sm border border-border/30 shadow-sm;
+    @apply bg-white/90 backdrop-blur-md border border-primary/20 shadow-lg focus:border-primary/40 transition-all duration-300;
+  }
+  
+  /* Modern card hover effects */
+  .card-lift {
+    @apply transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl;
+  }
+  
+  .card-glow {
+    @apply transition-all duration-300 hover:shadow-primary/20 hover:shadow-2xl;
   }
   
   .container-padding {

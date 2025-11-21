@@ -62,19 +62,22 @@ export const FeaturedEvents = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="space-y-6"
+      className="space-y-8"
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gradient">Featured Events</h2>
+        <div className="space-y-2">
+          <h2 className="text-4xl md:text-5xl font-bold text-gradient-subtle">Featured Events</h2>
+          <p className="text-lg text-muted-foreground">Handpicked experiences just for you</p>
+        </div>
         <Link to="/events">
-          <Button variant="ghost" className="gap-2">
+          <Button variant="ghost" className="gap-2 hover:gap-3 transition-all duration-300 text-primary hover:text-primary-dark">
             View all
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-5 w-5" />
           </Button>
         </Link>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {events.map((event, index) => (
           <ModernEventCard key={event.id} event={event} index={index} />
         ))}
