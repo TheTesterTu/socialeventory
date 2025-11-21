@@ -114,15 +114,17 @@ export const HomeHero = () => {
             transition={{ duration: 0.6 }}
             className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8"
           >
-            {/* Badge with improved contrast */}
+            {/* Modern floating badge */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium border-2 border-white/60 bg-black/70 backdrop-blur-sm shadow-2xl"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white text-sm font-semibold border-2 border-primary/60 bg-gradient-to-r from-primary/30 via-purple-500/30 to-pink-500/30 backdrop-blur-xl shadow-2xl hover:scale-105 transition-transform duration-300"
             >
-              <Sparkles className="h-4 w-4 text-primary-light" />
-              <span>Discover epic events worldwide</span>
+              <Sparkles className="h-4 w-4 text-primary-light animate-pulse" />
+              <span className="bg-gradient-to-r from-white to-primary-light bg-clip-text text-transparent">
+                Discover Amazing Events Worldwide
+              </span>
             </motion.div>
 
             {/* Main heading */}
@@ -132,25 +134,25 @@ export const HomeHero = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="space-y-4 sm:space-y-6"
             >
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white drop-shadow-2xl">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight text-white drop-shadow-2xl leading-tight">
                 Find Your{" "}
-                <span className="bg-gradient-to-r from-primary-light to-primary bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary-light via-purple-400 to-pink-400 bg-clip-text text-transparent animate-float">
                   Next Epic Experience
                 </span>
               </h1>
-              <p className="text-base sm:text-lg lg:text-xl text-white max-w-2xl mx-auto leading-relaxed drop-shadow-xl font-medium">
-                Unforgettable moments await you
+              <p className="text-lg sm:text-xl lg:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-2xl font-medium">
+                Join thousands discovering unforgettable moments every day
               </p>
             </motion.div>
 
-            {/* Search bar with improved contrast */}
+            {/* Modern search bar with glow effect */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               className="w-full max-w-3xl mx-auto"
             >
-              <div className="p-2 sm:p-3 rounded-2xl border-2 border-primary/40 bg-white/95 backdrop-blur-md shadow-2xl">
+              <div className="p-3 sm:p-4 rounded-3xl border-2 border-primary/50 bg-white/95 backdrop-blur-xl shadow-2xl hover:shadow-primary/20 transition-all duration-300">
                 <SearchBar onSearch={handleSearch} />
               </div>
             </motion.div>
@@ -165,9 +167,9 @@ export const HomeHero = () => {
               <Link to="/create-event" className="w-full sm:w-auto">
                 <Button 
                   size="lg" 
-                  className="gradient-primary px-8 py-3 h-auto font-semibold rounded-xl w-full shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-primary hover:border-primary/80"
+                  className="gradient-primary px-10 py-4 h-auto font-bold rounded-2xl w-full shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-primary/40 border-0 text-lg"
                 >
-                  <CalendarPlus className="mr-2 h-5 w-5" />
+                  <CalendarPlus className="mr-2 h-6 w-6" />
                   Create Event
                 </Button>
               </Link>
@@ -175,9 +177,9 @@ export const HomeHero = () => {
                 <Button 
                   variant="outline"
                   size="lg"
-                  className="bg-white/95 hover:bg-white text-gray-900 hover:text-black border-2 border-primary/30 hover:border-primary/50 px-8 py-3 h-auto font-semibold rounded-xl w-full shadow-2xl transition-all duration-300 hover:scale-105"
+                  className="bg-white/95 hover:bg-white text-gray-900 hover:text-black border-2 border-white/60 hover:border-primary/60 px-10 py-4 h-auto font-bold rounded-2xl w-full shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-white/40 backdrop-blur-xl text-lg"
                 >
-                  <Search className="mr-2 h-5 w-5" />
+                  <Search className="mr-2 h-6 w-6" />
                   Explore All
                 </Button>
               </Link>

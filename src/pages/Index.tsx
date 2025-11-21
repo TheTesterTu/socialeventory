@@ -22,18 +22,18 @@ const Index = () => {
       
       <QueryErrorBoundary>
         <Suspense fallback={<PageLoader message="Loading events..." />}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="bg-background"
-          >
-            <div className="container mx-auto px-4 py-8 space-y-12">
-              <QuickCategories />
-              <FeaturedEvents />
-              <EventsNearYou />
-            </div>
-          </motion.div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="bg-background"
+    >
+      <div className="container mx-auto px-4 py-12 space-y-16">
+        <QuickCategories />
+        <FeaturedEvents />
+        <EventsNearYou />
+      </div>
+    </motion.div>
         </Suspense>
       </QueryErrorBoundary>
     </div>
