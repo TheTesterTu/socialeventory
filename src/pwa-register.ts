@@ -9,13 +9,13 @@ export const registerServiceWorker = () => {
       }
     },
     onOfflineReady() {
-      console.log('App ready to work offline');
+      // Silently ready in production
     },
-    onRegistered(registration) {
-      console.log('Service Worker registered:', registration);
+    onRegistered() {
+      // Silently registered in production
     },
-    onRegisterError(error) {
-      console.error('Service Worker registration failed:', error);
+    onRegisterError() {
+      // Silently failed in production
     },
   });
 };
