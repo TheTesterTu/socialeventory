@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
       includeAssets: ['favicon.ico', 'robots.txt', 'og-image.png'],
       manifest: {
         name: 'SocialEventory',
@@ -41,6 +42,7 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
@@ -59,12 +61,12 @@ export default defineConfig(({ mode }) => ({
         ]
       }
     }),
-    mode === 'production' && visualizer({
+    ...(mode === 'production' ? [visualizer({
       filename: './dist/stats.html',
       open: false,
       gzipSize: true,
       brotliSize: true,
-    })
+    })] : [])
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -82,8 +84,15 @@ export default defineConfig(({ mode }) => ({
         }
       }
     },
-    sourcemap: mode === 'production' ? false : true,
+    sourcemap: false,
     chunkSizeWarningLimit: 1000,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: mode === 'production',
+        drop_debugger: true
+      }
+    }
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom']
