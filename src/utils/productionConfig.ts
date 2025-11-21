@@ -19,7 +19,10 @@ export const errorLog = (error: any, context?: string) => {
   if (isDevelopment()) {
     console.error(context ? `[${context}]` : '', error);
   }
-  // In production, errors are silent on client - use Supabase error monitoring
+  // In production, send to error tracking service
+  if (isProduction() && window.navigator.onLine) {
+    // Future: Send to error tracking service like Sentry
+  }
 };
 
 // Feature flags for production readiness

@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { onCLS, onINP, onLCP, onFCP, onTTFB, Metric } from 'web-vitals';
-import { isDevelopment } from '@/utils/productionConfig';
+
+const isDevelopment = () => import.meta.env.MODE === 'development';
+const isProduction = () => import.meta.env.MODE === 'production';
 
 interface WebVitalsMetrics {
   CLS: number | null;
@@ -63,6 +65,9 @@ const sendToAnalytics = (metric: Metric) => {
 
 export const useWebVitals = () => {
   useEffect(() => {
+    // Only track in production
+    if (!isProduction()) return;
+
     // Initialize Web Vitals tracking
     onCLS(sendToAnalytics);
     onINP(sendToAnalytics);
