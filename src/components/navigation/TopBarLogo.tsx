@@ -12,7 +12,7 @@ export const TopBarLogo = () => {
         whileHover={{ rotate: 10, scale: 1.1 }}
         transition={{ type: "spring", stiffness: 500, damping: 10 }}
       />
-      <span className="font-semibold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+      <span className="font-bold text-lg text-gradient">
         SocialEventory
       </span>
     </Link>
