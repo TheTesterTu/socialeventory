@@ -472,6 +472,7 @@ export type Database = {
           bio: string | null
           created_at: string
           full_name: string | null
+          hide_attendance: boolean | null
           id: string
           notification_settings: Json | null
           preferences: Json | null
@@ -485,6 +486,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           full_name?: string | null
+          hide_attendance?: boolean | null
           id: string
           notification_settings?: Json | null
           preferences?: Json | null
@@ -498,6 +500,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           full_name?: string | null
+          hide_attendance?: boolean | null
           id?: string
           notification_settings?: Json | null
           preferences?: Json | null

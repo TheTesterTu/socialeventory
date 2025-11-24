@@ -45,7 +45,9 @@ export const checkRLSPolicies = async (): Promise<SecurityPolicy[]> => {
     }
     
   } catch (error) {
-    console.error('Security check failed:', error);
+    if (import.meta.env.MODE === 'development') {
+      console.error('Security check failed:', error);
+    }
   }
   
   return policies;
