@@ -16,24 +16,20 @@ export const EventBasicInfo = ({
   handleLocationSelect 
 }: EventBasicInfoProps) => {
   return (
-    <div className="space-y-6 relative">
-      {/* Subtle background gradient for better visibility */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/10 via-pink-50/5 to-purple-50/10 -z-10 rounded-lg" />
-      
+    <div className="space-y-6">
       <FormField
         control={form.control}
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="font-medium text-white">Event Title</FormLabel>
+            <FormLabel>Event Title</FormLabel>
             <FormControl>
               <Input 
                 placeholder="Enter a clear and descriptive title" 
                 {...field} 
-                className="bg-white/10 backdrop-blur-sm border-primary/20 focus:border-primary/60 placeholder:text-muted-foreground/70 text-white focus:bg-white/15"
               />
             </FormControl>
-            <FormDescription className="text-blue-200/80">
+            <FormDescription>
               A great title is short, descriptive and eye-catching.
             </FormDescription>
             <FormMessage />
@@ -46,11 +42,11 @@ export const EventBasicInfo = ({
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="font-medium text-white">Description</FormLabel>
+            <FormLabel>Description</FormLabel>
             <FormControl>
               <Textarea 
                 placeholder="What is your event about? What can attendees expect?" 
-                className="min-h-[150px] bg-white/10 backdrop-blur-sm border-primary/20 focus:border-primary/60 placeholder:text-muted-foreground/70 text-white focus:bg-white/15" 
+                className="min-h-[150px]" 
                 {...field} 
               />
             </FormControl>
@@ -64,7 +60,7 @@ export const EventBasicInfo = ({
         name="imageUrl"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="font-medium text-white">Event Image</FormLabel>
+            <FormLabel>Event Image</FormLabel>
             <FormControl>
               <ImageUpload
                 onImageSelect={field.onChange}
@@ -75,7 +71,7 @@ export const EventBasicInfo = ({
                 aspectRatio="video"
               />
             </FormControl>
-            <FormDescription className="text-blue-200/80">
+            <FormDescription>
               Upload a high-quality image that represents your event
             </FormDescription>
             <FormMessage />
@@ -88,7 +84,7 @@ export const EventBasicInfo = ({
         name="location"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="font-medium text-white">Location</FormLabel>
+            <FormLabel>Location</FormLabel>
             <FormControl>
               <LocationSearch 
                 value={field.value}
@@ -96,7 +92,7 @@ export const EventBasicInfo = ({
                 onLocationSelect={handleLocationSelect}
               />
             </FormControl>
-            <FormDescription className="text-blue-200/80">
+            <FormDescription>
               Search for an address or venue
             </FormDescription>
             <FormMessage />
@@ -109,16 +105,15 @@ export const EventBasicInfo = ({
         name="venue_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="font-medium text-white">Venue Name (Optional)</FormLabel>
+            <FormLabel>Venue Name (Optional)</FormLabel>
             <FormControl>
               <Input 
                 placeholder="Enter venue name" 
                 {...field} 
                 value={field.value || ''}
-                className="bg-white/10 backdrop-blur-sm border-primary/20 focus:border-primary/60 placeholder:text-muted-foreground/70 text-white focus:bg-white/15"
               />
             </FormControl>
-            <FormDescription className="text-blue-200/80">
+            <FormDescription>
               Add a specific venue name if applicable
             </FormDescription>
             <FormMessage />

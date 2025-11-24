@@ -11,21 +11,18 @@ interface EventSettingsProps {
 
 export const EventSettings = ({ form }: EventSettingsProps) => {
   return (
-    <div className="space-y-6 relative">
-      {/* Subtle background gradient for better visibility */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-teal-50/5 to-blue-50/10 -z-10 rounded-lg" />
+    <div className="space-y-6">
+      <h3 className="text-lg font-medium">Event Settings</h3>
       
-      <h3 className="text-lg font-medium mb-4 text-white">Event Settings</h3>
-      
-      <div className="space-y-4 p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+      <div className="space-y-4 p-4 rounded-lg border bg-card">
         <FormField
           control={form.control}
           name="isFree"
           render={({ field }) => (
             <div className="flex items-center justify-between">
               <div>
-                <Label className="text-white font-medium">Free Event</Label>
-                <p className="text-sm text-blue-200/80 mt-0.5">Disable to set a ticket price</p>
+                <Label>Free Event</Label>
+                <p className="text-sm text-muted-foreground mt-0.5">Disable to set a ticket price</p>
               </div>
               <Switch
                 checked={field.value}
@@ -41,7 +38,7 @@ export const EventSettings = ({ form }: EventSettingsProps) => {
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-white">Ticket Price ($)</FormLabel>
+                <FormLabel>Ticket Price ($)</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
@@ -51,7 +48,7 @@ export const EventSettings = ({ form }: EventSettingsProps) => {
                       {...field}
                       value={field.value || ''}
                       onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      className="pl-8 bg-white/10 backdrop-blur-sm border-primary/20 focus:border-primary/60 text-white"
+                      className="pl-8"
                     />
                   </div>
                 </FormControl>
@@ -61,8 +58,8 @@ export const EventSettings = ({ form }: EventSettingsProps) => {
         )}
       </div>
       
-      <div className="space-y-4 p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-        <h4 className="text-base font-medium text-white">Accessibility Options</h4>
+      <div className="space-y-4 p-4 rounded-lg border bg-card">
+        <h4 className="text-base font-medium">Accessibility Options</h4>
         
         <FormField
           control={form.control}
@@ -70,8 +67,8 @@ export const EventSettings = ({ form }: EventSettingsProps) => {
           render={({ field }) => (
             <div className="flex items-center justify-between">
               <div>
-                <Label className="text-white">Wheelchair Accessible</Label>
-                <p className="text-sm text-blue-200/80 mt-0.5">Venue has wheelchair access</p>
+                <Label>Wheelchair Accessible</Label>
+                <p className="text-sm text-muted-foreground mt-0.5">Venue has wheelchair access</p>
               </div>
               <Switch
                 checked={field.value}
@@ -87,8 +84,8 @@ export const EventSettings = ({ form }: EventSettingsProps) => {
           render={({ field }) => (
             <div className="flex items-center justify-between">
               <div>
-                <Label className="text-white">Family Friendly</Label>
-                <p className="text-sm text-blue-200/80 mt-0.5">Suitable for all ages</p>
+                <Label>Family Friendly</Label>
+                <p className="text-sm text-muted-foreground mt-0.5">Suitable for all ages</p>
               </div>
               <Switch
                 checked={field.value}
@@ -103,16 +100,16 @@ export const EventSettings = ({ form }: EventSettingsProps) => {
         control={form.control}
         name="organizerType"
         render={({ field }) => (
-          <FormItem className="p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-            <FormLabel className="text-white font-medium">Organizer Type</FormLabel>
-            <FormDescription className="text-blue-200/80">
+          <FormItem className="p-4 rounded-lg border bg-card">
+            <FormLabel>Organizer Type</FormLabel>
+            <FormDescription>
               Select whether you're hosting this event personally or as an organization
             </FormDescription>
             <div className="flex gap-4 mt-2">
               <label className={`flex-1 p-3 rounded-md cursor-pointer transition-colors border ${
                 field.value === 'personal' 
-                  ? 'bg-primary/20 border-primary' 
-                  : 'bg-white/5 border-white/10'
+                  ? 'bg-primary/10 border-primary' 
+                  : 'border-border hover:bg-muted/50'
               }`}>
                 <input
                   type="radio"
@@ -123,15 +120,15 @@ export const EventSettings = ({ form }: EventSettingsProps) => {
                   className="sr-only"
                 />
                 <div className="text-center">
-                  <h4 className="font-medium text-white">Personal</h4>
-                  <p className="text-xs text-blue-200/80 mt-1">I'm hosting this event myself</p>
+                  <h4 className="font-medium">Personal</h4>
+                  <p className="text-xs text-muted-foreground mt-1">I'm hosting this event myself</p>
                 </div>
               </label>
               
               <label className={`flex-1 p-3 rounded-md cursor-pointer transition-colors border ${
                 field.value === 'organization' 
-                  ? 'bg-primary/20 border-primary' 
-                  : 'bg-white/5 border-white/10'
+                  ? 'bg-primary/10 border-primary' 
+                  : 'border-border hover:bg-muted/50'
               }`}>
                 <input
                   type="radio"
@@ -142,8 +139,8 @@ export const EventSettings = ({ form }: EventSettingsProps) => {
                   className="sr-only"
                 />
                 <div className="text-center">
-                  <h4 className="font-medium text-white">Organization</h4>
-                  <p className="text-xs text-blue-200/80 mt-1">I represent an organization</p>
+                  <h4 className="font-medium">Organization</h4>
+                  <p className="text-xs text-muted-foreground mt-1">I represent an organization</p>
                 </div>
               </label>
             </div>

@@ -149,7 +149,7 @@ const CreateEvent = () => {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="mb-10">
-            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold mb-2 text-foreground">
               Create New Event
             </h1>
             <p className="text-muted-foreground">
@@ -178,14 +178,12 @@ const CreateEvent = () => {
                   type="button" 
                   variant="outline" 
                   onClick={() => navigate("/events")}
-                  className="border-border hover:bg-accent"
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit" 
                   disabled={createEventMutation.isPending}
-                  className="bg-primary hover:bg-primary/90 text-white relative"
                 >
                   {createEventMutation.isPending && (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
