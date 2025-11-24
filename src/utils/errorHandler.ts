@@ -14,7 +14,10 @@ export class AppError extends Error {
 }
 
 export const handleError = async (error: unknown, userId?: string) => {
-  console.error('Application error:', error);
+  // Errors are logged by ProductionErrorBoundary in production
+  if (import.meta.env.MODE === 'development') {
+    console.error('Application error:', error);
+  }
 
   let message = 'An unexpected error occurred';
   let title = 'Error';
@@ -42,7 +45,9 @@ export const handleError = async (error: unknown, userId?: string) => {
         'error'
       );
     } catch (notificationError) {
-      console.error('Failed to create error notification:', notificationError);
+      if (import.meta.env.MODE === 'development') {
+        console.error('Failed to create error notification:', notificationError);
+      }
     }
   }
 };

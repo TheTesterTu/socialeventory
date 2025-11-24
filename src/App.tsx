@@ -5,10 +5,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
 import { HelmetProvider } from 'react-helmet-async';
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ProductionErrorBoundary } from "@/components/error/ProductionErrorBoundary";
 import { lazy, Suspense, useEffect } from "react";
 import { PageLoader } from "@/components/loading/PageLoader";
 import { preloadCriticalRoutes } from "@/utils/routePreloader";
+import { useWebVitals } from "@/hooks/useWebVitals";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 // Lazy load all page components for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -55,60 +57,69 @@ const queryClient = new QueryClient({
   },
 });
 
-function App() {
+const AppContent = () => {
+  // Initialize Web Vitals and Analytics tracking
+  useWebVitals();
+  useAnalytics();
+
   // Preload critical routes on mount
   useEffect(() => {
     preloadCriticalRoutes();
   }, []);
 
   return (
-    <ErrorBoundary>
+    <div className="min-h-screen bg-background font-sans antialiased">
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/events/:id" element={<EventDetails />} />
+          <Route path="/event/:id" element={<EventDetails />} />
+          <Route path="/create-event" element={<CreateEvent />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/edit" element={<ProfileEdit />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/nearby" element={<Nearby />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/organizers" element={<Organizers />} />
+          <Route path="/organizers/:id" element={<OrganizerProfile />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+      <Toaster />
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <ProductionErrorBoundary>
       <HelmetProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <QueryClientProvider client={queryClient}>
             <BrowserRouter>
               <AuthProvider>
                 <TooltipProvider>
-                  <div className="min-h-screen bg-background font-sans antialiased">
-                    <Suspense fallback={<PageLoader />}>
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/landing" element={<Landing />} />
-                        <Route path="/events" element={<Events />} />
-                        <Route path="/events/:id" element={<EventDetails />} />
-                        <Route path="/event/:id" element={<EventDetails />} />
-                        <Route path="/create-event" element={<CreateEvent />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/profile/edit" element={<ProfileEdit />} />
-                        <Route path="/auth" element={<Auth />} />
-                        <Route path="/reset-password" element={<ResetPassword />} />
-                        <Route path="/search" element={<SearchPage />} />
-                        <Route path="/nearby" element={<Nearby />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="/about" element={<About />} />
-                        <Route path="/contact" element={<Contact />} />
-                        <Route path="/terms" element={<Terms />} />
-                        <Route path="/privacy" element={<Privacy />} />
-                        <Route path="/blog" element={<Blog />} />
-                        <Route path="/blog/:slug" element={<BlogPost />} />
-                        <Route path="/organizers" element={<Organizers />} />
-                        <Route path="/organizers/:id" element={<OrganizerProfile />} />
-                        <Route path="/notifications" element={<NotificationsPage />} />
-                        <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
-                        
-                        <Route path="*" element={<NotFound />} />
-                        {/* 404 catch-all */}
-                      </Routes>
-                    </Suspense>
-                    <Toaster />
-                  </div>
+                  <AppContent />
                 </TooltipProvider>
               </AuthProvider>
             </BrowserRouter>
           </QueryClientProvider>
         </ThemeProvider>
       </HelmetProvider>
-    </ErrorBoundary>
+    </ProductionErrorBoundary>
   );
 }
 
