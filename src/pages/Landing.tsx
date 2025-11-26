@@ -9,6 +9,8 @@ import { EventsNearYou } from "@/components/home/EventsNearYou";
 import { FeaturedCreators } from "@/components/home/FeaturedCreators";
 import { FeaturedBlog } from "@/components/home/FeaturedBlog";
 import { PersonalizedEvents } from "@/components/home/PersonalizedEvents";
+import { TrustIndicators } from "@/components/home/TrustIndicators";
+import { CallToAction } from "@/components/home/CallToAction";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
@@ -36,8 +38,9 @@ const Landing = () => {
       />
       
       <ErrorBoundary>
-        <div className="space-y-16">
+        <div className="space-y-20">
           <HomeHero />
+          <TrustIndicators />
           <QuickCategories />
           <FeaturedEvents />
           <PersonalizedEvents />
@@ -45,6 +48,7 @@ const Landing = () => {
           <EventsNearYou />
           <FeaturedCreators />
           <FeaturedBlog posts={blogPosts} />
+          <CallToAction />
         </div>
       </ErrorBoundary>
     </AppLayout>

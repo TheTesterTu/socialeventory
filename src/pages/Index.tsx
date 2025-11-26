@@ -1,8 +1,9 @@
-
 import { HomeHero } from "@/components/home/HomeHero";
 import { FeaturedEvents } from "@/components/home/FeaturedEvents";
 import { QuickCategories } from "@/components/home/QuickCategories";
 import { EventsNearYou } from "@/components/home/EventsNearYou";
+import { TrustIndicators } from "@/components/home/TrustIndicators";
+import { CallToAction } from "@/components/home/CallToAction";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { QueryErrorBoundary } from "@/components/error/QueryErrorBoundary";
 import { motion } from "framer-motion";
@@ -28,10 +29,12 @@ const Index = () => {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="bg-background"
     >
-      <div className="container mx-auto px-4 py-12 space-y-16">
+      <div className="container mx-auto px-4 py-12 space-y-20">
+        <TrustIndicators />
         <QuickCategories />
         <FeaturedEvents />
         <EventsNearYou />
+        <CallToAction />
       </div>
     </motion.div>
         </Suspense>
