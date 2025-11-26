@@ -82,7 +82,7 @@ export default defineConfig(({ mode }) => ({
           'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-toast'],
           'query-vendor': ['@tanstack/react-query'],
           'supabase-vendor': ['@supabase/supabase-js'],
-          'map-vendor': ['mapbox-gl'],
+          'map-vendor': ['maplibre-gl'],
         }
       }
     },
