@@ -1,10 +1,9 @@
 
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import Supercluster from 'supercluster';
 import { Event } from '@/lib/types';
-import { getAPIConfig } from '@/services/api-config';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from './ui/button';
 import { Search, Filter, Loader2 } from 'lucide-react';
@@ -27,66 +26,61 @@ const EventMap = ({
   userLocation
 }: EventMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>('');
+  const map = useRef<maplibregl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [isLoadingToken, setIsLoadingToken] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const markers = useRef<mapboxgl.Marker[]>([]);
-  const userMarker = useRef<mapboxgl.Marker | null>(null);
-  const clusterMarkers = useRef<mapboxgl.Marker[]>([]);
-
-  // Fetch Mapbox token from API configurations
-  useEffect(() => {
-    const fetchMapboxToken = async () => {
-      setIsLoadingToken(true);
-      try {
-        const token = await getAPIConfig('mapbox_token');
-        if (token) {
-          setMapboxToken(token);
-        } else {
-          console.warn('Mapbox token not found in API configurations');
-          toast({
-            title: "Map Configuration Missing",
-            description: "Mapbox token not configured. Please contact admin.",
-            variant: "destructive"
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching Mapbox token:', error);
-        toast({
-          title: "Error Loading Map",
-          description: "Failed to fetch map configuration.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoadingToken(false);
-      }
-    };
-
-    fetchMapboxToken();
-  }, [toast]);
+  const markers = useRef<maplibregl.Marker[]>([]);
+  const userMarker = useRef<maplibregl.Marker | null>(null);
+  const clusterMarkers = useRef<maplibregl.Marker[]>([]);
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
+    if (!mapContainer.current) return;
 
     try {
-      mapboxgl.accessToken = mapboxToken;
-      
       // Use user location as center if available, otherwise default to a central location
       const defaultCenter: [number, number] = userLocation || [12.4964, 41.9028]; // Rome, Italy as default
       
-      // Choose modern map style based on theme with 3D terrain
-      const mapStyle = theme === 'dark' 
-        ? 'mapbox://styles/mapbox/navigation-night-v1' 
-        : 'mapbox://styles/mapbox/streets-v12';
+      // Use OpenStreetMap tiles with MapLibre (free, opensource)
+      const mapStyle = theme === 'dark'
+        ? {
+            version: 8,
+            sources: {
+              osm: {
+                type: 'raster',
+                tiles: ['https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'],
+                tileSize: 256,
+                attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+              }
+            },
+            layers: [{
+              id: 'osm',
+              type: 'raster',
+              source: 'osm'
+            }]
+          }
+        : {
+            version: 8,
+            sources: {
+              osm: {
+                type: 'raster',
+                tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                tileSize: 256,
+                attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+              }
+            },
+            layers: [{
+              id: 'osm',
+              type: 'raster',
+              source: 'osm'
+            }]
+          };
       
-      map.current = new mapboxgl.Map({
+      map.current = new maplibregl.Map({
         container: mapContainer.current,
-        style: mapStyle,
+        style: mapStyle as any,
         zoom: userLocation ? 12 : 6,
         center: defaultCenter,
         interactive: isInteractive,
@@ -95,7 +89,7 @@ const EventMap = ({
 
       // Add attribution control in bottom-right
       map.current.addControl(
-        new mapboxgl.AttributionControl({
+        new maplibregl.AttributionControl({
           compact: true
         }),
         'bottom-right'
@@ -106,13 +100,13 @@ const EventMap = ({
       });
 
       map.current.on('error', (e) => {
-        console.error('Mapbox error:', e);
+        console.error('Map error:', e);
       });
 
       // Add controls if interactive
       if (isInteractive && map.current) {
         map.current.addControl(
-          new mapboxgl.NavigationControl({
+          new maplibregl.NavigationControl({
             showCompass: true,
             showZoom: true,
             visualizePitch: true,
@@ -122,12 +116,11 @@ const EventMap = ({
 
         // Add geolocation control
         map.current.addControl(
-          new mapboxgl.GeolocateControl({
+          new maplibregl.GeolocateControl({
             positionOptions: {
               enableHighAccuracy: true
             },
-            trackUserLocation: true,
-            showUserHeading: true
+            trackUserLocation: true
           }),
           'top-right'
         );
@@ -147,7 +140,7 @@ const EventMap = ({
         variant: "destructive"
       });
     }
-  }, [mapboxToken, isInteractive, userLocation, toast, theme]);
+  }, [isInteractive, userLocation, toast, theme]);
 
   // Handle user location marker
   useEffect(() => {
@@ -192,11 +185,11 @@ const EventMap = ({
     userEl.appendChild(pulseEl);
 
     // Add user location marker
-    userMarker.current = new mapboxgl.Marker(userEl)
+    userMarker.current = new maplibregl.Marker(userEl)
       .setLngLat(userLocation)
       .addTo(map.current)
       .setPopup(
-        new mapboxgl.Popup({ 
+        new maplibregl.Popup({ 
           offset: 25, 
           className: 'user-popup',
           closeButton: true,
@@ -313,7 +306,7 @@ const EventMap = ({
           });
         });
 
-        const clusterMarker = new mapboxgl.Marker(clusterEl)
+        const clusterMarker = new maplibregl.Marker(clusterEl)
           .setLngLat([longitude, latitude])
           .addTo(map.current);
 
@@ -420,7 +413,7 @@ const EventMap = ({
       };
 
       // Add popup with event details
-      const popup = new mapboxgl.Popup({ 
+      const popup = new maplibregl.Popup({ 
         offset: 30,
         className: 'event-popup',
         closeButton: true,
@@ -429,9 +422,9 @@ const EventMap = ({
       .setHTML(createPopupContent(event));
 
       try {
-        // Create and add marker with correct coordinates order (lng, lat for Mapbox!)
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat([longitude, latitude]) // Mapbox expects [longitude, latitude]
+        // Create and add marker with correct coordinates order (lng, lat for MapLibre!)
+        const marker = new maplibregl.Marker(el)
+          .setLngLat([longitude, latitude]) // MapLibre expects [longitude, latitude]
           .setPopup(popup);
           
         if (map.current) {
@@ -446,7 +439,7 @@ const EventMap = ({
     // Fit bounds to include all markers and user location if there are any events
     if (markers.current.length > 0 && map.current) {
       try {
-        const bounds = new mapboxgl.LngLatBounds();
+        const bounds = new maplibregl.LngLatBounds();
         
         // Add event coordinates to bounds
         events.forEach(event => {
@@ -502,30 +495,10 @@ const EventMap = ({
 
   return (
     <div className={`relative w-full h-[600px] ${className}`}>
-      {isLoadingToken && (
+      {!mapLoaded && (
         <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-10">
           <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
           <p className="text-center text-lg">Loading map...</p>
-        </div>
-      )}
-      
-      {!isLoadingToken && !mapboxToken && (
-        <div className="absolute inset-0 bg-card/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-10">
-          <p className="text-center mb-4 text-lg font-semibold">Map Configuration Required</p>
-          <p className="text-sm text-muted-foreground max-w-md text-center">
-            Mapbox token not configured. Please contact your administrator to add a Mapbox token in the admin settings.
-          </p>
-          <p className="text-xs text-muted-foreground mt-4">
-            Administrators can get a token from{' '}
-            <a 
-              href="https://account.mapbox.com/access-tokens/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              Mapbox Dashboard
-            </a>
-          </p>
         </div>
       )}
       
@@ -577,28 +550,28 @@ const EventMap = ({
           z-index: 1000 !important;
         }
         
-        .mapboxgl-popup {
+        .maplibregl-popup {
           z-index: 1001 !important;
         }
         
-        .mapboxgl-popup-content {
+        .maplibregl-popup-content {
           padding: 0 !important;
           border-radius: 8px !important;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
 
-        .mapboxgl-ctrl-group {
+        .maplibregl-ctrl-group {
           background: hsl(var(--card)) !important;
           border: 1px solid hsl(var(--border)) !important;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
         }
 
-        .mapboxgl-ctrl-group button {
+        .maplibregl-ctrl-group button {
           background-color: hsl(var(--card)) !important;
           color: hsl(var(--foreground)) !important;
         }
 
-        .mapboxgl-ctrl-group button:hover {
+        .maplibregl-ctrl-group button:hover {
           background-color: hsl(var(--accent)) !important;
         }
       `}</style>
