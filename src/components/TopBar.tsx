@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { TopBarLogo } from "./navigation/TopBarLogo";
+import { Logo } from "./brand/Logo";
 import { TopBarNav } from "./navigation/TopBarNav";
 import { TopBarActions } from "./navigation/TopBarActions";
+import { cn } from "@/lib/utils";
 
 export const TopBar = () => {
   const location = useLocation();
@@ -20,7 +21,7 @@ export const TopBar = () => {
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -31,16 +32,19 @@ export const TopBar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled 
-          ? "bg-white/95 backdrop-blur-md shadow-lg border-primary/20" 
-          : "bg-white/90 backdrop-blur-sm border-primary/10"
-      }`}
+          ? "bg-background/95 backdrop-blur-md shadow-soft border-b border-border" 
+          : "bg-background/80 backdrop-blur-sm border-b border-transparent"
+      )}
     >
-      <div className="container flex h-16 items-center mx-auto container-padding">
-        <TopBarLogo />
-        {!isMobile && <TopBarNav />}
-        <TopBarActions />
+      <div className="section-container">
+        <div className="flex h-16 items-center justify-between">
+          <Logo size="md" />
+          {!isMobile && <TopBarNav />}
+          <TopBarActions />
+        </div>
       </div>
     </motion.header>
   );

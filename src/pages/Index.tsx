@@ -1,3 +1,4 @@
+
 import { HomeHero } from "@/components/home/HomeHero";
 import { FeaturedEvents } from "@/components/home/FeaturedEvents";
 import { QuickCategories } from "@/components/home/QuickCategories";
@@ -6,7 +7,6 @@ import { TrustIndicators } from "@/components/home/TrustIndicators";
 import { CallToAction } from "@/components/home/CallToAction";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { QueryErrorBoundary } from "@/components/error/QueryErrorBoundary";
-import { motion } from "framer-motion";
 import { Suspense } from "react";
 import { PageLoader } from "@/components/loading/PageLoader";
 
@@ -14,29 +14,19 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead 
-        title="SocialEventory - Discover Amazing Events Near You"
-        description="Find and share the best local events. Connect with your community through concerts, workshops, cultural events and more."
+        title="SocialEventory - Discover Events Worth Attending"
+        description="Find concerts, workshops, exhibitions and more. Connect with your community through SocialEventory."
       />
       
-      {/* Hero without any container constraints */}
       <HomeHero />
       
       <QueryErrorBoundary>
         <Suspense fallback={<PageLoader message="Loading events..." />}>
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="bg-background"
-    >
-      <div className="container mx-auto px-4 py-12 space-y-20">
-        <TrustIndicators />
-        <QuickCategories />
-        <FeaturedEvents />
-        <EventsNearYou />
-        <CallToAction />
-      </div>
-    </motion.div>
+          <TrustIndicators />
+          <QuickCategories />
+          <FeaturedEvents />
+          <EventsNearYou />
+          <CallToAction />
         </Suspense>
       </QueryErrorBoundary>
     </div>

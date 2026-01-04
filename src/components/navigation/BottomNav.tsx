@@ -23,14 +23,17 @@ export const BottomNav = () => {
   ];
   
   const isActive = (path: string) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
     if (path === "/events") {
-      return location.pathname === "/events" || location.pathname === "/";
+      return location.pathname === "/events";
     }
     return location.pathname.startsWith(path);
   };
   
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 glass-navbar border-t border-border/20 safe-area-bottom bg-background/95 backdrop-blur-xl">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur-sm safe-area-bottom">
       <div className="mx-auto max-w-screen-sm">
         <div className="flex justify-between px-2">
           {navigation.map((item) => {
@@ -52,14 +55,14 @@ export const BottomNav = () => {
                 <div
                   className={cn(
                     "flex items-center justify-center rounded-xl p-2 transition-all duration-200 relative",
-                    active && "bg-primary/10 scale-110"
+                    active && "bg-primary/10"
                   )}
                 >
-                  <IconComponent size={20} />
+                  <IconComponent size={20} strokeWidth={active ? 2.5 : 2} />
                   {item.badge && item.badge > 0 && (
                     <Badge 
                       variant="destructive" 
-                      className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center"
+                      className="absolute -top-1 -right-1 h-4 w-4 p-0 text-[10px] flex items-center justify-center"
                     >
                       {item.badge > 99 ? '99+' : item.badge}
                     </Badge>
@@ -67,7 +70,7 @@ export const BottomNav = () => {
                 </div>
                 <span className={cn(
                   "mt-1 text-[10px] font-medium transition-all duration-200",
-                  active && "font-semibold"
+                  active && "font-semibold text-primary"
                 )}>
                   {item.name}
                 </span>
@@ -76,6 +79,6 @@ export const BottomNav = () => {
           })}
         </div>
       </div>
-    </div>
+    </nav>
   );
 };

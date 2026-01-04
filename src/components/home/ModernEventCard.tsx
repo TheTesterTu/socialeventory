@@ -1,72 +1,98 @@
+
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Users, Heart } from "lucide-react";
+import { Calendar, MapPin, Users, Heart, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Event } from "@/lib/types";
 import { format } from "date-fns";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { cn } from "@/lib/utils";
 
 interface ModernEventCardProps {
   event: Event;
   index?: number;
+  variant?: "default" | "featured" | "compact";
 }
 
-export const ModernEventCard = ({ event, index = 0 }: ModernEventCardProps) => {
+export const ModernEventCard = ({ event, index = 0, variant = "default" }: ModernEventCardProps) => {
+  const isFeatured = variant === "featured";
+  const isCompact = variant === "compact";
+
   return (
     <Link to={`/events/${event.id}`}>
-      <motion.div
+      <motion.article
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
-        whileHover={{ y: -8, scale: 1.02 }}
-        className="group relative overflow-hidden rounded-3xl glass-card card-lift h-full transition-all duration-300 border-2 hover:border-primary/30"
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, delay: index * 0.05 }}
+        className={cn(
+          "group card-interactive overflow-hidden h-full",
+          isFeatured && "md:col-span-2 md:row-span-2"
+        )}
       >
-        <div className="relative aspect-[16/10] overflow-hidden">
+        {/* Image */}
+        <div className={cn(
+          "relative overflow-hidden",
+          isCompact ? "aspect-[16/9]" : "aspect-[4/3]",
+          isFeatured && "md:aspect-[16/9]"
+        )}>
           <OptimizedImage
             src={event.imageUrl}
             alt={event.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
           
-          {/* Modern category badge */}
-          <div className="absolute top-4 left-4">
-            <span className="px-4 py-2 rounded-full text-xs font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 text-white shadow-2xl backdrop-blur-xl">
+          {/* Category badge */}
+          <div className="absolute top-3 left-3">
+            <span className="badge-dark backdrop-blur-sm">
               {event.category[0]}
             </span>
           </div>
 
-          {/* Bottom gradient content */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 space-y-3">
-            <h3 className="text-xl font-bold text-white line-clamp-2 drop-shadow-2xl">
-              {event.title}
-            </h3>
-            
-            <div className="flex items-center gap-4 text-white/90 text-sm">
-              <div className="flex items-center gap-2 backdrop-blur-xl bg-white/10 px-3 py-1.5 rounded-full">
-                <Calendar className="h-4 w-4" />
-                <span className="font-medium">{format(new Date(event.startDate), "MMM d")}</span>
-              </div>
-              
-              <div className="flex items-center gap-2 backdrop-blur-xl bg-white/10 px-3 py-1.5 rounded-full">
-                <MapPin className="h-4 w-4" />
-                <span className="font-medium line-clamp-1">{event.location.venue_name}</span>
-              </div>
+          {/* Like count on image */}
+          {event.likes > 0 && (
+            <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
+              <Heart className="h-3.5 w-3.5 fill-current" />
+              {event.likes}
             </div>
+          )}
+        </div>
 
-            {/* Modern stats */}
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2 text-white/90 backdrop-blur-xl bg-white/10 px-3 py-1.5 rounded-full">
-                <Heart className="h-4 w-4" />
-                <span className="font-bold">{event.likes}</span>
-              </div>
-              <div className="flex items-center gap-2 text-white/90 backdrop-blur-xl bg-white/10 px-3 py-1.5 rounded-full">
-                <Users className="h-4 w-4" />
-                <span className="font-bold">{event.attendees}</span>
-              </div>
+        {/* Content */}
+        <div className="p-5 space-y-3">
+          {/* Date */}
+          <div className="flex items-center gap-2 text-primary text-sm font-medium">
+            <Calendar className="h-4 w-4" />
+            {format(new Date(event.startDate), "EEE, MMM d · h:mm a")}
+          </div>
+
+          {/* Title */}
+          <h3 className={cn(
+            "font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors",
+            isFeatured ? "text-xl md:text-2xl" : "text-lg"
+          )}>
+            {event.title}
+          </h3>
+
+          {/* Location */}
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            <MapPin className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">{event.location.venue_name || event.location.address}</span>
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-3 border-t border-border">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>{event.attendees} attending</span>
             </div>
+            
+            <span className="text-primary font-medium text-sm flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              View details
+              <ArrowRight className="h-3.5 w-3.5" />
+            </span>
           </div>
         </div>
-      </motion.div>
+      </motion.article>
     </Link>
   );
 };

@@ -2,12 +2,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Event } from "@/lib/types";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, ArrowRight, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { mapDatabaseEventToEvent } from "@/lib/utils/mappers";
+import { ModernEventCard } from "./ModernEventCard";
 
 export const EventsNearYou = () => {
   const [nearbyEvents, setNearbyEvents] = useState<Event[]>([]);
@@ -54,7 +55,7 @@ export const EventsNearYou = () => {
 
       if (error) throw error;
 
-      const formattedEvents: Event[] = (eventsData as any[] || []).slice(0, 3).map(mapDatabaseEventToEvent);
+      const formattedEvents: Event[] = (eventsData as any[] || []).slice(0, 4).map(mapDatabaseEventToEvent);
 
       setNearbyEvents(formattedEvents);
     } catch (error) {
@@ -72,7 +73,9 @@ export const EventsNearYou = () => {
       const { data: eventsData, error } = await supabase
         .from('events')
         .select('*')
-        .limit(3);
+        .gte('start_date', new Date().toISOString())
+        .order('start_date', { ascending: true })
+        .limit(4);
 
       if (error) throw error;
 
@@ -128,111 +131,92 @@ export const EventsNearYou = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.2 }}
-      className="space-y-4"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <MapPin className="h-5 w-5 text-primary" />
-          <h2 className="text-xl font-semibold">Near You</h2>
-        </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleGetLocation}
-          disabled={isLoading}
-          className="flex items-center gap-1"
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <MapPin className="h-4 w-4" />
-          )}
-          <span>{userLocation ? "Update Location" : "Get Location"}</span>
-        </Button>
-      </div>
-      
-      <div className="glass-panel relative rounded-xl overflow-hidden">
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 z-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+    <section className="section-spacing">
+      <div className="section-container">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-        />
-        
-        {nearbyEvents.length > 0 && nearbyEvents[0].location.coordinates[0] !== 0 ? (
-          <div className="w-full h-48 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg border border-border/20 overflow-hidden relative">
-            {/* Map background pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none">
-                <pattern id="map-grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-                </pattern>
-                <rect width="100" height="100" fill="url(#map-grid)" />
-              </svg>
-            </div>
-            
-            {/* Event markers */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative w-full h-full">
-                {nearbyEvents.slice(0, 6).map((event, index) => {
-                  const row = Math.floor(index / 3);
-                  const col = index % 3;
-                  const x = 25 + col * 25; // 25%, 50%, 75%
-                  const y = 35 + row * 30; // 35%, 65%
-                  
-                  return (
-                    <div
-                      key={event.id}
-                      className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
-                      style={{ left: `${x}%`, top: `${y}%` }}
-                    >
-                      <div className="relative">
-                        <MapPin 
-                          className="h-6 w-6 text-primary drop-shadow-lg transition-all duration-200 group-hover:scale-110 animate-pulse" 
-                          fill="currentColor"
-                        />
-                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                          {event.title.length > 15 ? `${event.title.slice(0, 15)}...` : event.title}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+          className="space-y-8"
+        >
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="text-primary font-medium text-sm">Location-based</span>
               </div>
-            </div>
-          </div>
-        ) : (
-          <div className="w-full h-48 bg-gradient-to-r from-primary/20 to-accent/20 flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <MapPin className="h-8 w-8 mx-auto mb-2" />
-              <p className="text-sm">
-                {isLoading ? "Finding events near you..." : "No events found nearby"}
+              <h2 className="text-headline text-3xl md:text-4xl">
+                Events near you
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                {userLocation 
+                  ? `Showing events within 50km` 
+                  : 'Enable location to see nearby events'}
               </p>
             </div>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={handleGetLocation}
+                disabled={isLoading}
+                className="btn-outline"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Navigation className="h-4 w-4 mr-2" />
+                )}
+                {userLocation ? "Update" : "Enable location"}
+              </Button>
+              <Link to="/nearby">
+                <Button variant="ghost" className="btn-ghost gap-2 hover:gap-3 transition-all">
+                  View map
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
-        )}
-        
-        <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-          <div className="mb-2">
-            {nearbyEvents.length > 0 && (
-              <p className="text-white text-sm font-medium">
-                {nearbyEvents.length} event{nearbyEvents.length !== 1 ? 's' : ''} found
-                {userLocation && ' in your area'}
-              </p>
-            )}
-          </div>
-          <Button 
-            onClick={() => navigate("/nearby")}
-            className="w-full bg-primary hover:bg-primary/90"
-          >
-            Explore Nearby Events
-          </Button>
-        </div>
+          
+          {/* Events grid */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div 
+                  key={index} 
+                  className="bg-card rounded-2xl overflow-hidden animate-pulse"
+                >
+                  <div className="aspect-[4/3] bg-muted" />
+                  <div className="p-5 space-y-3">
+                    <div className="h-4 bg-muted rounded w-1/3" />
+                    <div className="h-6 bg-muted rounded w-3/4" />
+                    <div className="h-4 bg-muted rounded w-1/2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : nearbyEvents.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {nearbyEvents.map((event, index) => (
+                <ModernEventCard key={event.id} event={event} index={index} />
+              ))}
+            </div>
+          ) : (
+            <div className="card-modern p-12 text-center">
+              <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-foreground font-medium">No events found nearby</p>
+              <p className="text-muted-foreground text-sm mt-1">Try expanding your search area</p>
+              <Button 
+                onClick={() => navigate("/events")}
+                className="btn-primary mt-6"
+              >
+                Browse all events
+              </Button>
+            </div>
+          )}
+        </motion.div>
       </div>
-    </motion.div>
+    </section>
   );
 };

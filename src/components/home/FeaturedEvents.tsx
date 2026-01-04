@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { ModernEventCard } from "./ModernEventCard";
 import { useUnifiedEvents } from "@/hooks/useUnifiedEvents";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 
@@ -16,14 +16,27 @@ export const FeaturedEvents = () => {
 
   if (isLoading) {
     return (
-      <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gradient">Featured Events</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="h-80 bg-muted/20 rounded-xl animate-pulse" />
-          ))}
+      <section className="section-spacing bg-muted/30">
+        <div className="section-container space-y-8">
+          <div className="space-y-2">
+            <h2 className="text-headline text-3xl md:text-4xl">Featured events</h2>
+            <p className="text-muted-foreground text-lg">Handpicked experiences</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div 
+                key={index} 
+                className="bg-card rounded-2xl overflow-hidden animate-pulse"
+              >
+                <div className="aspect-[4/3] bg-muted" />
+                <div className="p-5 space-y-3">
+                  <div className="h-4 bg-muted rounded w-1/3" />
+                  <div className="h-6 bg-muted rounded w-3/4" />
+                  <div className="h-4 bg-muted rounded w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     );
@@ -31,13 +44,12 @@ export const FeaturedEvents = () => {
 
   if (error) {
     return (
-      <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gradient">Featured Events</h2>
-        </div>
-        <div className="glass-panel p-8 rounded-2xl text-center">
-          <p className="text-destructive mb-2">Error loading featured events</p>
-          <p className="text-muted-foreground text-sm">Please try again later</p>
+      <section className="section-spacing bg-muted/30">
+        <div className="section-container">
+          <div className="card-modern p-12 text-center">
+            <p className="text-destructive font-medium">Error loading events</p>
+            <p className="text-muted-foreground text-sm mt-1">Please try again later</p>
+          </div>
         </div>
       </section>
     );
@@ -45,43 +57,71 @@ export const FeaturedEvents = () => {
 
   if (events.length === 0) {
     return (
-      <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gradient">Featured Events</h2>
-        </div>
-        <div className="glass-panel p-8 rounded-2xl text-center">
-          <p className="text-muted-foreground">No featured events available at the moment.</p>
-          <p className="text-muted-foreground text-sm mt-2">Check back later for exciting events!</p>
+      <section className="section-spacing bg-muted/30">
+        <div className="section-container">
+          <div className="card-modern p-12 text-center">
+            <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-foreground font-medium">No featured events yet</p>
+            <p className="text-muted-foreground text-sm mt-1">Check back soon for exciting events!</p>
+          </div>
         </div>
       </section>
     );
   }
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-8"
-    >
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <h2 className="text-4xl md:text-5xl font-bold text-gradient-subtle">Featured Events</h2>
-          <p className="text-lg text-muted-foreground">Handpicked experiences just for you</p>
-        </div>
-        <Link to="/events">
-          <Button variant="ghost" className="gap-2 hover:gap-3 transition-all duration-300 text-primary hover:text-primary-dark">
-            View all
-            <ArrowRight className="h-5 w-5" />
-          </Button>
-        </Link>
+    <section className="section-spacing bg-muted/30">
+      <div className="section-container">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="space-y-8"
+        >
+          {/* Header */}
+          <div className="flex items-end justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <span className="text-primary font-medium text-sm">Curated</span>
+              </div>
+              <h2 className="text-headline text-3xl md:text-4xl">
+                Featured events
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                Handpicked experiences just for you
+              </p>
+            </div>
+            <Link to="/events">
+              <Button variant="ghost" className="hidden sm:flex btn-ghost gap-2 hover:gap-3 transition-all">
+                View all
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+          
+          {/* Events grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {events.map((event, index) => (
+              <ModernEventCard 
+                key={event.id} 
+                event={event} 
+                index={index}
+                variant={index === 0 ? "featured" : "default"}
+              />
+            ))}
+          </div>
+
+          {/* Mobile CTA */}
+          <Link to="/events" className="sm:hidden block">
+            <Button variant="outline" className="w-full btn-outline gap-2">
+              View all events
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </motion.div>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {events.map((event, index) => (
-          <ModernEventCard key={event.id} event={event} index={index} />
-        ))}
-      </div>
-    </motion.section>
+    </section>
   );
 };

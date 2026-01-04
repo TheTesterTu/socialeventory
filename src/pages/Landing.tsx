@@ -1,3 +1,4 @@
+
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { StructuredData } from "@/components/seo/StructuredData";
@@ -20,11 +21,11 @@ const Landing = () => {
   return (
     <AppLayout 
       pageTitle="SocialEventory - Discover Amazing Events"
-      pageDescription="Find and share amazing events in your community. Connect with people who share your interests through SocialEventory."
+      pageDescription="Find and share amazing events in your community. Connect with people who share your interests."
     >
       <SEOHead 
         title="SocialEventory - Discover Amazing Events"
-        description="Find and share amazing events in your community. Connect with people who share your interests through SocialEventory."
+        description="Find and share amazing events in your community. Connect with people who share your interests."
         type="website"
       />
       
@@ -38,7 +39,7 @@ const Landing = () => {
       />
       
       <ErrorBoundary>
-        <div className="space-y-20">
+        <div className="space-y-0">
           <HomeHero />
           <TrustIndicators />
           <QuickCategories />
