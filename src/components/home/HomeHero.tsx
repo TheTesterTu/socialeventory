@@ -1,94 +1,42 @@
+
 import { motion } from "framer-motion";
-import { CalendarPlus, Search, Sparkles } from "lucide-react";
+import { ArrowRight, MapPin, Calendar, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { SearchBar } from "@/components/SearchBar";
-import { VideoBackground } from "@/components/shared/VideoBackground";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
 
-const DynamicStats = () => {
-  const [stats, setStats] = useState({
-    totalEvents: 0,
-    thisWeekEvents: 0,
-    todayEvents: 0,
-    loading: true
-  });
+const LiveIndicator = () => {
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const now = new Date();
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
-
-        // Total upcoming events
-        const { count: totalEvents } = await supabase
-          .from('events')
-          .select('*', { count: 'exact', head: true })
-          .gte('start_date', now.toISOString());
-
-        // Events this week
-        const { count: thisWeekEvents } = await supabase
-          .from('events')
-          .select('*', { count: 'exact', head: true })
-          .gte('start_date', weekAgo.toISOString())
-          .lt('start_date', now.toISOString());
-
-        // Events today
-        const { count: todayEvents } = await supabase
-          .from('events')
-          .select('*', { count: 'exact', head: true })
-          .gte('start_date', todayStart.toISOString())
-          .lt('start_date', todayEnd.toISOString());
-
-        setStats({
-          totalEvents: totalEvents || 0,
-          thisWeekEvents: thisWeekEvents || 0,
-          todayEvents: todayEvents || 0,
-          loading: false
-        });
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-        setStats(prev => ({ ...prev, loading: false }));
-      }
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from('events')
+        .select('*', { count: 'exact', head: true })
+        .gte('start_date', new Date().toISOString());
+      setCount(count || 0);
     };
-
-    fetchStats();
+    fetchCount();
   }, []);
 
-  if (stats.loading) {
-    return (
-      <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary/70 bg-primary/30 backdrop-blur-sm shadow-lg">
-        <span className="inline-block h-2 w-2 rounded-full bg-primary animate-pulse"></span>
-        <span className="text-sm font-medium text-white">Loading...</span>
-      </div>
-    );
-  }
+  if (count === 0) return null;
 
   return (
-    <>
-        {stats.totalEvents > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-success/60 bg-success/20 backdrop-blur-md shadow-lg">
-          <span className="inline-block h-2 w-2 rounded-full bg-success"></span>
-          <span className="text-sm font-medium text-white">{stats.totalEvents} upcoming</span>
-        </div>
-      )}
-      {stats.thisWeekEvents > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary/60 bg-primary/20 backdrop-blur-md shadow-lg">
-          <span className="inline-block h-2 w-2 rounded-full bg-primary"></span>
-          <span className="text-sm font-medium text-white">{stats.thisWeekEvents} this week</span>
-        </div>
-      )}
-      {stats.todayEvents > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-warning/60 bg-warning/20 backdrop-blur-md shadow-lg">
-          <span className="inline-block h-2 w-2 rounded-full bg-warning"></span>
-          <span className="text-sm font-medium text-white">{stats.todayEvents} today</span>
-        </div>
-      )}
-    </>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.5 }}
+      className="inline-flex items-center gap-2 px-4 py-2 bg-success/10 text-success rounded-full text-sm font-medium"
+    >
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+      </span>
+      {count} live events
+    </motion.div>
   );
 };
 
@@ -96,107 +44,147 @@ export const HomeHero = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query)}`);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
 
   return (
-    <VideoBackground className="min-h-screen w-full flex items-center">
+    <section className="relative min-h-[90vh] flex items-center bg-background overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--foreground)) 1px, transparent 0)`,
+        backgroundSize: '40px 40px'
+      }} />
       
-      <div className="relative z-10 w-full min-h-screen flex items-center justify-center">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+      {/* Accent gradient orb */}
+      <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
+
+      <div className="section-container relative z-10 py-20">
+        <div className="max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8"
+            transition={{ duration: 0.5 }}
+            className="space-y-8"
           >
-            {/* Modern floating badge */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white text-sm font-semibold border-2 border-primary/60 bg-gradient-to-r from-primary/30 via-purple-500/30 to-pink-500/30 backdrop-blur-xl shadow-2xl hover:scale-105 transition-transform duration-300"
-            >
-              <Sparkles className="h-4 w-4 text-primary-light animate-pulse" />
-              <span className="bg-gradient-to-r from-white to-primary-light bg-clip-text text-transparent">
-                Discover Amazing Events Worldwide
-              </span>
-            </motion.div>
+            {/* Live indicator */}
+            <LiveIndicator />
 
-            {/* Main heading */}
-            <motion.div
+            {/* Main headline */}
+            <div className="space-y-4">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="text-display text-5xl sm:text-6xl md:text-7xl lg:text-display-lg"
+              >
+                Discover events
+                <br />
+                <span className="text-primary">worth attending</span>
+              </motion.h1>
+              
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed"
+              >
+                Find concerts, workshops, exhibitions and more.
+                <br className="hidden sm:block" />
+                Connect with your community.
+              </motion.p>
+            </div>
+
+            {/* Search bar */}
+            <motion.form
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="space-y-4 sm:space-y-6"
+              transition={{ duration: 0.5, delay: 0.3 }}
+              onSubmit={handleSearch}
+              className="flex flex-col sm:flex-row gap-3 max-w-xl"
             >
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight text-white drop-shadow-2xl leading-tight">
-                Find Your{" "}
-                <span className="bg-gradient-to-r from-primary-light via-purple-400 to-pink-400 bg-clip-text text-transparent animate-float">
-                  Next Epic Experience
-                </span>
-              </h1>
-              <p className="text-lg sm:text-xl lg:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-2xl font-medium">
-                Join thousands discovering unforgettable moments every day
-              </p>
-            </motion.div>
-
-            {/* Modern search bar with glow effect */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="w-full max-w-3xl mx-auto"
-            >
-              <div className="p-3 sm:p-4 rounded-3xl border-2 border-primary/50 bg-white/95 backdrop-blur-xl shadow-2xl hover:shadow-primary/20 transition-all duration-300">
-                <SearchBar onSearch={handleSearch} />
+              <div className="relative flex-1">
+                <Input
+                  type="text"
+                  placeholder="Search events, venues, artists..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="input-modern h-14 text-base pl-12"
+                />
+                <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               </div>
-            </motion.div>
+              <Button 
+                type="submit"
+                size="lg"
+                className="btn-primary h-14 px-8 text-base"
+              >
+                Search
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </motion.form>
 
-            {/* Action buttons with consistent styling */}
+            {/* Quick links */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center"
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="flex flex-wrap gap-3 pt-4"
             >
-              <Link to="/create-event" className="w-full sm:w-auto">
-                <Button 
-                  size="lg" 
-                  className="gradient-primary px-10 py-4 h-auto font-bold rounded-2xl w-full shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-primary/40 border-0 text-lg"
-                >
-                  <CalendarPlus className="mr-2 h-6 w-6" />
-                  Create Event
-                </Button>
+              <Link to="/search?category=Music">
+                <span className="badge-muted hover:bg-muted/80 transition-colors cursor-pointer">
+                  🎵 Music
+                </span>
               </Link>
-              <Link to="/search" className="w-full sm:w-auto">
-                <Button 
-                  variant="outline"
-                  size="lg"
-                  className="bg-white/95 hover:bg-white text-gray-900 hover:text-black border-2 border-white/60 hover:border-primary/60 px-10 py-4 h-auto font-bold rounded-2xl w-full shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-white/40 backdrop-blur-xl text-lg"
-                >
-                  <Search className="mr-2 h-6 w-6" />
-                  Explore All
-                </Button>
+              <Link to="/search?category=Technology">
+                <span className="badge-muted hover:bg-muted/80 transition-colors cursor-pointer">
+                  💻 Tech
+                </span>
+              </Link>
+              <Link to="/search?category=Food%20%26%20Drink">
+                <span className="badge-muted hover:bg-muted/80 transition-colors cursor-pointer">
+                  🍕 Food
+                </span>
+              </Link>
+              <Link to="/search?category=Art%20%26%20Culture">
+                <span className="badge-muted hover:bg-muted/80 transition-colors cursor-pointer">
+                  🎨 Art
+                </span>
+              </Link>
+              <Link to="/nearby">
+                <span className="badge-primary cursor-pointer">
+                  <MapPin className="h-3 w-3 inline mr-1" />
+                  Near me
+                </span>
               </Link>
             </motion.div>
 
-            {/* Dynamic Stats */}
+            {/* CTA buttons */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex items-center justify-center flex-wrap gap-3 lg:gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="flex flex-wrap gap-4 pt-4"
             >
-              <DynamicStats />
+              <Link to="/events">
+                <Button size="lg" variant="outline" className="btn-outline h-12">
+                  <Calendar className="mr-2 h-5 w-5" />
+                  Browse all events
+                </Button>
+              </Link>
+              <Link to="/create-event">
+                <Button size="lg" variant="ghost" className="btn-ghost h-12 text-primary hover:text-primary">
+                  Create an event
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </motion.div>
           </motion.div>
         </div>
       </div>
-    </VideoBackground>
+    </section>
   );
 };
