@@ -1,1 +1,4 @@
 project_id = "afdkepzhghdoeyjncnah"
+
+[functions.insert-sample-events]
+verify_jwt = false
