@@ -37,7 +37,7 @@ export const useTopOrganizers = (limit: number = 4) => {
         }
 
         const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
+          .from('public_profiles' as any)
           .select('id, username, full_name, avatar_url')
           .in('id', userIds);
 
