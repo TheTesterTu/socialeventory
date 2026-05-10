@@ -21,8 +21,8 @@ export const TrustIndicators = () => {
           .select('*', { count: 'exact', head: true });
 
         // Fetch total users (profiles)
-        const { count: usersCount } = await supabase
-          .from('profiles')
+        const { count: usersCount } = await (supabase as any)
+          .from('public_profiles')
           .select('*', { count: 'exact', head: true });
 
         // Estimate cities from unique locations
