@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface OptimizedImageProps {
@@ -28,6 +28,12 @@ export const OptimizedImage = React.memo(({
   const [imgSrc, setImgSrc] = useState(src || fallback);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setImgSrc(src || fallback);
+    setIsLoading(true);
+    setHasError(false);
+  }, [src, fallback]);
 
   const handleLoad = () => {
     setIsLoading(false);
@@ -63,10 +69,9 @@ export const OptimizedImage = React.memo(({
         src={imgSrc}
         alt={alt}
         className={cn(
-          'transition-opacity duration-300',
+          'h-full w-full object-cover transition-opacity duration-300',
           isLoading ? 'opacity-0' : 'opacity-100',
-          hasError ? 'opacity-75' : '',
-          className
+          hasError ? 'opacity-75' : ''
         )}
         onLoad={handleLoad}
         onError={handleError}
