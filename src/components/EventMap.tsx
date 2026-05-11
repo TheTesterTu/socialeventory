@@ -53,31 +53,20 @@ const EventMap = ({
     try {
       const defaultCenter: [number, number] = userLocation || [10.5, 47.5]; // Central Europe
 
-      const mapStyle = theme === 'dark'
-        ? {
-            version: 8,
-            sources: {
-              osm: {
-                type: 'raster',
-                tiles: ['https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'],
-                tileSize: 256,
-                attribution: '&copy; Stadia Maps &copy; OpenMapTiles &copy; OpenStreetMap',
-              },
-            },
-            layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-          }
-        : {
-            version: 8,
-            sources: {
-              osm: {
-                type: 'raster',
-                tiles: ['https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png'],
-                tileSize: 256,
-                attribution: '&copy; Stadia Maps &copy; OpenMapTiles &copy; OpenStreetMap',
-              },
-            },
-            layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-          };
+      setMapLoaded(false);
+
+      const mapStyle = {
+        version: 8,
+        sources: {
+          osm: {
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            attribution: '&copy; OpenStreetMap contributors',
+          },
+        },
+        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
+      };
 
       map.current = new maplibregl.Map({
         container: mapContainer.current,
