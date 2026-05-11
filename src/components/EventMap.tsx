@@ -108,7 +108,6 @@ const EventMap = ({
           new maplibregl.GeolocateControl({
             positionOptions: { enableHighAccuracy: true },
             trackUserLocation: true,
-            showUserHeading: true,
           }),
           'top-right'
         );
