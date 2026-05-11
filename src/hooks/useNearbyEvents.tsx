@@ -22,7 +22,6 @@ export const useNearbyEvents = () => {
       setIsLoading(true);
       setError(null);
       
-      const radiusMeters = radius * 1000; // Convert km to meters
       const now = new Date();
       
       // First, let's get all events with proper date filtering
