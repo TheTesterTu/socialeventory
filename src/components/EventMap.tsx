@@ -7,7 +7,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { Button } from './ui/button';
 import { Search, Filter, Loader2, Layers, Locate } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from 'next-themes';
 
 interface EventMapProps {
   events: Event[];
@@ -37,7 +36,6 @@ const EventMap = ({
   const [viewVersion, setViewVersion] = useState(0); // bumps on move/zoom
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { theme } = useTheme();
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const userMarkerRef = useRef<maplibregl.Marker | null>(null);
   const didInitialFitRef = useRef(false);
@@ -116,7 +114,7 @@ const EventMap = ({
         variant: 'destructive',
       });
     }
-  }, [isInteractive, theme]); // do not depend on userLocation -> avoid re-init on geolocation tick
+  }, [isInteractive]); // do not depend on userLocation -> avoid re-init on geolocation tick
 
   // User location marker
   useEffect(() => {
