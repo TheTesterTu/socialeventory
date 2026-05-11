@@ -4,7 +4,6 @@ import { MapPin, Calendar } from "lucide-react";
 import EventMap from "@/components/EventMap";
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -16,6 +15,7 @@ import { RadiusControl } from "@/components/nearby/RadiusControl";
 import { EventsNearbyList } from "@/components/nearby/EventsNearbyList";
 
 const Nearby = () => {
+  const fallbackLocation = { lat: 48.8566, lng: 2.3522 };
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [radius, setRadius] = useState<number>(5);
   const [showEventsList, setShowEventsList] = useState(false);
@@ -24,19 +24,22 @@ const Nearby = () => {
   const { coordinates, isLoading: locationLoading, error: locationError } = useGeolocation();
   const { events, isLoading: eventsLoading, error: eventsError, fetchNearbyEvents } = useNearbyEvents();
 
-  // Fetch events when location or filters change
+  const activeLocation = coordinates ?? fallbackLocation;
+  const activeRadius = coordinates ? radius : 900;
+
+  // Fetch events when location or filters change. Fall back to a Europe-wide view if location is denied.
   useEffect(() => {
-    if (coordinates) {
-      fetchNearbyEvents(coordinates.lat, coordinates.lng, radius, selectedDate, showPastEvents);
+    if (!locationLoading || coordinates) {
+      fetchNearbyEvents(activeLocation.lat, activeLocation.lng, activeRadius, selectedDate, showPastEvents);
     }
-  }, [coordinates, radius, selectedDate, showPastEvents]);
+  }, [coordinates, locationLoading, activeLocation.lat, activeLocation.lng, activeRadius, selectedDate, showPastEvents]);
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
   };
 
-  const isLoading = locationLoading || eventsLoading;
-  const error = locationError || eventsError;
+  const isLoading = eventsLoading || (locationLoading && events.length === 0);
+  const error = eventsError;
 
   return (
     <AppLayout pageTitle="Events Near You" showTopBar={true}>
@@ -51,9 +54,9 @@ const Nearby = () => {
             <div className="flex-1">
               <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Events Near You</h1>
               <p className="text-muted-foreground mt-1 text-sm lg:text-base">
-                {coordinates 
+                  {coordinates 
                   ? `Showing ${showPastEvents ? 'all' : 'upcoming'} events within ${radius}km of your location` 
-                  : "Getting your location to show nearby events"
+                    : "Showing the wider event map while location access is unavailable"
                 }
               </p>
             </div>
@@ -96,7 +99,7 @@ const Nearby = () => {
           </div>
         </motion.div>
 
-        {error && (
+        {(error || locationError) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -105,7 +108,7 @@ const Nearby = () => {
           >
             <Alert variant="destructive" className="border-0 bg-transparent">
               <MapPin className="h-4 w-4" />
-              <AlertDescription className="text-destructive font-medium">{error}</AlertDescription>
+              <AlertDescription className="text-destructive font-medium">{error || "Location access is off, so the map is showing the wider event network."}</AlertDescription>
             </Alert>
           </motion.div>
         )}
@@ -127,11 +130,7 @@ const Nearby = () => {
           transition={{ delay: 0.2 }}
           className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg overflow-hidden"
         >
-          {isLoading ? (
-            <div className="p-4">
-              <Skeleton className="w-full h-[600px] rounded-xl" />
-            </div>
-          ) : showEventsList ? (
+          {showEventsList ? (
             <div className="p-4 lg:p-6">
               <EventsNearbyList events={events} showPastEvents={showPastEvents} />
             </div>
@@ -140,7 +139,7 @@ const Nearby = () => {
               <EventMap
                 events={events}
                 showFilters={false}
-                userLocation={coordinates ? [coordinates.lng, coordinates.lat] : undefined}
+                userLocation={coordinates ? [coordinates.lng, coordinates.lat] : [activeLocation.lng, activeLocation.lat]}
               />
             </div>
           )}
