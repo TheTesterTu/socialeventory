@@ -27,18 +27,15 @@ const Nearby = () => {
   const activeLocation = coordinates ?? fallbackLocation;
   const activeRadius = coordinates ? radius : 900;
 
-  // Fetch events when location or filters change. Fall back to a Europe-wide view if location is denied.
+  // Fetch events immediately with a Europe-wide fallback, then refine when location is available.
   useEffect(() => {
-    if (!locationLoading || coordinates) {
-      fetchNearbyEvents(activeLocation.lat, activeLocation.lng, activeRadius, selectedDate, showPastEvents);
-    }
-  }, [coordinates, locationLoading, activeLocation.lat, activeLocation.lng, activeRadius, selectedDate, showPastEvents]);
+    fetchNearbyEvents(activeLocation.lat, activeLocation.lng, activeRadius, selectedDate, showPastEvents);
+  }, [coordinates, activeLocation.lat, activeLocation.lng, activeRadius, selectedDate, showPastEvents]);
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
   };
 
-  const isLoading = eventsLoading || (locationLoading && events.length === 0);
   const error = eventsError;
 
   return (
