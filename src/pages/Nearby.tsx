@@ -136,8 +136,8 @@ const Nearby = () => {
               <EventsNearbyList events={events} showPastEvents={showPastEvents} />
             </div>
           ) : (
-            <div className="h-[600px]">
-              <EventMap 
+            <div className="h-[calc(100vh-260px)] min-h-[560px]">
+              <EventMap
                 events={events}
                 showFilters={false}
                 userLocation={coordinates ? [coordinates.lng, coordinates.lat] : undefined}

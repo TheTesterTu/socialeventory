@@ -69,7 +69,7 @@ export const SearchResults = ({ events, searchQuery, viewMode }: SearchResultsPr
           </div>
         </div>
       ) : (
-        <div className="rounded-xl overflow-hidden h-[600px]">
+        <div className="rounded-xl overflow-hidden h-[calc(100vh-220px)] min-h-[560px]">
           <EventMap events={events} showFilters={true} />
         </div>
       )}
