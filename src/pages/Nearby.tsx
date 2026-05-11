@@ -21,8 +21,8 @@ const Nearby = () => {
   const [showEventsList, setShowEventsList] = useState(false);
   const [showPastEvents, setShowPastEvents] = useState(false);
   
-  const { coordinates, isLoading: locationLoading, error: locationError } = useGeolocation();
-  const { events, isLoading: eventsLoading, error: eventsError, fetchNearbyEvents } = useNearbyEvents();
+  const { coordinates, error: locationError } = useGeolocation();
+  const { events, error: eventsError, fetchNearbyEvents } = useNearbyEvents();
 
   const activeLocation = coordinates ?? fallbackLocation;
   const activeRadius = coordinates ? radius : 900;
