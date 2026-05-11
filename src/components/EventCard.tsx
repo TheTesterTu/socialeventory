@@ -2,7 +2,7 @@
 import { Event } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Users, Clock, Sparkles, Heart } from "lucide-react";
+import { Calendar, MapPin, Users, Sparkles, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { OptimizedImage } from "./OptimizedImage";
 import { SaveEventButton } from "./SaveEventButton";
@@ -46,19 +46,19 @@ export const EventCard = ({ event, index = 0, variant = 'default' }: EventCardPr
     >
       <Link to={`/event/${id}`} className="block h-full">
         <Card className={cn(
-          "card-interactive overflow-hidden h-full flex flex-col",
+          "card-interactive overflow-hidden h-full flex flex-col rounded-lg",
           isFeatured && "ring-2 ring-primary/20"
         )}>
           {/* Image section */}
-          <div className="relative">
+          <div className={cn(
+            "relative overflow-hidden bg-muted",
+            isCompact ? "aspect-[16/10]" : "aspect-[4/3]",
+            isFeatured && "md:aspect-[16/9]"
+          )}>
             <OptimizedImage
               src={imageUrl}
               alt={title}
-              className={cn(
-                "w-full object-cover transition-transform duration-500 group-hover:scale-105",
-                isCompact ? 'h-32' : 'h-48'
-              )}
-              aspectRatio="video"
+              className="h-full w-full transition-transform duration-500 group-hover:scale-105"
               priority={index < 4 ? 'high' : 'medium'}
               fallback="https://images.unsplash.com/photo-1540575467063-178a50c2df87"
             />

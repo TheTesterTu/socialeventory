@@ -7,7 +7,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { Button } from './ui/button';
 import { Search, Filter, Loader2, Layers, Locate } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from 'next-themes';
 
 interface EventMapProps {
   events: Event[];
@@ -37,7 +36,6 @@ const EventMap = ({
   const [viewVersion, setViewVersion] = useState(0); // bumps on move/zoom
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { theme } = useTheme();
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const userMarkerRef = useRef<maplibregl.Marker | null>(null);
   const didInitialFitRef = useRef(false);
@@ -53,31 +51,20 @@ const EventMap = ({
     try {
       const defaultCenter: [number, number] = userLocation || [10.5, 47.5]; // Central Europe
 
-      const mapStyle = theme === 'dark'
-        ? {
-            version: 8,
-            sources: {
-              osm: {
-                type: 'raster',
-                tiles: ['https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'],
-                tileSize: 256,
-                attribution: '&copy; Stadia Maps &copy; OpenMapTiles &copy; OpenStreetMap',
-              },
-            },
-            layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-          }
-        : {
-            version: 8,
-            sources: {
-              osm: {
-                type: 'raster',
-                tiles: ['https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png'],
-                tileSize: 256,
-                attribution: '&copy; Stadia Maps &copy; OpenMapTiles &copy; OpenStreetMap',
-              },
-            },
-            layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-          };
+      setMapLoaded(false);
+
+      const mapStyle = {
+        version: 8,
+        sources: {
+          osm: {
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            attribution: '&copy; OpenStreetMap contributors',
+          },
+        },
+        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
+      };
 
       map.current = new maplibregl.Map({
         container: mapContainer.current,
@@ -127,7 +114,7 @@ const EventMap = ({
         variant: 'destructive',
       });
     }
-  }, [isInteractive, theme]); // do not depend on userLocation -> avoid re-init on geolocation tick
+  }, [isInteractive]); // do not depend on userLocation -> avoid re-init on geolocation tick
 
   // User location marker
   useEffect(() => {

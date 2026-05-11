@@ -3,7 +3,7 @@ import { Event } from '@/lib/types';
 import { supabase } from '@/integrations/supabase/client';
 import { mapDatabaseEventToEvent } from '@/lib/utils/mappers';
 import { useToast } from '@/components/ui/use-toast';
-import { startOfDay, endOfDay, isBefore, isAfter } from 'date-fns';
+import { startOfDay, endOfDay, isBefore } from 'date-fns';
 
 export const useNearbyEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -22,18 +22,7 @@ export const useNearbyEvents = () => {
       setIsLoading(true);
       setError(null);
       
-      const radiusMeters = radius * 1000; // Convert km to meters
       const now = new Date();
-      
-      console.log('🗺️ [NearbyEvents] Fetching with params:', {
-        lat,
-        lng,
-        radius,
-        radiusMeters,
-        selectedDate: selectedDate?.toISOString(),
-        showPastEvents,
-        now: now.toISOString()
-      });
       
       // First, let's get all events with proper date filtering
       let query = supabase
@@ -64,33 +53,7 @@ export const useNearbyEvents = () => {
         throw allEventsError;
       }
 
-      console.log('📊 [NearbyEvents] Fetched events from DB:', allEvents?.length || 0);
-      if (allEvents && allEvents.length > 0) {
-        console.log('📍 Sample event coordinates:', allEvents.slice(0, 3).map(e => ({
-          title: e.title,
-          coordinates: e.coordinates,
-          location: e.location
-        })));
-      }
-      
-      // Try the RPC function first for precise distance calculation
-      const { data: rpcEvents, error: rpcError } = await supabase
-        .rpc('find_nearby_events', {
-          lat: lat,
-          lon: lng,
-          radius_meters: radiusMeters,
-          category_filter: null,
-          max_price: null,
-          accessibility_filter: null
-        });
-
-      let finalEventsData;
-      
-      if (rpcError || !rpcEvents || rpcEvents.length === 0) {
-        console.log('[NearbyEvents] RPC failed or empty, using manual filtering. RPC error:', rpcError?.message);
-        
-        // Manual distance filtering
-        finalEventsData = allEvents?.filter(event => {
+      const finalEventsData = allEvents?.filter(event => {
           if (!event.coordinates) return false;
           
           let eventLat: number;
@@ -135,35 +98,6 @@ export const useNearbyEvents = () => {
           
           return distance <= radius;
         }) || [];
-        
-        console.log('[NearbyEvents] Manual filtering resulted in:', finalEventsData.length, 'events');
-      } else {
-        console.log('[NearbyEvents] Using RPC results:', rpcEvents.length);
-        
-        // Use RPC results but still apply date filtering
-        finalEventsData = rpcEvents.filter((event: any) => {
-          if (selectedDate) {
-            // Handle different possible date field names from RPC
-            const startDate = event.start_date || event.startDate;
-            if (!startDate) return false;
-            
-            const eventDate = new Date(startDate);
-            const dayStart = startOfDay(selectedDate);
-            const dayEnd = endOfDay(selectedDate);
-            return eventDate >= dayStart && eventDate <= dayEnd;
-          } else if (!showPastEvents) {
-            // Handle different possible date field names from RPC
-            const endDate = event.end_date || event.endDate;
-            if (!endDate) return true; // Include if no end date
-            
-            const eventEndDate = new Date(endDate);
-            return eventEndDate >= now;
-          }
-          return true;
-        });
-        
-        console.log('[NearbyEvents] After date filtering:', finalEventsData.length, 'events');
-      }
 
       // Map the events and add past/future status
       const formattedEvents: Event[] = (finalEventsData as any[] || []).map(event => {
@@ -183,17 +117,6 @@ export const useNearbyEvents = () => {
         
         return isValid;
       });
-
-      console.log('✅ [NearbyEvents] Final formatted events:', formattedEvents.length);
-      if (formattedEvents.length > 0) {
-        console.log('📍 Final events with coordinates:', formattedEvents.map(e => ({
-          title: e.title,
-          coords: e.location.coordinates,
-          isPast: (e as any).isPast
-        })));
-      } else {
-        console.warn('⚠️ No events passed final formatting - check coordinate validation');
-      }
 
       setEvents(formattedEvents);
     } catch (error) {

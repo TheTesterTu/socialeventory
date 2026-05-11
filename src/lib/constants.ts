@@ -1,15 +1,15 @@
 
 // Application constants
 export const APP_CONFIG = {
-  name: 'SocialEventory',
-  description: 'Discover and share amazing events in your community',
+  name: 'SceneLink',
+  description: 'Discover real events and connect with the people going',
   version: '1.0.0',
-  domain: 'socialeventory.com',
-  support_email: 'support@socialeventory.com',
+  domain: 'scenelink.app',
+  support_email: 'support@scenelink.app',
   social: {
-    twitter: '@socialeventory',
-    instagram: '@socialeventory',
-    facebook: 'socialeventory'
+    twitter: '@scenelink',
+    instagram: '@scenelink',
+    facebook: 'scenelink'
   }
 };
 

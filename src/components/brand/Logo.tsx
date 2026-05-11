@@ -73,7 +73,7 @@ export const Logo = ({
 
       {showText && (
         <span className="tracking-tight">
-          Social<span className="text-primary">Eventory</span>
+          Scene<span className="text-primary">Link</span>
         </span>
       )}
     </Link>

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Mail, Lock, User, UserCircle, Loader2, ArrowLeft, Github, Chrome } from "lucide-react";
+import { Mail, Lock, User, UserCircle, Loader2, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { emailSchema, usernameSchema } from "@/lib/utils/validation";
@@ -204,7 +204,7 @@ const Auth = () => {
         <Card className="border-primary/20 shadow-xl shadow-primary/10">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-              Welcome to SocialEventory
+              Welcome to SceneLink
             </CardTitle>
             <CardDescription className="text-center">
               Join our community to discover and share amazing events
@@ -271,28 +271,6 @@ const Auth = () => {
                     )}
                   </Button>
                   
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-border"></div>
-                    </div>
-                    <div className="relative flex justify-center text-xs">
-                      <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button variant="outline" type="button" disabled className="w-full opacity-50 cursor-not-allowed">
-                      <Github className="mr-2 h-4 w-4" />
-                      GitHub
-                    </Button>
-                    <Button variant="outline" type="button" disabled className="w-full opacity-50 cursor-not-allowed">
-                      <Chrome className="mr-2 h-4 w-4" />
-                      Google
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground text-center mt-2">
-                    Social login coming soon
-                  </p>
                 </form>
               </TabsContent>
               
@@ -350,16 +328,16 @@ const Auth = () => {
                       <Input
                         id="signup-password"
                         type="password"
-                        placeholder="Min. 6 characters"
+                        placeholder="Min. 12 characters"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10"
                         required
-                        minLength={6}
+                        minLength={12}
                       />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Password must be at least 6 characters
+                      Use at least 12 characters with uppercase, lowercase, a number, and a symbol
                     </p>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
@@ -381,7 +359,7 @@ const Auth = () => {
               transition={{ delay: 0.5 }}
               className="text-xs"
             >
-              Need help? Contact support@socialeventory.com
+              Need help? Contact support@scenelink.app
             </motion.div>
           </CardFooter>
         </Card>

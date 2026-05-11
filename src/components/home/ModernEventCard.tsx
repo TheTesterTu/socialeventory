@@ -25,7 +25,7 @@ export const ModernEventCard = ({ event, index = 0, variant = "default" }: Moder
         viewport={{ once: true }}
         transition={{ duration: 0.4, delay: index * 0.05 }}
         className={cn(
-          "group card-interactive overflow-hidden h-full",
+          "group card-interactive overflow-hidden h-full rounded-lg",
           isFeatured && "md:col-span-2 md:row-span-2"
         )}
       >
@@ -38,7 +38,7 @@ export const ModernEventCard = ({ event, index = 0, variant = "default" }: Moder
           <OptimizedImage
             src={event.imageUrl}
             alt={event.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full transition-transform duration-500 group-hover:scale-105"
           />
           
           {/* Category badge */}

@@ -44,11 +44,11 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
   if (dbEvent.coordinates) {
     try {
       if (typeof dbEvent.coordinates === 'string') {
-        // Handle PostGIS point format like "(37.7749,-122.4194)"
+        // Handle PostgreSQL point format: (longitude,latitude)
         const match = dbEvent.coordinates.match(/\(([^,]+),([^)]+)\)/);
         if (match) {
-          const lat = safeNumber(match[1]);
-          const lng = safeNumber(match[2]);
+          const lng = safeNumber(match[1]);
+          const lat = safeNumber(match[2]);
           if (lat !== 0 || lng !== 0) {
             coordinates = [lat, lng];
           }
@@ -63,8 +63,8 @@ export function mapDatabaseEventToEvent(dbEvent: any): Event {
             coordinates = [lat, lng];
           }
         } else if (Array.isArray(dbEvent.coordinates) && dbEvent.coordinates.length >= 2) {
-          const lat = safeNumber(dbEvent.coordinates[0]);
-          const lng = safeNumber(dbEvent.coordinates[1]);
+          const lng = safeNumber(dbEvent.coordinates[0]);
+          const lat = safeNumber(dbEvent.coordinates[1]);
           if (lat !== 0 || lng !== 0) {
             coordinates = [lat, lng];
           }
