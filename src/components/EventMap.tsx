@@ -1,12 +1,11 @@
-
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import Supercluster from 'supercluster';
 import { Event } from '@/lib/types';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from './ui/button';
-import { Search, Filter, Loader2 } from 'lucide-react';
+import { Search, Filter, Loader2, Layers, Locate } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 
@@ -15,35 +14,45 @@ interface EventMapProps {
   showFilters?: boolean;
   isInteractive?: boolean;
   className?: string;
-  userLocation?: [number, number]; // [lng, lat] format for Mapbox
+  userLocation?: [number, number]; // [lng, lat]
 }
 
-const EventMap = ({ 
-  events, 
-  showFilters = false, 
+// HSL helper to read theme tokens at runtime
+const cssVar = (name: string, fallback: string) => {
+  if (typeof window === 'undefined') return fallback;
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v ? `hsl(${v})` : fallback;
+};
+
+const EventMap = ({
+  events,
+  showFilters = false,
   isInteractive = true,
   className = '',
-  userLocation
+  userLocation,
 }: EventMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [viewVersion, setViewVersion] = useState(0); // bumps on move/zoom
   const { toast } = useToast();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const markers = useRef<maplibregl.Marker[]>([]);
-  const userMarker = useRef<maplibregl.Marker | null>(null);
-  const clusterMarkers = useRef<maplibregl.Marker[]>([]);
+  const markersRef = useRef<maplibregl.Marker[]>([]);
+  const userMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const didInitialFitRef = useRef(false);
 
-  // Initialize map
+  // Initialize map (once per theme/interactivity change)
   useEffect(() => {
     if (!mapContainer.current) return;
+    if (map.current) {
+      map.current.remove();
+      map.current = null;
+    }
 
     try {
-      // Use user location as center if available, otherwise default to a central location
-      const defaultCenter: [number, number] = userLocation || [12.4964, 41.9028]; // Rome, Italy as default
-      
-      // Use OpenStreetMap tiles with MapLibre (free, opensource)
+      const defaultCenter: [number, number] = userLocation || [10.5, 47.5]; // Central Europe
+
       const mapStyle = theme === 'dark'
         ? {
             version: 8,
@@ -52,528 +61,325 @@ const EventMap = ({
                 type: 'raster',
                 tiles: ['https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'],
                 tileSize: 256,
-                attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-              }
+                attribution: '&copy; Stadia Maps &copy; OpenMapTiles &copy; OpenStreetMap',
+              },
             },
-            layers: [{
-              id: 'osm',
-              type: 'raster',
-              source: 'osm'
-            }]
+            layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
           }
         : {
             version: 8,
             sources: {
               osm: {
                 type: 'raster',
-                tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                tiles: ['https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png'],
                 tileSize: 256,
-                attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-              }
+                attribution: '&copy; Stadia Maps &copy; OpenMapTiles &copy; OpenStreetMap',
+              },
             },
-            layers: [{
-              id: 'osm',
-              type: 'raster',
-              source: 'osm'
-            }]
+            layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
           };
-      
+
       map.current = new maplibregl.Map({
         container: mapContainer.current,
         style: mapStyle as any,
-        zoom: userLocation ? 12 : 6,
+        zoom: userLocation ? 11 : 4,
         center: defaultCenter,
         interactive: isInteractive,
         attributionControl: false,
+        cooperativeGestures: false,
       });
 
-      // Add attribution control in bottom-right
-      map.current.addControl(
-        new maplibregl.AttributionControl({
-          compact: true
-        }),
-        'bottom-right'
-      );
+      map.current.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
 
-      map.current.on('load', () => {
-        setMapLoaded(true);
-      });
+      const onLoad = () => setMapLoaded(true);
+      const bumpView = () => setViewVersion(v => v + 1);
 
-      map.current.on('error', (e) => {
-        console.error('Map error:', e);
-      });
+      map.current.on('load', onLoad);
+      map.current.on('moveend', bumpView);
+      map.current.on('zoomend', bumpView);
+      map.current.on('error', e => console.error('Map error:', e));
 
-      // Add controls if interactive
       if (isInteractive && map.current) {
         map.current.addControl(
-          new maplibregl.NavigationControl({
-            showCompass: true,
-            showZoom: true,
-            visualizePitch: true,
-          }),
+          new maplibregl.NavigationControl({ showCompass: true, showZoom: true, visualizePitch: false }),
           'top-right'
         );
-
-        // Add geolocation control
         map.current.addControl(
           new maplibregl.GeolocateControl({
-            positionOptions: {
-              enableHighAccuracy: true
-            },
-            trackUserLocation: true
+            positionOptions: { enableHighAccuracy: true },
+            trackUserLocation: true,
+            showUserHeading: true,
           }),
           'top-right'
         );
       }
 
-      // Cleanup
       return () => {
         if (map.current) {
           map.current.remove();
+          map.current = null;
         }
       };
     } catch (error) {
       console.error('Error initializing map:', error);
       toast({
-        title: "Map Error",
-        description: "There was an error loading the map. Please try again later.",
-        variant: "destructive"
+        title: 'Map Error',
+        description: 'There was an error loading the map.',
+        variant: 'destructive',
       });
     }
-  }, [isInteractive, userLocation, toast, theme]);
+  }, [isInteractive, theme]); // do not depend on userLocation -> avoid re-init on geolocation tick
 
-  // Handle user location marker
+  // User location marker
   useEffect(() => {
     if (!mapLoaded || !map.current || !userLocation) return;
+    if (userMarkerRef.current) userMarkerRef.current.remove();
 
-    
-
-    // Remove existing user marker
-    if (userMarker.current) {
-      userMarker.current.remove();
-    }
-
-    // Create custom user location marker element
     const userEl = document.createElement('div');
-    userEl.className = 'user-location-marker';
     userEl.style.cssText = `
-      width: 20px;
-      height: 20px;
-      background-color: #2563eb;
-      border-radius: 50%;
-      border: 3px solid white;
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
-      cursor: pointer;
-      position: relative;
-      z-index: 10;
+      width: 18px; height: 18px; background: #2563eb; border-radius: 50%;
+      border: 3px solid white; box-shadow: 0 2px 10px rgba(37,99,235,.6); position: relative;
     `;
-
-    // Add pulse animation
-    const pulseEl = document.createElement('div');
-    pulseEl.style.cssText = `
-      position: absolute;
-      top: -3px;
-      left: -3px;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background-color: #2563eb;
-      opacity: 0.3;
-      animation: pulse 2s infinite;
-      pointer-events: none;
+    const pulse = document.createElement('div');
+    pulse.style.cssText = `
+      position:absolute;inset:-6px;border-radius:50%;background:#2563eb;opacity:.25;
+      animation: se-pulse 2s ease-out infinite;pointer-events:none;
     `;
-    userEl.appendChild(pulseEl);
+    userEl.appendChild(pulse);
 
-    // Add user location marker
-    userMarker.current = new maplibregl.Marker(userEl)
-      .setLngLat(userLocation)
-      .addTo(map.current)
-      .setPopup(
-        new maplibregl.Popup({ 
-          offset: 25, 
-          className: 'user-popup',
-          closeButton: true,
-          closeOnClick: false
-        })
-          .setHTML('<div class="p-2 font-medium text-blue-600">Your location</div>')
-      );
+    userMarkerRef.current = new maplibregl.Marker(userEl).setLngLat(userLocation).addTo(map.current);
   }, [mapLoaded, userLocation]);
 
-  // Create supercluster index for clustering
-  const { clusters, supercluster } = useMemo(() => {
-    if (!events.length) return { clusters: [], supercluster: null };
-
+  // Build supercluster index (only when events change)
+  const supercluster = useMemo(() => {
     const points = events
-      .filter(event => {
-        const [lat, lng] = event.location.coordinates;
-        return !isNaN(lat) && !isNaN(lng) && isFinite(lat) && isFinite(lng) && !(lat === 0 && lng === 0);
+      .filter(e => {
+        const c = e.location?.coordinates;
+        if (!c) return false;
+        const [lat, lng] = c;
+        return Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
       })
-      .map(event => ({
+      .map(e => ({
         type: 'Feature' as const,
-        properties: { 
-          cluster: false, 
-          eventId: event.id,
-          event: event 
-        },
-        geometry: {
-          type: 'Point' as const,
-          coordinates: [event.location.coordinates[1], event.location.coordinates[0]] // [lng, lat]
-        }
+        properties: { cluster: false, eventId: e.id, event: e },
+        geometry: { type: 'Point' as const, coordinates: [e.location.coordinates[1], e.location.coordinates[0]] },
       }));
 
-    const supercluster = new Supercluster({
-      radius: 75,
-      maxZoom: 16,
-      minZoom: 0,
-      minPoints: 3
-    });
+    const sc = new Supercluster({ radius: 60, maxZoom: 16, minZoom: 0, minPoints: 2 });
+    sc.load(points);
+    return sc;
+  }, [events]);
 
-    supercluster.load(points);
+  // Compute visible clusters from current viewport
+  const clusters = useMemo(() => {
+    if (!mapLoaded || !map.current) return [];
+    const b = map.current.getBounds();
+    const z = Math.floor(map.current.getZoom());
+    return supercluster.getClusters([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()], z);
+  }, [supercluster, mapLoaded, viewVersion]);
 
-    const bounds = map.current?.getBounds();
-    const zoom = map.current?.getZoom() || 0;
-
-    if (!bounds) return { clusters: [], supercluster };
-
-    const clusters = supercluster.getClusters(
-      [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
-      Math.floor(zoom)
-    );
-
-    return { clusters, supercluster };
-  }, [events, mapLoaded]);
-
-  // Add event markers with clustering when events or map changes
+  // Render markers
   useEffect(() => {
     if (!mapLoaded || !map.current) return;
 
-    // Clear any existing markers
-    markers.current.forEach(marker => marker.remove());
-    markers.current = [];
-    clusterMarkers.current.forEach(marker => marker.remove());
-    clusterMarkers.current = [];
+    markersRef.current.forEach(m => m.remove());
+    markersRef.current = [];
 
-    // Add markers for clusters and individual events
-    clusters.forEach((cluster) => {
+    const primary = cssVar('--primary', 'hsl(16 90% 55%)');
+    const muted = '#9CA3AF';
+
+    clusters.forEach(c => {
       if (!map.current) return;
+      const [lng, lat] = c.geometry.coordinates;
+      const props: any = c.properties;
 
-      const [longitude, latitude] = cluster.geometry.coordinates;
-      const { cluster: isCluster, point_count: pointCount } = cluster.properties as any;
-
-      if (isCluster) {
-        // Create cluster marker
-        const clusterEl = document.createElement('div');
-        clusterEl.className = 'cluster-marker';
-        clusterEl.style.cssText = `
-          width: ${30 + (pointCount / events.length) * 40}px;
-          height: ${30 + (pointCount / events.length) * 40}px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #16a085, #1abc9c);
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
-          font-size: ${12 + (pointCount / events.length) * 8}px;
-          cursor: pointer;
-          border: 3px solid white;
-          box-shadow: 0 4px 12px rgba(22, 160, 133, 0.4);
-          transition: all 0.3s ease;
+      if (props.cluster) {
+        const count: number = props.point_count;
+        const size = Math.min(70, 32 + Math.log2(count + 1) * 8);
+        const el = document.createElement('div');
+        el.style.cssText = `
+          width:${size}px;height:${size}px;border-radius:9999px;
+          background:${primary};color:white;display:flex;align-items:center;justify-content:center;
+          font-weight:700;font-size:${Math.max(12, size / 3)}px;cursor:pointer;
+          border:3px solid white;box-shadow:0 6px 24px hsl(var(--primary)/.45),0 0 0 6px hsl(var(--primary)/.18);
+          transition: transform .2s ease;
         `;
-        clusterEl.textContent = pointCount.toString();
-
-        clusterEl.addEventListener('mouseenter', () => {
-          clusterEl.style.transform = 'scale(1.1)';
-          clusterEl.style.boxShadow = '0 6px 20px rgba(22, 160, 133, 0.6)';
-        });
-
-        clusterEl.addEventListener('mouseleave', () => {
-          clusterEl.style.transform = 'scale(1)';
-          clusterEl.style.boxShadow = '0 4px 12px rgba(22, 160, 133, 0.4)';
-        });
-
-        // Zoom to cluster on click
-        clusterEl.addEventListener('click', () => {
-          if (!map.current || !supercluster) return;
-          const expansionZoom = Math.min(
-            supercluster.getClusterExpansionZoom(cluster.id as number),
-            16
-          );
-          map.current.easeTo({
-            center: [longitude, latitude],
-            zoom: expansionZoom,
-            duration: 500
-          });
-        });
-
-        const clusterMarker = new maplibregl.Marker(clusterEl)
-          .setLngLat([longitude, latitude])
-          .addTo(map.current);
-
-        clusterMarkers.current.push(clusterMarker);
+        el.textContent = String(count);
+        el.onmouseenter = () => (el.style.transform = 'scale(1.08)');
+        el.onmouseleave = () => (el.style.transform = 'scale(1)');
+        el.onclick = () => {
+          if (!map.current) return;
+          const expansion = Math.min(supercluster.getClusterExpansionZoom(props.cluster_id), 16);
+          map.current.easeTo({ center: [lng, lat], zoom: expansion, duration: 600 });
+        };
+        const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map.current);
+        markersRef.current.push(marker);
         return;
       }
 
-      // Individual event marker
-      const event = cluster.properties.event as Event;
-      if (!event) return;
-      
-      
-      // Determine marker color based on event status
+      // Single event pin
+      const event: Event = props.event;
       const isPast = (event as any).isPast || new Date(event.endDate) < new Date();
-      const markerColor = isPast ? '#9CA3AF' : '#16a085'; // Gray for past, teal for active/future
-      const borderColor = isPast ? '#D1D5DB' : 'white';
-      
-      // Create improved marker element with status-based styling
+      const color = isPast ? muted : primary;
+
       const el = document.createElement('div');
-      el.className = `event-marker ${isPast ? 'past-event' : 'active-event'}`;
       el.style.cssText = `
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        cursor: pointer;
-        border: 3px solid ${borderColor};
-        background-color: ${markerColor};
-        box-shadow: 0 4px 12px ${isPast ? 'rgba(107, 114, 128, 0.3)' : 'rgba(22, 160, 133, 0.4)'};
-        transition: all 0.2s ease;
-        position: relative;
-        z-index: 5;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        ${isPast ? 'opacity: 0.7;' : ''}
+        width:34px;height:42px;cursor:pointer;position:relative;
+        filter: drop-shadow(0 6px 10px rgba(0,0,0,.25));
+        transition: transform .15s ease;
       `;
-
-      // Add inner dot for better visibility
-      const innerDot = document.createElement('div');
-      innerDot.style.cssText = `
-        width: 8px;
-        height: 8px;
-        background-color: white;
-        border-radius: 50%;
-        pointer-events: none;
+      el.innerHTML = `
+        <svg viewBox="0 0 32 40" width="34" height="42" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.2 0 0 7 0 15.6 0 27 16 40 16 40s16-13 16-24.4C32 7 24.8 0 16 0z"
+                fill="${color}" stroke="white" stroke-width="2"/>
+          <circle cx="16" cy="15" r="5" fill="white"/>
+        </svg>
       `;
-      el.appendChild(innerDot);
+      el.onmouseenter = () => (el.style.transform = 'translateY(-3px) scale(1.05)');
+      el.onmouseleave = () => (el.style.transform = 'translateY(0) scale(1)');
 
-      // Fixed hover effects - no transform to prevent movement
-      el.addEventListener('mouseenter', () => {
-        el.style.boxShadow = '0 6px 20px rgba(22, 160, 133, 0.6)';
-        el.style.zIndex = '1000';
-        el.style.borderWidth = '4px';
+      const eventDate = new Date(event.startDate).toLocaleDateString(undefined, {
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
       });
-      
-      el.addEventListener('mouseleave', () => {
-        el.style.boxShadow = '0 4px 12px rgba(22, 160, 133, 0.4)';
-        el.style.zIndex = '5';
-        el.style.borderWidth = '3px';
-      });
+      const safeTitle = (event.title || 'Untitled').replace(/</g, '&lt;');
+      const safeAddr = (event.location?.address || '').replace(/</g, '&lt;');
+      const img = event.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=70';
 
-      // Create safe popup content with proper data validation
-      const createPopupContent = (eventData: Event) => {
-        // Safely extract and validate event data
-        const title = eventData.title || 'Untitled Event';
-        const address = eventData.location?.address || 'Location not specified';
-        const venueName = eventData.location?.venue_name || '';
-        const eventId = eventData.id || '';
-        const imageUrl = eventData.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80';
-        const isPast = (eventData as any).isPast || new Date(eventData.endDate) < new Date();
-        const eventDate = new Date(eventData.startDate).toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        
-        return `
-          <div class="p-4 space-y-3 min-w-[280px] bg-white rounded-lg shadow-lg">
-            <div class="space-y-3">
-              <img src="${imageUrl}" alt="${title}" class="w-full h-32 object-cover rounded-lg" 
-                   onerror="this.src='https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80'" />
-              <div class="space-y-2">
-                <div class="flex items-center gap-2">
-                  <h3 class="font-bold text-lg text-gray-900 line-clamp-2 flex-1">${title}</h3>
-                  ${isPast ? '<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Past</span>' : ''}
-                </div>
-                <p class="text-sm text-gray-600">${eventDate}</p>
-                <p class="text-sm text-gray-600">${address}</p>
-                ${venueName ? `<p class="text-sm font-medium text-primary">${venueName}</p>` : ''}
-              </div>
-            </div>
-            <div class="pt-2 border-t border-gray-100">
-              <button 
-                onclick="window.location.href='/event/${eventId}'" 
-                class="w-full ${isPast ? 'bg-gray-500 hover:bg-gray-600' : 'bg-primary hover:bg-primary/90'} text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                ${isPast ? 'View Past Event' : 'View Details'}
-              </button>
+      const popup = new maplibregl.Popup({ offset: 36, className: 'event-popup', closeButton: true, maxWidth: '300px' })
+        .setHTML(`
+          <div style="width:280px;font-family:inherit">
+            <img src="${img}" alt="" style="width:100%;height:128px;object-fit:cover;border-radius:8px 8px 0 0" onerror="this.style.display='none'"/>
+            <div style="padding:12px 14px 14px">
+              <div style="font-weight:700;font-size:15px;line-height:1.3;color:#111;margin-bottom:6px">${safeTitle}</div>
+              <div style="font-size:12px;color:#555;margin-bottom:2px">${eventDate}</div>
+              <div style="font-size:12px;color:#777;margin-bottom:10px">${safeAddr}</div>
+              <a href="/event/${event.id}" style="display:block;text-align:center;background:${color};color:white;padding:8px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">
+                ${isPast ? 'View past event' : 'View details'}
+              </a>
             </div>
           </div>
-        `;
-      };
+        `);
 
-      // Add popup with event details
-      const popup = new maplibregl.Popup({ 
-        offset: 30,
-        className: 'event-popup',
-        closeButton: true,
-        closeOnClick: false
-      })
-      .setHTML(createPopupContent(event));
+      const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([lng, lat])
+        .setPopup(popup)
+        .addTo(map.current);
+      markersRef.current.push(marker);
+    });
+  }, [clusters, mapLoaded, supercluster]);
 
-      try {
-        // Create and add marker with correct coordinates order (lng, lat for MapLibre!)
-        const marker = new maplibregl.Marker(el)
-          .setLngLat([longitude, latitude]) // MapLibre expects [longitude, latitude]
-          .setPopup(popup);
-          
-        if (map.current) {
-          marker.addTo(map.current);
-          markers.current.push(marker);
-        }
-      } catch (error) {
-        console.error('Error adding marker:', error);
+  // Initial fit-to-events (only once when events first arrive)
+  useEffect(() => {
+    if (!mapLoaded || !map.current || didInitialFitRef.current) return;
+    if (!events.length) return;
+
+    const bounds = new maplibregl.LngLatBounds();
+    let added = 0;
+    events.forEach(e => {
+      const c = e.location?.coordinates;
+      if (!c) return;
+      const [lat, lng] = c;
+      if (Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0)) {
+        bounds.extend([lng, lat]);
+        added++;
       }
     });
-
-    // Fit bounds to include all markers and user location if there are any events
-    if (markers.current.length > 0 && map.current) {
-      try {
-        const bounds = new maplibregl.LngLatBounds();
-        
-        // Add event coordinates to bounds
-        events.forEach(event => {
-          if (event.location.coordinates) {
-            const lat = event.location.coordinates[0];
-            const lng = event.location.coordinates[1];
-            
-            if (!isNaN(lat) && !isNaN(lng) && isFinite(lat) && isFinite(lng) && !(lat === 0 && lng === 0)) {
-              bounds.extend([lng, lat]);
-            }
-          }
-        });
-        
-        // Include user location in bounds if available
-        if (userLocation) {
-          bounds.extend(userLocation);
-        }
-        
-        // Only adjust bounds if we have valid coordinates
-        if (!bounds.isEmpty()) {
-          map.current.fitBounds(bounds, {
-            padding: 50,
-            maxZoom: 15
-          });
-        }
-      } catch (error) {
-        console.error('Error fitting bounds:', error);
-      }
+    if (userLocation) bounds.extend(userLocation);
+    if (added > 0 && !bounds.isEmpty()) {
+      map.current.fitBounds(bounds, { padding: 60, maxZoom: 12, duration: 800 });
+      didInitialFitRef.current = true;
     }
+  }, [events, mapLoaded, userLocation]);
 
-    // Update clusters when map moves
-    const updateClusters = () => {
-      // Force re-render by triggering a state update
-      if (map.current) {
-        const zoom = map.current.getZoom();
-        const bounds = map.current.getBounds();
-        // The useMemo hook will automatically recalculate clusters
-      }
-    };
-
-    map.current?.on('moveend', updateClusters);
-    map.current?.on('zoomend', updateClusters);
-
-    return () => {
-      map.current?.off('moveend', updateClusters);
-      map.current?.off('zoomend', updateClusters);
-    };
-  }, [clusters, mapLoaded, userLocation, supercluster]);
-
-  const handleSearchNearby = () => {
-    navigate('/nearby');
-  };
+  const handleResetView = useCallback(() => {
+    if (!map.current || !events.length) return;
+    const bounds = new maplibregl.LngLatBounds();
+    events.forEach(e => {
+      const c = e.location?.coordinates;
+      if (!c) return;
+      const [lat, lng] = c;
+      if (Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0)) bounds.extend([lng, lat]);
+    });
+    if (!bounds.isEmpty()) map.current.fitBounds(bounds, { padding: 60, maxZoom: 12, duration: 700 });
+  }, [events]);
 
   return (
-    <div className={`relative w-full h-[600px] ${className}`}>
+    <div className={`relative w-full h-full min-h-[500px] ${className}`}>
       {!mapLoaded && (
-        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-10">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-          <p className="text-center text-lg">Loading map...</p>
+        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-10 rounded-xl">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
+          <p className="text-sm text-muted-foreground">Loading map...</p>
         </div>
       )}
-      
+
       {showFilters && (
         <div className="absolute top-4 left-4 z-10 flex gap-2">
-          <Button 
-            variant="secondary" 
-            className="shadow-lg bg-white/90 backdrop-blur-sm hover:bg-white flex items-center gap-2"
-            onClick={handleSearchNearby}
+          <Button
+            variant="secondary"
+            size="sm"
+            className="shadow-lg backdrop-blur-md bg-background/85 hover:bg-background gap-2"
+            onClick={() => navigate('/nearby')}
           >
             <Search className="h-4 w-4" />
-            <span>Search This Area</span>
+            <span>Search this area</span>
           </Button>
-          
-          <Button 
-            variant="outline" 
-            className="bg-white/90 backdrop-blur-sm shadow-lg hover:bg-white"
+          <Button
+            variant="outline"
+            size="sm"
+            className="shadow-lg backdrop-blur-md bg-background/85 hover:bg-background"
             onClick={() => navigate('/search')}
           >
             <Filter className="h-4 w-4" />
           </Button>
         </div>
       )}
-      
-      <div ref={mapContainer} className="w-full h-full rounded-xl overflow-hidden border border-border/20 shadow-lg" />
-      
-      {/* Add custom CSS for animations */}
+
+      {events.length > 0 && (
+        <div className="absolute bottom-6 left-4 z-10 flex flex-col gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="shadow-lg backdrop-blur-md bg-background/85 hover:bg-background gap-2"
+            onClick={handleResetView}
+          >
+            <Locate className="h-4 w-4" />
+            <span>Fit all events</span>
+          </Button>
+          <div className="px-3 py-1.5 rounded-md bg-background/85 backdrop-blur-md shadow-lg text-xs font-medium text-foreground border border-border/50">
+            <Layers className="h-3 w-3 inline mr-1.5" />
+            {events.length} {events.length === 1 ? 'event' : 'events'}
+          </div>
+        </div>
+      )}
+
+      <div ref={mapContainer} className="absolute inset-0 rounded-xl overflow-hidden border border-border/30 shadow-xl" />
+
       <style>{`
-        @keyframes pulse {
-          0% {
-            transform: scale(1);
-            opacity: 0.3;
-          }
-          50% {
-            transform: scale(1.5);
-            opacity: 0.1;
-          }
-          100% {
-            transform: scale(2);
-            opacity: 0;
-          }
+        @keyframes se-pulse {
+          0% { transform: scale(0.8); opacity: .5; }
+          70% { transform: scale(2.2); opacity: 0; }
+          100% { transform: scale(2.4); opacity: 0; }
         }
-        
-        .event-marker:hover {
-          z-index: 1000 !important;
-        }
-
-        .cluster-marker:hover {
-          z-index: 1000 !important;
-        }
-        
-        .maplibregl-popup {
-          z-index: 1001 !important;
-        }
-        
         .maplibregl-popup-content {
-          padding: 0 !important;
-          border-radius: 8px !important;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+          padding: 0 !important; border-radius: 12px !important; overflow: hidden !important;
+          box-shadow: 0 10px 40px rgba(0,0,0,.18) !important;
         }
-
+        .maplibregl-popup-close-button {
+          padding: 4px 8px !important; font-size: 18px !important; color: white !important;
+          right: 4px !important; top: 4px !important; background: rgba(0,0,0,.35) !important;
+          border-radius: 9999px !important; line-height: 1 !important;
+        }
         .maplibregl-ctrl-group {
           background: hsl(var(--card)) !important;
           border: 1px solid hsl(var(--border)) !important;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+          box-shadow: 0 4px 14px rgba(0,0,0,.12) !important;
+          border-radius: 10px !important; overflow: hidden;
         }
-
         .maplibregl-ctrl-group button {
           background-color: hsl(var(--card)) !important;
           color: hsl(var(--foreground)) !important;
         }
-
-        .maplibregl-ctrl-group button:hover {
-          background-color: hsl(var(--accent)) !important;
-        }
+        .maplibregl-ctrl-group button:hover { background-color: hsl(var(--accent)) !important; }
       `}</style>
     </div>
   );
