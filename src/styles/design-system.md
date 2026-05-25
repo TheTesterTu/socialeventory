@@ -1,5 +1,5 @@
 
-# SocialEventory Design System
+# SceneLink Design System
 
 ## Color System - Single Source of Truth
 

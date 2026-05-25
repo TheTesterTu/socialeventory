@@ -265,7 +265,7 @@ const AdminDashboard = () => {
                       <label className="text-sm font-medium">Site Name</label>
                       <input 
                         type="text" 
-                        defaultValue="SocialEventory" 
+                        defaultValue="SceneLink" 
                         className="w-full p-2 rounded glass-input"
                       />
                     </div>

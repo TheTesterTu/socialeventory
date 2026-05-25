@@ -70,7 +70,7 @@ export const WelcomeModal = () => {
             <div className="mb-6 flex justify-center">
               <Calendar className="h-16 w-16 text-primary" />
             </div>
-            <DialogTitle className="text-2xl mb-4">Welcome to SocialEventory!</DialogTitle>
+            <DialogTitle className="text-2xl mb-4">Welcome to SceneLink!</DialogTitle>
             <DialogDescription className="mb-6">
               Discover, create, and join amazing events in your community. Let us show you how to get started.
             </DialogDescription>

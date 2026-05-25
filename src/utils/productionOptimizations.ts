@@ -1,4 +1,4 @@
-// Production optimizations for SocialEventory
+// Production optimizations for SceneLink
 export const PRODUCTION_CONFIG = {
   // Query optimization
   QUERY_STALE_TIME: 5 * 60 * 1000, // 5 minutes

@@ -7,11 +7,11 @@ const Privacy = () => {
   return (
     <AppLayout 
       pageTitle="Privacy Policy"
-      pageDescription="SocialEventory's privacy policy and data protection practices"
+      pageDescription="SceneLink's privacy policy and data protection practices"
     >
       <SEOHead 
-        title="Privacy Policy - SocialEventory"
-        description="Learn about how SocialEventory protects your privacy and handles your personal data."
+        title="Privacy Policy - SceneLink"
+        description="Learn about how SceneLink protects your privacy and handles your personal data."
         type="website"
       />
       
@@ -34,7 +34,7 @@ const Privacy = () => {
                 <section>
                   <h2 className="text-2xl font-semibold mb-4">Introduction</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    At SocialEventory, we take your privacy seriously. This Privacy Policy explains how we collect, 
+                    At SceneLink, we take your privacy seriously. This Privacy Policy explains how we collect, 
                     use, disclose, and safeguard your information when you use our platform.
                   </p>
                 </section>

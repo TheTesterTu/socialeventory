@@ -1,7 +1,7 @@
 
 {
-  "name": "SocialEventory",
-  "short_name": "SocialEventory",
+  "name": "SceneLink",
+  "short_name": "SceneLink",
   "description": "Discover and share amazing events in your community",
   "start_url": "/",
   "display": "standalone",

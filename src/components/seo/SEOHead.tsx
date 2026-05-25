@@ -13,16 +13,16 @@ interface SEOHeadProps {
 }
 
 export const SEOHead = ({ 
-  title = "SocialEventory - Discover Amazing Events",
-  description = "Find and share amazing events in your community. Connect with people who share your interests through SocialEventory.",
+  title = "SceneLink - Discover Amazing Events",
+  description = "Find and share amazing events in your community. Connect with people who share your interests through SceneLink.",
   image = "/og-image.png",
   url = "https://socialeventory.com",
   type = "website",
   keywords = "events, social, community, discover, share, meetups, activities",
-  author = "SocialEventory Team",
+  author = "SceneLink Team",
   canonical
 }: SEOHeadProps) => {
-  const fullTitle = title.includes('SocialEventory') ? title : `${title} | SocialEventory`;
+  const fullTitle = title.includes('SceneLink') ? title : `${title} | SceneLink`;
   const fullUrl = url.startsWith('http') ? url : `https://socialeventory.com${url}`;
   const fullImageUrl = image.startsWith('http') ? image : `https://socialeventory.com${image}`;
 
@@ -48,7 +48,7 @@ export const SEOHead = ({
       <meta property="og:description" content={description} />
       <meta property="og:image" content={fullImageUrl} />
       <meta property="og:image:alt" content={title} />
-      <meta property="og:site_name" content="SocialEventory" />
+      <meta property="og:site_name" content="SceneLink" />
       <meta property="og:locale" content="en_US" />
       
       {/* Twitter */}

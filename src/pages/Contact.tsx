@@ -58,11 +58,11 @@ const Contact = () => {
   return (
     <AppLayout 
       pageTitle="Contact Us"
-      pageDescription="Get in touch with the SocialEventory team"
+      pageDescription="Get in touch with the SceneLink team"
     >
       <SEOHead 
-        title="Contact SocialEventory - Get In Touch"
-        description="Have questions about SocialEventory? Get in touch with our team. We're here to help with any questions about events, features, or partnerships."
+        title="Contact SceneLink - Get In Touch"
+        description="Have questions about SceneLink? Get in touch with our team. We're here to help with any questions about events, features, or partnerships."
         type="website"
       />
       
@@ -128,7 +128,7 @@ const Contact = () => {
                     <p className="text-muted-foreground">Sign up for an account and click "Create Event" to get started.</p>
                   </div>
                   <div>
-                    <p className="font-medium">Is SocialEventory free to use?</p>
+                    <p className="font-medium">Is SceneLink free to use?</p>
                     <p className="text-muted-foreground">Yes! Creating and discovering events is completely free.</p>
                   </div>
                   <div>

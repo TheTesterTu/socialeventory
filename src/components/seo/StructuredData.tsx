@@ -29,7 +29,7 @@ export const StructuredData = ({ type, data }: StructuredDataProps) => {
           },
           organizer: {
             "@type": "Organization",
-            name: "SocialEventory",
+            name: "SceneLink",
           },
           image: data.imageUrl,
           offers: data.pricing?.isFree ? {
@@ -43,7 +43,7 @@ export const StructuredData = ({ type, data }: StructuredDataProps) => {
       case 'WebSite':
         return {
           ...baseStructure,
-          name: "SocialEventory",
+          name: "SceneLink",
           description: "Discover and share amazing events in your community",
           url: "https://socialeventory.com",
           potentialAction: {

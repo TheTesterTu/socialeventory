@@ -7,11 +7,11 @@ const Terms = () => {
   return (
     <AppLayout 
       pageTitle="Terms of Service"
-      pageDescription="SocialEventory's terms of service and user agreement"
+      pageDescription="SceneLink's terms of service and user agreement"
     >
       <SEOHead 
-        title="Terms of Service - SocialEventory"
-        description="Read SocialEventory's terms of service and user agreement."
+        title="Terms of Service - SceneLink"
+        description="Read SceneLink's terms of service and user agreement."
         type="website"
       />
       
@@ -34,7 +34,7 @@ const Terms = () => {
                 <section>
                   <h2 className="text-2xl font-semibold mb-4">Acceptance of Terms</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    By accessing and using SocialEventory, you accept and agree to be bound by the terms 
+                    By accessing and using SceneLink, you accept and agree to be bound by the terms 
                     and provision of this agreement.
                   </p>
                 </section>
@@ -42,7 +42,7 @@ const Terms = () => {
                 <section>
                   <h2 className="text-2xl font-semibold mb-4">Use License</h2>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Permission is granted to temporarily use SocialEventory for personal, non-commercial 
+                    Permission is granted to temporarily use SceneLink for personal, non-commercial 
                     transitory viewing only. This is the grant of a license, not a transfer of title, and 
                     under this license you may not:
                   </p>

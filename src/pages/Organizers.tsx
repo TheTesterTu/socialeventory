@@ -68,7 +68,7 @@ const Organizers = () => {
       pageDescription="Discover and connect with the best event organizers in your area"
     >
       <SEOHead 
-        title="Event Organizers - SocialEventory"
+        title="Event Organizers - SceneLink"
         description="Discover and connect with the best event organizers in your area. Find professionals who create memorable experiences."
         type="website"
       />
