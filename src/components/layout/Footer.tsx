@@ -40,11 +40,11 @@ export const Footer = () => {
             <Link to="/" className="flex items-center gap-2 mb-4">
               <img
                 src="/lovable-uploads/a6810b37-0f1f-4401-9970-901b029cf540.png"
-                alt="SocialEventory"
+                alt="SceneLink"
                 className="h-8 w-8"
               />
               <span className="font-semibold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                SocialEventory
+                SceneLink
               </span>
             </Link>
             <p className="text-muted-foreground mb-4 max-w-md">
@@ -124,7 +124,7 @@ export const Footer = () => {
 
         <div className="border-t border-border/50 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm">
-            © {currentYear} SocialEventory. All rights reserved.
+            © {currentYear} SceneLink. All rights reserved.
           </p>
           <p className="text-muted-foreground text-sm flex items-center gap-1 mt-2 sm:mt-0">
             Made with <Heart className="h-4 w-4 text-red-500" /> for communities worldwide

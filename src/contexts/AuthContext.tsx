@@ -145,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           duration: 6000,
         });
       } else {
-        toast.success("Welcome to SocialEventory! Your account has been created.");
+        toast.success("Welcome to SceneLink! Your account has been created.");
       }
     } catch (error: any) {
       const message = error.message || "Failed to create account. Please try again.";

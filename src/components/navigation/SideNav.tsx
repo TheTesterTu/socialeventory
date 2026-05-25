@@ -37,7 +37,7 @@ export const SideNav = () => {
             alt="Logo"
             className="w-8 h-8"
           />
-          <span className="font-semibold text-lg">SocialEventory</span>
+          <span className="font-semibold text-lg">SceneLink</span>
         </Link>
       </div>
       

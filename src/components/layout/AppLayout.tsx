@@ -22,7 +22,7 @@ export const AppLayout = ({
   hideTopBar: initialHideTopBar = false,
   hideFooter = false,
   showTopBar,
-  pageTitle = "SocialEventory",
+  pageTitle = "SceneLink",
   pageDescription = "Discover and share events with your community"
 }: AppLayoutProps) => {
   const isMobile = useIsMobile();
@@ -43,7 +43,7 @@ export const AppLayout = ({
         
         {pageTitle && (
           <Helmet>
-            <title>{pageTitle.includes('SocialEventory') ? pageTitle : `${pageTitle} | SocialEventory`}</title>
+            <title>{pageTitle.includes('SceneLink') ? pageTitle : `${pageTitle} | SceneLink`}</title>
             <meta name="description" content={pageDescription} />
             <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
             <meta name="theme-color" content="#8B5CF6" />

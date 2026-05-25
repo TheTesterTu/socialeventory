@@ -14,8 +14,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead 
-        title="SocialEventory - Discover Events Worth Attending"
-        description="Find concerts, workshops, exhibitions and more. Connect with your community through SocialEventory."
+        title="SceneLink - Discover Events Worth Attending"
+        description="Find concerts, workshops, exhibitions and more. Connect with your community through SceneLink."
       />
       
       <HomeHero />

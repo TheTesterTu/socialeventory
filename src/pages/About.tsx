@@ -34,12 +34,12 @@ const About = () => {
 
   return (
     <AppLayout 
-      pageTitle="About SocialEventory"
+      pageTitle="About SceneLink"
       pageDescription="Learn about our mission to connect communities through unforgettable events"
     >
       <SEOHead 
-        title="About SocialEventory - Connecting Communities Through Events"
-        description="Discover the story behind SocialEventory and our mission to make event discovery and community building accessible to everyone."
+        title="About SceneLink - Connecting Communities Through Events"
+        description="Discover the story behind SceneLink and our mission to make event discovery and community building accessible to everyone."
         type="website"
       />
       
@@ -67,7 +67,7 @@ const About = () => {
                 <span className="text-gradient">Epic Experiences</span>
               </h1>
               <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
-                SocialEventory was born from the belief that life's most meaningful moments happen when people come together.
+                SceneLink was born from the belief that life's most meaningful moments happen when people come together.
               </p>
               <Link to="/events">
                 <Button size="lg" className="gradient-primary font-semibold">
@@ -116,7 +116,7 @@ const About = () => {
               >
                 <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">Our Story</h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Started in 2024, SocialEventory emerged from a simple observation: 
+                  Started in 2024, SceneLink emerged from a simple observation: 
                   finding and attending meaningful events shouldn't be complicated.
                 </p>
               </motion.div>
@@ -135,7 +135,7 @@ const About = () => {
                     through shared celebrations.
                   </p>
                   <p className="text-foreground leading-relaxed">
-                    Today, SocialEventory is more than just an event discovery platform—it's a catalyst for 
+                    Today, SceneLink is more than just an event discovery platform—it's a catalyst for 
                     human connection, a bridge between curiosity and experience, and a testament to the power 
                     of community in our increasingly digital world.
                   </p>
@@ -156,7 +156,7 @@ const About = () => {
             >
               <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">Our Values</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                The principles that guide everything we do at SocialEventory.
+                The principles that guide everything we do at SceneLink.
               </p>
             </motion.div>
 
@@ -194,7 +194,7 @@ const About = () => {
                 Ready to Start Your Journey?
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Join thousands of others who've discovered their next favorite experience through SocialEventory.
+                Join thousands of others who've discovered their next favorite experience through SceneLink.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/events">
