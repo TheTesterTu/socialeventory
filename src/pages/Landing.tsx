@@ -1,4 +1,3 @@
-
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { StructuredData } from "@/components/seo/StructuredData";
@@ -14,30 +13,27 @@ import { TrustIndicators } from "@/components/home/TrustIndicators";
 import { CallToAction } from "@/components/home/CallToAction";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { APP_CONFIG } from "@/lib/constants";
 
 const Landing = () => {
   const { data: blogPosts = [] } = useBlogPosts();
 
+  const title = `${APP_CONFIG.name} — Discover real events, find your people`;
+  const description = APP_CONFIG.description;
+
   return (
-    <AppLayout 
-      pageTitle="SocialEventory - Discover Amazing Events"
-      pageDescription="Find and share amazing events in your community. Connect with people who share your interests."
-    >
-      <SEOHead 
-        title="SocialEventory - Discover Amazing Events"
-        description="Find and share amazing events in your community. Connect with people who share your interests."
-        type="website"
-      />
-      
-      <StructuredData 
-        type="WebSite" 
+    <AppLayout pageTitle={title} pageDescription={description}>
+      <SEOHead title={title} description={description} type="website" />
+
+      <StructuredData
+        type="WebSite"
         data={{
-          name: "SocialEventory",
-          description: "Discover and share amazing events in your community",
-          url: window.location.origin
-        }} 
+          name: APP_CONFIG.name,
+          description,
+          url: window.location.origin,
+        }}
       />
-      
+
       <ErrorBoundary>
         <div className="space-y-0">
           <HomeHero />

@@ -79,46 +79,10 @@ const Profile = () => {
             setSavedEvents(mappedSavedEvents);
           }
         } else {
-          // Mock saved events
-          const mockSavedEvents: Event[] = [
-            {
-              id: "3",
-              title: "Music Festival",
-              description: "Annual music celebration",
-              startDate: new Date(Date.now() + 86400000 * 45).toISOString(),
-              endDate: new Date(Date.now() + 86400000 * 45 + 28800000).toISOString(),
-              location: {
-                coordinates: [30.2672, -97.7431],
-                address: "Austin, TX",
-                venue_name: "Music Venue"
-              },
-              category: ["Music", "Festival"],
-              tags: ["music", "festival"],
-              accessibility: {
-                languages: ["en"],
-                wheelchairAccessible: true,
-                familyFriendly: true
-              },
-              pricing: {
-                isFree: false,
-                currency: "USD",
-                priceRange: [50, 150]
-              },
-              creator: {
-                id: "other-user",
-                type: "user" as const
-              },
-              verification: {
-                status: "verified" as const
-              },
-              imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f",
-              likes: 0,
-              attendees: 0
-            }
-          ];
-          
-          setSavedEvents(mockSavedEvents);
+          // Real empty state — no fake placeholder events
+          setSavedEvents([]);
         }
+
       } catch (error) {
         console.error("Error fetching user events:", error);
         toast.error("Could not load your events. Please try again later.");

@@ -1,209 +1,193 @@
-
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Calendar, Users, Star, Award, Heart, Share2 } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Users, Award, Share2, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/integrations/supabase/client";
+import { mapDatabaseEventToEvent } from "@/lib/utils/mappers";
+import { Event } from "@/lib/types";
+import { EventCard } from "@/components/EventCard";
+import { toast } from "sonner";
 
-// Mock organizer data
-const mockOrganizer = {
-  id: "1",
-  name: "Cultural Events Co.",
-  username: "culturalco",
-  bio: "We are passionate about bringing communities together through arts, culture, and meaningful experiences. With over 5 years of experience organizing events, we specialize in creating memorable moments that celebrate diversity and creativity.",
-  location: "New York, NY",
-  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
-  coverImage: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&h=400&fit=crop",
-  eventsCount: 45,
-  followersCount: 2340,
-  followingCount: 156,
-  rating: 4.8,
-  verified: true,
-  specialties: ["Music", "Art", "Culture", "Community"],
-  upcomingEvents: 8,
-  completedEvents: 37,
-  yearsActive: 5,
-  socialLinks: {
-    website: "https://culturalco.events",
-    instagram: "@culturalco",
-    twitter: "@culturalco"
-  }
-};
-
+interface OrganizerProfileData {
+  id: string;
+  name: string;
+  username: string | null;
+  avatar: string | null;
+}
 
 const OrganizerProfile = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<OrganizerProfileData | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      if (!id) return;
+      setLoading(true);
+      try {
+        const { data: profileData, error: profileError } = await (supabase as any)
+          .from("public_profiles")
+          .select("id, username, full_name, avatar_url")
+          .eq("id", id)
+          .maybeSingle();
+
+        if (profileError) throw profileError;
+        if (!profileData) {
+          setNotFound(true);
+          return;
+        }
+
+        setProfile({
+          id: profileData.id,
+          name: profileData.full_name || profileData.username || "Organizer",
+          username: profileData.username,
+          avatar: profileData.avatar_url,
+        });
+
+        const { data: eventsData, error: eventsError } = await supabase
+          .from("events")
+          .select("*")
+          .eq("created_by", id)
+          .order("start_date", { ascending: false });
+
+        if (eventsError) throw eventsError;
+        setEvents((eventsData || []).map(mapDatabaseEventToEvent));
+      } catch (err) {
+        console.error(err);
+        toast.error("Couldn't load this organizer");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [id]);
+
+  const upcoming = events.filter((e) => new Date(e.startDate) >= new Date());
+  const past = events.filter((e) => new Date(e.startDate) < new Date());
+  const totalAttendees = events.reduce((sum, e) => sum + (e.attendees || 0), 0);
+
+  if (loading) {
+    return (
+      <AppLayout pageTitle="Loading organizer">
+        <div className="flex items-center justify-center py-32">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (notFound || !profile) {
+    return (
+      <AppLayout pageTitle="Organizer not found">
+        <div className="flex flex-col items-center justify-center py-32 text-center">
+          <h2 className="text-2xl font-semibold mb-2">Organizer not found</h2>
+          <p className="text-muted-foreground mb-6">This profile doesn't exist or has been removed.</p>
+          <Button onClick={() => navigate("/organizers")}>Browse organizers</Button>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  const initials = profile.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <AppLayout pageTitle={mockOrganizer.name}>
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Back Button */}
-        <Button 
-          onClick={() => navigate(-1)} 
-          variant="outline" 
-          size="sm" 
-          className="gap-2"
-        >
+    <AppLayout pageTitle={profile.name}>
+      <div className="max-w-4xl mx-auto space-y-6 px-4 py-6">
+        <Button onClick={() => navigate(-1)} variant="ghost" size="sm" className="gap-2">
           <ArrowLeft className="w-4 h-4" />
           Back
         </Button>
 
-        {/* Cover Image */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative h-64 rounded-xl overflow-hidden"
+          className="bg-card border rounded-2xl p-6"
         >
-          <img
-            src={mockOrganizer.coverImage}
-            alt="Cover"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-        </motion.div>
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <Avatar className="h-24 w-24 ring-2 ring-border">
+              <AvatarImage src={profile.avatar || undefined} alt={profile.name} />
+              <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
+            </Avatar>
 
-        {/* Profile Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="glass-card p-6 rounded-xl -mt-20 relative z-10"
-        >
-          <div className="flex flex-col md:flex-row md:items-end gap-6">
-            <div className="relative">
-              <Avatar className="h-24 w-24 ring-4 ring-background">
-                <AvatarImage src={mockOrganizer.avatar} alt={mockOrganizer.name} />
-                <AvatarFallback className="text-2xl">
-                  {mockOrganizer.name.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
-              {mockOrganizer.verified && (
-                <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1">
-                  <Award className="h-4 w-4 text-white" />
-                </div>
+            <div className="flex-1 space-y-2">
+              <h1 className="text-3xl font-bold text-foreground">{profile.name}</h1>
+              {profile.username && (
+                <p className="text-muted-foreground">@{profile.username}</p>
               )}
-            </div>
-
-            <div className="flex-1 space-y-3">
-              <div>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                  {mockOrganizer.name}
-                  {mockOrganizer.verified && (
-                    <Badge variant="secondary" className="bg-primary/10 text-primary">
-                      Verified
-                    </Badge>
-                  )}
-                </h1>
-                <p className="text-muted-foreground flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  {mockOrganizer.location}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {mockOrganizer.specialties.map((specialty) => (
-                  <Badge key={specialty} variant="outline">
-                    {specialty}
-                  </Badge>
-                ))}
-              </div>
-
-              <div className="flex gap-6 text-sm">
-                <div className="text-center">
-                  <div className="font-semibold text-primary">{mockOrganizer.eventsCount}</div>
-                  <div className="text-muted-foreground">Events</div>
+              <div className="flex gap-6 pt-2">
+                <div>
+                  <div className="text-xl font-semibold text-foreground">{events.length}</div>
+                  <div className="text-xs text-muted-foreground">Events</div>
                 </div>
-                <div className="text-center">
-                  <div className="font-semibold text-primary">{mockOrganizer.followersCount}</div>
-                  <div className="text-muted-foreground">Followers</div>
+                <div>
+                  <div className="text-xl font-semibold text-foreground">{upcoming.length}</div>
+                  <div className="text-xs text-muted-foreground">Upcoming</div>
                 </div>
-                <div className="text-center">
-                  <div className="font-semibold text-primary">{mockOrganizer.rating}</div>
-                  <div className="text-muted-foreground flex items-center gap-1">
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                    Rating
-                  </div>
+                <div>
+                  <div className="text-xl font-semibold text-foreground">{totalAttendees}</div>
+                  <div className="text-xs text-muted-foreground">Attendees</div>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button variant="outline" size="icon">
-                <Heart className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <Share2 className="h-4 w-4" />
-              </Button>
-              <Button className="gradient-primary">
-                Follow
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                toast.success("Profile link copied");
+              }}
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
           </div>
         </motion.div>
 
-        {/* Bio Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="glass-card">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Upcoming events
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {upcoming.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">No upcoming events yet.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {upcoming.map((event, i) => (
+                  <EventCard key={event.id} event={event} index={i} />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {past.length > 0 && (
+          <Card>
             <CardHeader>
-              <CardTitle>About</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-muted-foreground" />
+                Past events
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground leading-relaxed">
-                {mockOrganizer.bio}
-              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {past.slice(0, 6).map((event, i) => (
+                  <EventCard key={event.id} event={event} index={i} />
+                ))}
+              </div>
             </CardContent>
           </Card>
-        </motion.div>
-
-        {/* Stats Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4"
-        >
-          {[
-            { label: "Upcoming Events", value: mockOrganizer.upcomingEvents, icon: Calendar },
-            { label: "Completed Events", value: mockOrganizer.completedEvents, icon: Award },
-            { label: "Years Active", value: mockOrganizer.yearsActive, icon: Star },
-            { label: "Total Attendees", value: "5.2K", icon: Users }
-          ].map((stat, index) => (
-            <Card key={stat.label} className="glass-card text-center">
-              <CardContent className="pt-6">
-                <stat.icon className="h-8 w-8 text-primary mx-auto mb-2" />
-                <div className="text-2xl font-bold text-primary">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </motion.div>
-
-        {/* Recent Events */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Recent Events</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground text-center py-8">
-                No events to display for this organizer.
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
+        )}
       </div>
     </AppLayout>
   );
