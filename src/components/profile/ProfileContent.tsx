@@ -3,12 +3,8 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SavedEvents } from "@/components/profile/SavedEvents";
 import { ProfileEvents } from "@/components/profile/ProfileEvents";
-import { OrganizationsList } from "@/components/profile/OrganizationsList";
 import { useNavigate } from "react-router-dom";
 import { Event } from "@/lib/types";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Separator } from "@/components/ui/separator";
-import { useUserOrganizations } from "@/hooks/useUserOrganizations";
 
 interface ProfileContentProps {
   events: Event[];
@@ -25,8 +21,6 @@ export const ProfileContent = ({
 }: ProfileContentProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
-  const isMobile = useIsMobile();
-  const { organizations } = useUserOrganizations();
   
   return (
     <div className="space-y-2">
@@ -43,15 +37,6 @@ export const ProfileContent = ({
         <TabsContent value="all" className="space-y-6">
           <div>
             <ProfileEvents title="Your Events" events={events} />
-          </div>
-          
-          <Separator className="my-6" />
-          
-          <div>
-            <OrganizationsList
-              title="Your Organizations"
-              organizations={organizations}
-            />
           </div>
         </TabsContent>
         

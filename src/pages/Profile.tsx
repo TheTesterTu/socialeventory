@@ -27,10 +27,6 @@ const Profile = () => {
       try {
         setLoading(true);
         
-        // In a real app, we would fetch real events from the database
-        // Here we're simulating it with a delay
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
         // Fetch user events from database
         const { data, error } = await supabase
           .from('events')
@@ -39,7 +35,6 @@ const Profile = () => {
           
         if (error) throw error;
         
-        // Use the data if available, otherwise use mock data
         if (data && data.length > 0) {
           const mappedEvents = data.map(event => mapDatabaseEventToEvent(event));
           setEvents(mappedEvents);
@@ -132,10 +127,6 @@ const Profile = () => {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Saved Events</span>
                   <span className="font-medium">{savedEvents.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Organizations</span>
-                  <span className="font-medium">2</span>
                 </div>
               </div>
             </Card>
