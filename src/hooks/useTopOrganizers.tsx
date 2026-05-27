@@ -6,6 +6,7 @@ interface TopOrganizer {
   name: string;
   avatar: string | null;
   events: number;
+  likes: number;
   role: string;
   type: string;
 }
@@ -21,15 +22,25 @@ export const useTopOrganizers = (limit: number = 4) => {
         setLoading(true);
         setError(null);
 
-        // Get users with their roles from user_roles table
-        const { data: userRoles, error: rolesError } = await supabase
-          .from('user_roles')
-          .select('user_id, role')
-          .in('role', ['admin', 'moderator']);
+        const { data: events, error: eventsError } = await supabase
+          .from('events')
+          .select('created_by, likes')
+          .not('created_by', 'is', null);
 
-        if (rolesError) throw rolesError;
+        if (eventsError) throw eventsError;
 
-        const userIds = userRoles?.map(r => r.user_id) || [];
+        const organizerStats = new Map<string, { events: number; likes: number }>();
+
+        (events || []).forEach((event) => {
+          if (!event.created_by) return;
+          const current = organizerStats.get(event.created_by) || { events: 0, likes: 0 };
+          organizerStats.set(event.created_by, {
+            events: current.events + 1,
+            likes: current.likes + (event.likes || 0),
+          });
+        });
+
+        const userIds = Array.from(organizerStats.keys());
 
         if (userIds.length === 0) {
           setOrganizers([]);
@@ -44,31 +55,22 @@ export const useTopOrganizers = (limit: number = 4) => {
         if (profilesError) throw profilesError;
 
         if (profiles && profiles.length > 0) {
-          // Get event counts for each user
-          const organizersWithCounts = await Promise.all(
-            profiles.map(async (profile) => {
-              const { count } = await supabase
-                .from('events')
-                .select('*', { count: 'exact', head: true })
-                .eq('created_by', profile.id);
-
-              const userRole = userRoles?.find(r => r.user_id === profile.id)?.role || 'user';
+          const filteredOrganizers = profiles
+            .map((profile) => {
+              const stats = organizerStats.get(profile.id) || { events: 0, likes: 0 };
 
               return {
                 id: profile.id,
-                name: profile.full_name || profile.username || 'Anonymous',
+                name: profile.full_name || profile.username || 'Organizer',
                 avatar: profile.avatar_url,
-                events: count || 0,
-                role: userRole === 'admin' ? 'Administrator' : 'Event Organizer',
-                type: userRole === 'admin' ? 'Featured' : count && count > 5 ? 'Popular' : 'Rising'
+                events: stats.events,
+                likes: stats.likes,
+                role: 'Event organizer',
+                type: stats.events > 5 ? 'Frequent host' : 'Active host'
               };
             })
-          );
-
-          // Filter and sort by event count
-          const filteredOrganizers = organizersWithCounts
             .filter(org => org.events > 0)
-            .sort((a, b) => b.events - a.events)
+            .sort((a, b) => b.events - a.events || b.likes - a.likes)
             .slice(0, limit);
 
           setOrganizers(filteredOrganizers);
