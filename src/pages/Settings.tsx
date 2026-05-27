@@ -7,13 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { AdminTools } from "@/components/admin/AdminTools";
-import { useAuth } from "@/contexts/AuthContext";
 import { useSecureAdmin } from "@/hooks/useSecureAdmin";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
 
 const Settings = () => {
-  const { user } = useAuth();
   const { isAdmin, loading: adminLoading } = useSecureAdmin();
 
   return (
