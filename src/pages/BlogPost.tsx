@@ -21,6 +21,19 @@ const BlogPost = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
+
+  const relatedPosts = useMemo(() => {
+    if (!post) return [];
+
+    return allPosts
+      .filter(p => p.slug !== slug)
+      .filter(p => p.category.some(cat => post.category.includes(cat)))
+      .slice(0, 3);
+  }, [allPosts, post, slug]);
+
+  const sanitizedContent = useMemo(() => {
+    return post ? sanitizeHtml(post.content) : "";
+  }, [post]);
   
   if (postLoading) {
     return (
@@ -56,16 +69,8 @@ const BlogPost = () => {
     return <NotFound />;
   }
 
-  const relatedPosts = allPosts
-    .filter(p => p.slug !== slug)
-    .filter(p => p.category.some(cat => post.category.includes(cat)))
-    .slice(0, 3);
-  
   const publishedDate = new Date(post.publishedAt);
   const formattedDate = format(publishedDate, 'MMMM dd, yyyy');
-  
-  // Sanitize blog content to prevent XSS attacks
-  const sanitizedContent = useMemo(() => sanitizeHtml(post.content), [post.content]);
   
   return (
     <AppLayout>
