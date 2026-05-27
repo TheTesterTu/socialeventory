@@ -93,8 +93,7 @@ export const QuickCategories = () => {
       <div className="section-container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="space-y-10"
         >
@@ -127,8 +126,7 @@ export const QuickCategories = () => {
                 <motion.button
                   key={category.name}
                   initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                   onClick={() => handleCategoryClick(category.name)}
                   className="card-interactive p-5 flex flex-col items-center text-center gap-3 group"
