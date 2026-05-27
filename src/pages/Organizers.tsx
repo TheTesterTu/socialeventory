@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { motion } from "framer-motion";
-import { Search, MapPin, Calendar, Users, Star, Award } from "lucide-react";
+import { Search, MapPin, Calendar, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -129,9 +129,6 @@ const Organizers = () => {
                            {getOrganizerInitials(organizer.name)}
                          </AvatarFallback>
                        </Avatar>
-                       <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1">
-                         <Award className="h-3 w-3 text-white" />
-                       </div>
                      </div>
                      
                      <div className="space-y-2">
@@ -145,7 +142,7 @@ const Organizers = () => {
 
                    <CardContent className="space-y-4">
                      <p className="text-sm text-muted-foreground line-clamp-2">
-                       Event organizer passionate about creating memorable experiences.
+                        Hosting community events on SceneLink.
                      </p>
 
                      <div className="flex flex-wrap gap-1">
@@ -160,23 +157,20 @@ const Organizers = () => {
                          <div className="text-muted-foreground">Events</div>
                        </div>
                        <div className="text-center">
-                         <div className="font-semibold text-primary">{organizer.events * 12}</div>
+                          <div className="font-semibold text-primary">{organizer.likes}</div>
                          <div className="text-muted-foreground">Likes</div>
                        </div>
                      </div>
 
                      <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-1">
-                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                         <span className="text-sm font-medium">5.0</span>
-                       </div>
+                        <Badge variant="outline">{organizer.type}</Badge>
                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
                          <Calendar className="h-3 w-3" />
                          Active organizer
                        </div>
                      </div>
 
-                     <Link to={`/organizer/${organizer.id}`}>
+                      <Link to={`/organizers/${organizer.id}`}>
                        <Button className="w-full gradient-primary">
                          View Profile
                        </Button>
