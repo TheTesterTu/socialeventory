@@ -77,8 +77,7 @@ export const TrustIndicators = () => {
     <section className="section-container">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="py-8 border-y border-border"
       >
@@ -87,8 +86,7 @@ export const TrustIndicators = () => {
             <motion.div
               key={item.label}
               initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               className="text-center space-y-2"
             >

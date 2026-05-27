@@ -21,8 +21,7 @@ export const ModernEventCard = ({ event, index = 0, variant = "default" }: Moder
     <Link to={`/events/${event.id}`}>
       <motion.article
         initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: index * 0.05 }}
         className={cn(
           "group card-interactive overflow-hidden h-full rounded-lg",
