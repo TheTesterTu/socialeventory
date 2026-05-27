@@ -8,13 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { AdminTools } from "@/components/admin/AdminTools";
 import { useAuth } from "@/contexts/AuthContext";
-import { isAdminUser } from "@/utils/adminAccess";
+import { useSecureAdmin } from "@/hooks/useSecureAdmin";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
 
 const Settings = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const { isAdmin, loading: adminLoading } = useSecureAdmin();
 
   return (
     <AppLayout pageTitle="Settings" pageDescription="Manage your account and application preferences">
@@ -206,7 +206,7 @@ const Settings = () => {
           </TabsContent>
         </Tabs>
         
-        {isAdminUser(user) && (
+        {!adminLoading && isAdmin && (
           <div className="pt-6 border-t border-border/40">
             <AdminTools />
           </div>
