@@ -1,4 +1,3 @@
-
 import { HomeHero } from "@/components/home/HomeHero";
 import { FeaturedEvents } from "@/components/home/FeaturedEvents";
 import { QuickCategories } from "@/components/home/QuickCategories";
@@ -9,17 +8,21 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { QueryErrorBoundary } from "@/components/error/QueryErrorBoundary";
 import { Suspense } from "react";
 import { PageLoader } from "@/components/loading/PageLoader";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <SEOHead 
+    <AppLayout
+      pageTitle="SceneLink - Discover Events Worth Attending"
+      pageDescription="Find concerts, workshops, exhibitions and more. Connect with your community through SceneLink."
+    >
+      <SEOHead
         title="SceneLink - Discover Events Worth Attending"
         description="Find concerts, workshops, exhibitions and more. Connect with your community through SceneLink."
       />
-      
+
       <HomeHero />
-      
+
       <QueryErrorBoundary>
         <Suspense fallback={<PageLoader message="Loading events..." />}>
           <TrustIndicators />
@@ -29,7 +32,7 @@ const Index = () => {
           <CallToAction />
         </Suspense>
       </QueryErrorBoundary>
-    </div>
+    </AppLayout>
   );
 };
 
